@@ -1,0 +1,30 @@
+opam-version: "2.0"
+maintainer: "SGrondin"
+authors: [
+  "SGrondin"
+]
+synopsis: "SGrondin"
+description: """
+SGrondin
+"""
+license: "SGrondin"
+tags: []
+homepage: "https://github.com/SGrondin/botwr"
+doc: "https://github.com/SGrondin/botwr"
+bug-reports: "https://github.com/SGrondin/botwr/issues"
+depends: [
+  "ocaml" { = "4.10.0"}
+  "dune" { >= "2.0.0"}
+
+  "ocaml-lsp-server"
+  "ocamlformat" { = "0.15.0" }
+
+  "core" { >= "v0.14.0" }
+  "ppx_expect"
+
+  "conf-libev"
+  "lwt" { >= "5.2.0" & < "6.0.0" }
+
+  "yojson"
+  "ppx_deriving_yojson"
+]

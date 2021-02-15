@@ -1,0 +1,10 @@
+(env
+  (dev
+    (flags (:standard -warn-error -A))
+    (ocamlopt_flags -Oclassic -unboxed-types)
+  )
+  (release
+    (flags (:standard -warn-error +A))
+    (ocamlopt_flags -O3 -unbox-closures -unboxed-types)
+  )
+)

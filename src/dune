@@ -1,0 +1,14 @@
+(executable
+  (name app)
+  (libraries
+    recipes
+
+    core
+    lwt
+    lwt.unix
+  )
+  (preprocess (pps
+    ppx_jane
+  ))
+  (modes exe)
+)

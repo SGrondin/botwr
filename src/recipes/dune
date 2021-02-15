@@ -1,0 +1,11 @@
+(library
+  (name recipes)
+  (inline_tests)
+  (libraries
+    core
+  )
+  (preprocess (pps
+    ppx_jane
+    ppx_expect
+  ))
+)
