@@ -1,5 +1,4 @@
 open! Core_kernel
-module GMap = Map.Make (Glossary)
 
 module Hearts = struct
   type t =
@@ -53,10 +52,11 @@ type t =
 
 let cook glossary =
   let map =
-    List.fold glossary ~init:GMap.empty ~f:(GMap.update ~f:(Option.value_map ~default:1 ~f:succ))
+    List.fold glossary ~init:Glossary.Map.empty
+      ~f:(Glossary.Map.update ~f:(Option.value_map ~default:1 ~f:succ))
   in
   let ingredients =
-    GMap.fold map ~init:[] ~f:(fun ~key:g ~data:count acc ->
+    Glossary.Map.fold map ~init:[] ~f:(fun ~key:g ~data:count acc ->
         Ingredient.merge (Glossary.to_ingredient g) ~count :: acc)
   in
   match List.reduce ingredients ~f:Ingredient.combine with

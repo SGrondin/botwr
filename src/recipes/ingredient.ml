@@ -81,7 +81,7 @@ module Effect = struct
     | Sneaky     of Activity.t
     | Mighty     of Activity.t
     | Tough      of Activity.t
-  [@@deriving sexp, compare]
+  [@@deriving sexp, compare, variants]
 
   let merge ~count = function
   | Nothing -> Nothing
@@ -125,15 +125,48 @@ module Effect = struct
        |(Enduring _ as x) ->
         x
       | Spicy x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Chilly x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Electro x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Fireproof x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Hasty x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Sneaky x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Mighty x -> Spicy { x with duration = Duration.combine dur x.duration }
-      | Tough x -> Spicy { x with duration = Duration.combine dur x.duration }
+      | Chilly x -> Chilly { x with duration = Duration.combine dur x.duration }
+      | Electro x -> Electro { x with duration = Duration.combine dur x.duration }
+      | Fireproof x -> Fireproof { x with duration = Duration.combine dur x.duration }
+      | Hasty x -> Hasty { x with duration = Duration.combine dur x.duration }
+      | Sneaky x -> Sneaky { x with duration = Duration.combine dur x.duration }
+      | Mighty x -> Mighty { x with duration = Duration.combine dur x.duration }
+      | Tough x -> Tough { x with duration = Duration.combine dur x.duration }
     )
     | _ -> Nothing
+
+  module Kind = struct
+    type t =
+      | Nothing
+      | Neutral
+      | Hearty
+      | Energizing
+      | Enduring
+      | Spicy
+      | Chilly
+      | Electro
+      | Fireproof
+      | Hasty
+      | Sneaky
+      | Mighty
+      | Tough
+    [@@deriving sexp, compare]
+  end
+
+  let to_kind : t -> Kind.t = function
+  | Nothing -> Nothing
+  | Neutral _ -> Neutral
+  | Hearty _ -> Hearty
+  | Energizing _ -> Energizing
+  | Enduring _ -> Enduring
+  | Spicy _ -> Spicy
+  | Chilly _ -> Chilly
+  | Electro _ -> Electro
+  | Fireproof _ -> Fireproof
+  | Hasty _ -> Hasty
+  | Sneaky _ -> Sneaky
+  | Mighty _ -> Mighty
+  | Tough _ -> Tough
 end
 
 module Category = struct
