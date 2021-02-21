@@ -44,7 +44,7 @@ let%expect_test "Combinations" =
   let test r ll =
     Combinations.Basic.generate r ll
     |> Combinations.Basic.Table.keys
-    |> Combinations.string_of_recipe_list
+    |> Combinations.Recipe.to_string_many
     |> print_endline
   in
   let open Glossary in

@@ -1,24 +1,28 @@
 open! Core
 
-type recipe = int Glossary.Map.t [@@deriving sexp, compare]
+(* A recipe is a collection of ingredients and how many times to use each *)
+module Recipe = struct
+  type t = int Glossary.Map.t [@@deriving sexp, compare]
 
-let string_of_recipe recipe =
-  Glossary.Map.to_alist recipe
-  |> List.map ~f:(function
-       | k, 1 -> Glossary.Variants.to_name k
-       | k, v -> sprintf !"%{Glossary.Variants.to_name} x%d" k v)
-  |> List.sort ~compare:String.compare
-  |> String.concat ~sep:", "
+  let to_string recipe =
+    Glossary.Map.to_alist recipe
+    |> List.map ~f:(function
+         | k, 1 -> Glossary.Variants.to_name k
+         | k, v -> sprintf !"%{Glossary.Variants.to_name} x%d" k v)
+    |> List.sort ~compare:String.compare
+    |> String.concat ~sep:", "
 
-let string_of_recipe_list ll =
-  List.map ll ~f:string_of_recipe
-  |> List.sort ~compare:String.compare
-  |> List.mapi ~f:(sprintf "%d. %s")
-  |> String.concat ~sep:"\n"
+  let to_string_many ll =
+    List.map ll ~f:to_string
+    |> List.sort ~compare:String.compare
+    |> List.mapi ~f:(sprintf "%d. %s")
+    |> String.concat ~sep:"\n"
+end
 
 module Basic = struct
+  (* The output of the basic combinations is deduped *)
   module Table = Hashtbl.Make (struct
-    type t = recipe [@@deriving sexp, compare]
+    type t = Recipe.t [@@deriving sexp, compare]
 
     let hash map =
       Glossary.Map.fold map ~init:(Hash.create ()) ~f:(fun ~key ~data acc ->
@@ -44,7 +48,7 @@ end
 
 module Advanced = struct
   module Recipes = Map.Make (struct
-    type t = int Glossary.Map.t [@@deriving sexp, compare]
+    type t = Recipe.t [@@deriving sexp, compare]
   end)
 
   module Every = Map.Make (struct
