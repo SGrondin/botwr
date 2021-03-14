@@ -7,10 +7,11 @@ module Hearts = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts = function
-  | Nothing -> 0
-  | Restores x -> x
-  | Full_plus_bonus x -> max_hearts + x
+  let score ~max_hearts ~factor = function
+  | Nothing
+   |Restores _ ->
+    0
+  | Full_plus_bonus x -> (max_hearts + x) * factor
 end
 
 module Stamina = struct
@@ -20,10 +21,10 @@ module Stamina = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_stamina = function
+  let score ~max_stamina ~factor = function
   | Nothing -> 0
-  | Restores x -> x
-  | Full_plus_bonus x -> max_stamina + x
+  | Restores x -> x * factor
+  | Full_plus_bonus x -> (max_stamina + x) * factor
 end
 
 module Effect = struct
@@ -45,7 +46,7 @@ module Effect = struct
     | Tough     of bonus
   [@@deriving sexp, compare, equal]
 
-  let score = function
+  let score ~factor = function
   | Nothing -> 0
   | Spicy { potency; duration }
    |Chilly { potency; duration }
@@ -55,7 +56,7 @@ module Effect = struct
    |Sneaky { potency; duration }
    |Mighty { potency; duration }
    |Tough { potency; duration } ->
-    potency * duration
+    potency * (duration / 30) * factor
 end
 
 module Meal = struct
@@ -63,12 +64,16 @@ module Meal = struct
     hearts: Hearts.t;
     stamina: Stamina.t;
     effect: Effect.t;
+    num_ingredients: int;
   }
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts ~max_stamina = function
-  | { hearts; stamina; effect } ->
-    Hearts.score ~max_hearts hearts + Stamina.score ~max_stamina stamina + Effect.score effect
+  let score ~max_hearts ~max_stamina ~factor = function
+  | { hearts; stamina; effect; num_ingredients } ->
+    Hearts.score ~max_hearts ~factor hearts
+    + Stamina.score ~max_stamina ~factor stamina
+    + Effect.score effect ~factor
+    - num_ingredients
 end
 
 type t =
@@ -79,9 +84,9 @@ type t =
 [@@deriving sexp, compare, equal]
 
 let cook map =
-  let ingredients =
-    Glossary.Map.fold map ~init:[] ~f:(fun ~key:g ~data:count acc ->
-        Ingredient.merge (Glossary.to_ingredient g) ~count :: acc)
+  let ingredients, num_ingredients =
+    Glossary.Map.fold map ~init:([], 0) ~f:(fun ~key:g ~data:count (acc, i) ->
+        Ingredient.merge (Glossary.to_ingredient g) ~count :: acc, i + 1)
   in
   match List.reduce ingredients ~f:Ingredient.combine with
   | None -> Failed "No ingredients"
@@ -125,8 +130,8 @@ let cook map =
       | Tough { potency; duration; _ } -> Tough { potency; duration = convert_duration duration }
     in
     match res.category with
-    | Food -> Food { hearts; stamina; effect }
-    | Elixir -> Elixir { hearts; stamina; effect }
+    | Food -> Food { hearts; stamina; effect; num_ingredients }
+    | Elixir -> Elixir { hearts; stamina; effect; num_ingredients }
     | _ -> Dubious
   )
 
@@ -151,38 +156,42 @@ module Compute = struct
 
   open Combinations
 
-  let combine list = Advanced.generate 5 list
-
-  let best ~max_hearts ~max_stamina combinations =
-    Advanced.best combinations ~score:(fun (recipe : Recipe.t) ->
-        match cook recipe with
-        | Food meal
-         |Elixir meal ->
-          Meal.score ~max_hearts ~max_stamina meal
-        | Dubious
-         |Failed _ ->
-          -1000)
-
-  type timings = {
-    t_filter: Int64.t;
-    t_combine: Int64.t;
-    t_count: Int64.t;
-    t_cook: Int64.t;
-  }
-  [@@deriving sexp]
+  let combine ~max_hearts ~max_stamina ~factor list =
+    let cache = Int.Table.create () in
+    let init = (0, Advanced.Recipes.Map.empty), 0 in
+    let f (((best_score, _) as best), i) (recipes : Advanced.Recipes.t) =
+      let score =
+        Advanced.Recipes.Map.fold ~init:0 recipes ~f:(fun ~key ~data:{ recipe; num } acc ->
+            let score =
+              Int.Table.find_or_add cache key ~default:(fun () ->
+                  match cook recipe with
+                  | Food meal
+                   |Elixir meal ->
+                    Meal.score ~max_hearts ~max_stamina ~factor meal
+                  | Dubious
+                   |Failed _ ->
+                    -1000)
+            in
+            (score * num) + acc)
+      in
+      if score > best_score then (score, recipes), i + 1 else best, i + 1
+    in
+    Advanced.generate ~init ~f 5 list
 
   type t = {
     score: int;
     count: int;
     best: Advanced.Recipes.book Advanced.Recipes.Map.t;
-    timings: timings;
+    duration: Int64.t;
   }
   [@@deriving sexp]
 
-  let to_string { score; count; best; timings } =
+  let to_string { score; count; best; duration } =
     sprintf
-      !"Best out of %d with %d points:\n%{Combinations.Advanced.Recipes}\nTimings: %{sexp: timings}"
-      count score best timings
+      !"Best of %d with %d points (%Lds) :\n%{Combinations.Advanced.Recipes}"
+      count score
+      Int64.(duration / 1_000_000L)
+      best
 
   let time () = ref (Time_now.nanoseconds_since_unix_epoch () |> Int63.to_int64)
 
@@ -190,17 +199,11 @@ module Compute = struct
     let t0 = !r in
     let t1 = Time_now.nanoseconds_since_unix_epoch () |> Int63.to_int64 in
     r := t1;
-    Int64.((t1 - t0) / 1_000_000L)
+    Int64.((t1 - t0) / 1_000L)
 
-  let run ~max_hearts ~max_stamina ~kind items =
+  let run ~max_hearts ~max_stamina ~factor ~kind items =
     let r = time () in
-    let list = filter ~kind items in
-    let t_filter = diff_time r in
-    let combinations = combine list in
-    let t_combine = diff_time r in
-    let count = Advanced.count combinations in
-    let t_count = diff_time r in
-    let score, best = best ~max_hearts ~max_stamina combinations in
-    let t_cook = diff_time r in
-    { score; count; best; timings = { t_filter; t_combine; t_count; t_cook } }
+    let (score, best), count = filter ~kind items |> combine ~max_hearts ~max_stamina ~factor in
+    let duration = diff_time r in
+    { score; count; best; duration }
 end

@@ -190,6 +190,101 @@ module Map = Map.Make (Self)
 module Table = Hashtbl.Make (Self)
 include Self
 
+let has_effect = function
+| Palm_fruit
+ |Apple
+ |Wildberry
+ |Hylian_shroom
+ |Hyrule_herb
+ |Hyrule_bass
+ |Sanke_carp
+ |Raw_gourmet_meat
+ |Raw_whole_bird
+ |Raw_prime_meat
+ |Raw_bird_thigh
+ |Raw_meat
+ |Raw_bird_drumstick
+ |Bird_egg
+ |Fresh_milk
+ |Acorn
+ |Chickaloo_tree_nut
+ |Hylian_rice
+ |Tabantha_wheat
+ |Cane_sugar
+ |Goat_butter
+ |Goron_spice
+ |Rock_salt ->
+  false
+| Hearty_truffle
+ |Hearty_bass
+ |Hearty_radish
+ |Hearty_blueshel_snail
+ |Hearty_durian
+ |Big_hearty_truffle
+ |Hearty_salmon
+ |Hearty_lizard
+ |Big_hearty_radish
+ |Stamella_shroom
+ |Restless_cricket
+ |Courser_bee_honey
+ |Bight_eyed_crab
+ |Staminoka_bass
+ |Energetic_rhino_beetle
+ |Endura_shroom
+ |Tireless_frog
+ |Endura_carrot
+ |Spicy_pepper
+ |Warm_safflina
+ |Summerswing_butterfly
+ |Sunshroom
+ |Warm_darner
+ |Sizzlefin_trout
+ |Hydromelon
+ |Cool_safflina
+ |Winterwing_butterfly
+ |Chillshroom
+ |Cold_darner
+ |Chillfin_trout
+ |Voltfruit
+ |Electric_safflina
+ |Thunderwing_butterfly
+ |Zapshroom
+ |Electric_darner
+ |Voltfin_trout
+ |Fireproof_lizard
+ |Smotherwing_butterfly
+ |Rushroom
+ |Swift_carrot
+ |Hightail_lizard
+ |Fleet_lotus_seeds
+ |Swift_violet
+ |Hot_footed_frog
+ |Blue_nightshade
+ |Sneaky_river_snail
+ |Sunset_firefly
+ |Silent_shroom
+ |Stealthfin_trout
+ |Silent_princess
+ |Mighty_thistle
+ |Bladed_rhino_beetle
+ |Mighty_bananas
+ |Razorshroom
+ |Mighty_carp
+ |Razorclaw_crab
+ |Mighty_porgy
+ |Armoranth
+ |Rugged_rhino_beetle
+ |Fortified_pumpkin
+ |Ironshroom
+ |Armored_carp
+ |Ironshell_crab
+ |Armored_porgy ->
+  true
+| Monster_horn
+ |Monster_fang
+ |Monster_guts ->
+  false
+
 let to_ingredient = function
 | Palm_fruit -> make_food 2 30
 | Apple -> make_food 1 30

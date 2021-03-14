@@ -54,7 +54,6 @@ end
 module Advanced = struct
   module Recipes = struct
     module Map = Int.Map
-    module Table = Int.Table
 
     type book = {
       recipe: Recipe.t;
@@ -73,56 +72,36 @@ module Advanced = struct
       Map.data map
       |> List.map ~f:(fun { recipe; num } -> sprintf "-- %dx -- %s" num (Recipe.to_string recipe))
       |> String.concat ~sep:"\n"
-
-    let best cache map ~score =
-      Map.fold map ~init:0 ~f:(fun ~key ~data:{ recipe; num } acc ->
-          let score_of_one = Table.find_or_add cache key ~default:(fun () -> score recipe) in
-          (score_of_one * num) + acc)
   end
 
-  module Every = struct
-    module Table = Int.Table
-  end
-
-  let to_string t =
-    t
-    |> Every.Table.data
-    |> List.map ~f:Recipes.to_string
-    |> String.concat ~sep:"\n-------------------------------\n"
-
-  let count t = Every.Table.length t
-
-  let best t ~score =
-    let cache = Recipes.Table.create () in
-    Every.Table.fold t ~init:(0, Recipes.Map.empty) ~f:(fun ~key:_ ~data ((best_score, _) as best) ->
-        let new_score = Recipes.best cache data ~score in
-        if new_score > best_score then new_score, data else best)
-
-  let rec sideloop r dn t all acc = function
+  let rec sideloop r dn t ~f all (has_effect, map) = function
   | x :: rest ->
-    downloop r dn t all (Glossary.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ)) rest;
-    (sideloop [@tailcall]) r dn t all acc rest
+    let has_effect = Glossary.has_effect x || has_effect in
+    downloop r dn t ~f all
+      (has_effect, Glossary.Map.update map x ~f:(Option.value_map ~default:1 ~f:succ))
+      rest;
+    (sideloop [@tailcall]) r dn t ~f all (has_effect, map) rest
   | _ -> ()
 
-  and downloop r dn t all acc = function
-  | items when dn = 0 ->
+  and downloop r dn t ~f all ((has_effect, map) as acc) = function
+  | items when dn = 0 && has_effect ->
     let recipes =
-      Recipes.Map.update all (Recipe.hash acc) ~f:(function
-        | None -> Recipes.{ recipe = acc; num = 1 }
+      Recipes.Map.update all (Recipe.hash map) ~f:(function
+        | None -> Recipes.{ recipe = map; num = 1 }
         | Some x -> Recipes.{ x with num = x.num + 1 })
     in
-    (toploop [@tailcall]) r r t recipes items
-  | items -> (sideloop [@tailcall]) r (dn - 1) t all acc items
+    (toploop [@tailcall]) r r t ~f recipes items
+  | items -> (sideloop [@tailcall]) r (dn - 1) t ~f all acc items
 
-  and toploop r tn t all = function
-  | [] -> Every.Table.set t ~key:(Recipes.hash all) ~data:all
+  and toploop r tn t ~f all = function
+  | [] -> t := f !t all
   | items when tn > 0 ->
-    downloop r tn t all Glossary.Map.empty items;
-    (toploop [@tailcall]) r (tn - 1) t all items
+    downloop r tn t ~f all (false, Glossary.Map.empty) items;
+    (toploop [@tailcall]) r (tn - 1) t ~f all items
   | _ -> ()
 
-  let generate r items =
-    let t = Every.Table.create ~size:10_000 () in
-    toploop r r t Recipes.Map.empty items;
-    t
+  let generate ~init ~f r items =
+    let t = ref init in
+    toploop r r t ~f Recipes.Map.empty items;
+    !t
 end
