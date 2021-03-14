@@ -183,10 +183,11 @@ module Self = struct
      | Yellow_lizalfos_tail
      | Ancient_core
      | Giant_ancient_core *)
-  [@@deriving sexp, compare, hash, variants]
+  [@@deriving sexp, compare, hash, variants, enumerate]
 end
 
 module Map = Map.Make (Self)
+module Table = Hashtbl.Make (Self)
 include Self
 
 let to_ingredient = function
@@ -280,3 +281,7 @@ let to_ingredient = function
 | Monster_horn -> make_monster (1, 10)
 | Monster_fang -> make_monster (1, 50)
 | Monster_guts -> make_monster (3, 10)
+
+let mapped = Array.of_list_map all ~f:to_ingredient
+
+let to_ingredient x = mapped.(Variants.to_rank x)

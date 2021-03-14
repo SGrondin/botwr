@@ -42,16 +42,16 @@ module Basic = struct
   | _ when dn = 0 -> Table.set t ~key:acc ~data:()
   | items -> (sideloop [@tailcall]) (dn - 1) t acc items
 
-  let generate r items =
-    let t = Table.create ~size:((r + 1) / 2) () in
+  let generate ?(t = Table.create ()) r items =
     downloop r t Glossary.Map.empty items;
     t
+
+  let generate_all r items =
+    List.init r ~f:(( + ) 1)
+    |> List.fold ~init:(Table.create ()) ~f:(fun acc r -> generate ~t:acc r items)
 end
 
 module Advanced = struct
-  (* module Recipes = Map.Make (struct
-       type t = Recipe.t [@@deriving sexp, compare]
-     end) *)
   module Recipes = struct
     module Map = Int.Map
 
@@ -68,12 +68,8 @@ module Advanced = struct
       |> Hash.get_hash_value
   end
 
-  (* module Every = Map.Make (struct
-       type t = int Recipes.Map.t [@@deriving sexp, compare]
-     end) *)
-
   module Every = struct
-    module Map = Int.Map
+    module Table = Int.Table
   end
 
   let rec sideloop r dn t all acc = function
@@ -85,30 +81,22 @@ module Advanced = struct
   and downloop r dn t all acc = function
   | items when dn = 0 ->
     let recipes =
-      Recipes.Map.update all (Recipe.hash acc)
-        ~f:
-          (Option.value_map
-             ~default:Recipes.{ recipe = acc; num = 1 }
-             ~f:(fun x -> Recipes.{ x with num = x.num + 1 }))
+      Recipes.Map.update all (Recipe.hash acc) ~f:(function
+        | None -> Recipes.{ recipe = acc; num = 1 }
+        | Some x -> Recipes.{ x with num = x.num + 1 })
     in
-    toploop r r t recipes items
+    (toploop [@tailcall]) r r t recipes items
   | items -> (sideloop [@tailcall]) r (dn - 1) t all acc items
 
   and toploop r tn t all = function
-  | [] -> (
-    match Every.Map.add !t ~key:(Recipes.hash all) ~data:all with
-    | `Ok x -> t := x
-    | `Duplicate ->
-      (* print_endline (sprintf !"!!!!!!! %{sexp: int Recipes.t}" all) *)
-      ()
-  )
-  | items when tn > 2 ->
+  | [] -> Every.Table.set t ~key:(Recipes.hash all) ~data:all
+  | items when tn > 0 ->
     downloop r tn t all Glossary.Map.empty items;
     (toploop [@tailcall]) r (tn - 1) t all items
   | _ -> ()
 
   let generate r items =
-    let t = ref Every.Map.empty in
+    let t = Every.Table.create ~size:10_000 () in
     toploop r r t Recipes.Map.empty items;
-    !t
+    t
 end

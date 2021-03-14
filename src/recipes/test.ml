@@ -40,6 +40,21 @@ let%expect_test "List of ingredients" =
      ((hearts Nothing) (stamina Nothing)
       (effect (Mighty ((potency 1) (duration 260)))))) |}]
 
+let%expect_test "Hashing" =
+  let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in
+  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1; Apple, 1 ]);
+  [%expect {| 374989641 |}];
+  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 2 ]);
+  [%expect {| 374989641 |}];
+  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1 ]);
+  [%expect {| 877695341 |}];
+  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1; Palm_fruit, 1 ]);
+  [%expect {| 209963781 |}];
+  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Palm_fruit, 1; Apple, 1 ]);
+  [%expect {| 209963781 |}];
+  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Palm_fruit, 1 ]);
+  [%expect {| 1002037630 |}]
+
 let%expect_test "Combinations" =
   let test r ll =
     Combinations.Basic.generate r ll
@@ -138,68 +153,295 @@ let%expect_test "Combinations" =
   test 6 list3;
   [%expect {||}]
 
-(* 
+let%expect_test "All basic combinations" =
+  let test r ll =
+    Combinations.Basic.generate_all r ll
+    |> Combinations.Basic.Table.keys
+    |> Combinations.Recipe.to_string_many
+    |> print_endline
+  in
+  let count r ll =
+    Combinations.Basic.generate_all r ll
+    |> Combinations.Basic.Table.length
+    |> Int.to_string
+    |> print_endline
+  in
+  test 3 [ Apple; Apple; Palm_fruit; Goat_butter ];
+  [%expect
+    {|
+    0. Apple
+    1. Apple x2
+    2. Apple x2, Goat_butter
+    3. Apple x2, Palm_fruit
+    4. Apple, Goat_butter
+    5. Apple, Goat_butter, Palm_fruit
+    6. Apple, Palm_fruit
+    7. Goat_butter
+    8. Goat_butter, Palm_fruit
+    9. Palm_fruit |}];
+  count 5
+    [
+      Apple;
+      Cane_sugar;
+      Apple;
+      Cane_sugar;
+      Apple;
+      Cane_sugar;
+      Raw_prime_meat;
+      Raw_bird_thigh;
+      Raw_meat;
+      Raw_bird_drumstick;
+      Bird_egg;
+      Fresh_milk;
+      Acorn;
+      Chickaloo_tree_nut;
+      Hylian_rice;
+      Tabantha_wheat;
+      Cane_sugar;
+      Goat_butter;
+      Goron_spice;
+      Rock_salt;
+      Hearty_truffle;
+      Hearty_bass;
+      Hearty_radish;
+      Hearty_blueshel_snail;
+      Hearty_durian;
+      Big_hearty_truffle;
+      Hearty_salmon;
+      Apple;
+      Goat_butter;
+      Palm_fruit;
+    ];
+  [%expect {| 50557 |}]
+
 let%expect_test "Combinations of combinations" =
   let test r ll =
     Combinations.Advanced.generate r ll
-    |> Combinations.Advanced.Every.keys
+    |> Combinations.Advanced.Every.Table.data
     |> List.map ~f:(fun map ->
-           Combinations.Advanced.Recipes.to_alist map
-           |> List.map ~f:(fun (recipe, times) ->
-                  sprintf "-- %dx -- %s" times (Combinations.string_of_recipe recipe))
+           Combinations.Advanced.Recipes.Map.data map
+           |> List.map ~f:(fun { recipe; num } ->
+                  sprintf "-- %dx -- %s" num (Combinations.Recipe.to_string recipe))
            |> String.concat ~sep:"\n")
     |> String.concat ~sep:"\n-------------------------------\n"
     |> print_endline
   in
   let count r ll =
     Combinations.Advanced.generate r ll
-    |> Combinations.Advanced.Every.length
+    |> Combinations.Advanced.Every.Table.length
     |> sprintf "%d"
     |> print_endline
   in
   let open Glossary in
   let list1 = [ Apple; Cane_sugar; Apple; Goat_butter; Palm_fruit ] in
   count 5 list1;
-  [%expect {| 16 |}];
+  [%expect {| 63 |}];
   test 5 list1;
   [%expect
     {|
-    -- 1x -- Apple, Palm_fruit
-    -------------------------------
-    -- 1x -- Apple, Palm_fruit
-    -- 1x -- Apple, Cane_sugar
-    -------------------------------
-    -- 1x -- Apple, Cane_sugar, Palm_fruit
-    -------------------------------
-    -- 1x -- Apple, Cane_sugar, Goat_butter, Palm_fruit
-    -------------------------------
-    -- 1x -- Apple, Goat_butter, Palm_fruit
-    -------------------------------
-    -- 1x -- Apple, Goat_butter, Palm_fruit
-    -- 1x -- Apple, Cane_sugar
-    -------------------------------
-    -- 1x -- Apple x2, Palm_fruit
-    -------------------------------
-    -- 1x -- Apple x2, Cane_sugar, Palm_fruit
+    -- 1x -- Goat_butter, Palm_fruit
+    -- 2x -- Apple
     -------------------------------
     -- 1x -- Apple x2, Cane_sugar, Goat_butter, Palm_fruit
     -------------------------------
-    -- 1x -- Apple x2, Goat_butter, Palm_fruit
+    -- 1x -- Goat_butter
+    -- 1x -- Cane_sugar
+    -- 2x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Palm_fruit
+    -- 1x -- Cane_sugar
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Goat_butter, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple, Goat_butter
+    -- 1x -- Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar, Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple, Goat_butter, Palm_fruit
+    -- 1x -- Cane_sugar
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple, Goat_butter, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple x2, Cane_sugar, Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Goat_butter, Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter, Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple x2, Palm_fruit
+    -------------------------------
+    -- 1x -- Apple
+    -- 1x -- Cane_sugar, Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple x2
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 2x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar, Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar
+    -- 2x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar, Goat_butter, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Apple x2, Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple x2, Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar
+    -- 1x -- Goat_butter, Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Goat_butter, Palm_fruit
+    -- 1x -- Cane_sugar
     -------------------------------
     -- 1x -- Cane_sugar, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple x2, Cane_sugar, Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Goat_butter
+    -- 1x -- Cane_sugar
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar, Goat_butter, Palm_fruit
+    -- 1x -- Apple
     -------------------------------
     -- 1x -- Cane_sugar, Goat_butter, Palm_fruit
     -------------------------------
-    -- 1x -- Goat_butter, Palm_fruit
+    -- 1x -- Apple, Cane_sugar, Goat_butter, Palm_fruit
     -------------------------------
+    -- 1x -- Apple, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Apple, Palm_fruit
+    -- 1x -- Cane_sugar
+    -------------------------------
+    -- 1x -- Cane_sugar
     -- 1x -- Goat_butter, Palm_fruit
+    -- 2x -- Apple
+    -------------------------------
+    -- 1x -- Apple, Palm_fruit
     -- 1x -- Apple, Cane_sugar
     -------------------------------
+    -- 1x -- Apple, Goat_butter
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar, Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple x2, Goat_butter, Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Goat_butter, Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar, Goat_butter
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 2x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Goat_butter
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Cane_sugar
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar, Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar
     -- 1x -- Goat_butter, Palm_fruit
+    -- 1x -- Apple
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Cane_sugar
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple x2, Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
     -- 1x -- Apple x2
+    -- 1x -- Goat_butter, Palm_fruit
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Cane_sugar
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
     -------------------------------
     -- 1x -- Goat_butter, Palm_fruit
-    -- 1x -- Apple x2, Cane_sugar |}];
+    -- 1x -- Apple x2, Cane_sugar
+    -------------------------------
+    -- 1x -- Goat_butter
+    -- 1x -- Apple, Cane_sugar
+    -- 1x -- Apple
+    -- 1x -- Palm_fruit
+    -------------------------------
+    -- 1x -- Apple, Goat_butter, Palm_fruit
+    -- 1x -- Apple, Cane_sugar
+    -------------------------------
+    -- 1x -- Apple x2
+    -- 1x -- Goat_butter
+    -- 1x -- Palm_fruit |}];
   let list2 =
     [
       Apple;
@@ -235,4 +477,12 @@ let%expect_test "Combinations of combinations" =
     ]
   in
   count 5 list2;
-  [%expect {||}] *)
+  [%expect {| 76 |}]
+
+let%expect_test "Cooking by category" =
+  let test x = x |> Cooking.run |> sprintf !"%{sexp: Glossary.t list}" |> print_endline in
+  test Glossary.[ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 1; Mighty_carp, 1 ];
+  [%expect
+    {|
+    (Ironshell_crab Apple Apple Palm_fruit Palm_fruit Palm_fruit Palm_fruit
+     Palm_fruit) |}]

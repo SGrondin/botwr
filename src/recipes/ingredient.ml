@@ -7,7 +7,7 @@ module Duration = struct
         first: int;
         next: int;
       }
-  [@@deriving sexp, compare]
+  [@@deriving sexp, compare, hash]
 
   let merge ~count = function
   | Always x -> Always (x * count)
@@ -22,7 +22,7 @@ module Duration = struct
 end
 
 module Effect = struct
-  type scaling = int * int * int * int * int [@@deriving sexp, compare]
+  type scaling = int * int * int * int * int [@@deriving sexp, compare, hash]
 
   let scale ~count ((a, b, c, d, e) : scaling) =
     match count with
@@ -38,7 +38,7 @@ module Effect = struct
       potency: int;
       scaling: scaling;
     }
-    [@@deriving sexp, compare]
+    [@@deriving sexp, compare, hash]
 
     let merge ~count { duration; potency = _; scaling } =
       {
@@ -60,7 +60,7 @@ module Effect = struct
       bonus: int;
       scaling: scaling;
     }
-    [@@deriving sexp, compare]
+    [@@deriving sexp, compare, hash]
 
     let merge ~count { bonus = _; scaling } = { bonus = scale ~count scaling; scaling = 0, 0, 0, 0, 0 }
 
@@ -81,7 +81,7 @@ module Effect = struct
     | Sneaky     of Activity.t
     | Mighty     of Activity.t
     | Tough      of Activity.t
-  [@@deriving sexp, compare, variants]
+  [@@deriving sexp, compare, hash, variants]
 
   let merge ~count = function
   | Nothing -> Nothing
@@ -150,23 +150,8 @@ module Effect = struct
       | Sneaky
       | Mighty
       | Tough
-    [@@deriving sexp, compare]
+    [@@deriving sexp, compare, hash]
   end
-
-  let to_kind : t -> Kind.t = function
-  | Nothing -> Nothing
-  | Neutral _ -> Neutral
-  | Hearty _ -> Hearty
-  | Energizing _ -> Energizing
-  | Enduring _ -> Enduring
-  | Spicy _ -> Spicy
-  | Chilly _ -> Chilly
-  | Electro _ -> Electro
-  | Fireproof _ -> Fireproof
-  | Hasty _ -> Hasty
-  | Sneaky _ -> Sneaky
-  | Mighty _ -> Mighty
-  | Tough _ -> Tough
 end
 
 module Category = struct
@@ -177,7 +162,7 @@ module Category = struct
     | Monster
     | Elixir
     | Dubious
-  [@@deriving sexp, compare]
+  [@@deriving sexp, compare, hash]
 
   let combine left right =
     match left, right with
@@ -210,7 +195,22 @@ type t = {
   effect: Effect.t;
   category: Category.t;
 }
-[@@deriving sexp, compare]
+[@@deriving sexp, compare, hash]
+
+let to_kind : t -> Effect.Kind.t = function
+| { effect = Nothing; _ } -> Nothing
+| { effect = Neutral _; _ } -> Neutral
+| { effect = Hearty _; _ } -> Hearty
+| { effect = Energizing _; _ } -> Energizing
+| { effect = Enduring _; _ } -> Enduring
+| { effect = Spicy _; _ } -> Spicy
+| { effect = Chilly _; _ } -> Chilly
+| { effect = Electro _; _ } -> Electro
+| { effect = Fireproof _; _ } -> Fireproof
+| { effect = Hasty _; _ } -> Hasty
+| { effect = Sneaky _; _ } -> Sneaky
+| { effect = Mighty _; _ } -> Mighty
+| { effect = Tough _; _ } -> Tough
 
 let merge ({ hearts; effect; category } as ingredient) ~count =
   match count with

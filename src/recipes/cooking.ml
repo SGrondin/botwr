@@ -105,3 +105,21 @@ let cook glossary =
     | Elixir -> Elixir { hearts; stamina; effect }
     | _ -> Dubious
   )
+
+module KindMap = Map.Make (Ingredient.Effect.Kind)
+module GlossaryTable = Hashtbl.Make (Glossary)
+module IngredientTable = Hashtbl.Make (Ingredient)
+
+let run items =
+  let all = GlossaryTable.create () in
+  List.iter items ~f:(fun (x, n) ->
+      GlossaryTable.update all x ~f:(Option.value_map ~default:n ~f:(( + ) n)));
+  let armor =
+    GlossaryTable.fold all ~init:[] ~f:(fun ~key ~data acc ->
+        match key |> Glossary.to_ingredient |> Ingredient.to_kind with
+        | Neutral
+         |Tough ->
+          Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
+        | _ -> acc)
+  in
+  armor

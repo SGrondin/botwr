@@ -22,7 +22,7 @@ let () =
   let open Combinations.Advanced in
   let _test r ll =
     generate r ll
-    |> Every.Map.data
+    |> Every.Table.data
     |> List.map ~f:(fun map ->
            Recipes.Map.data map
            |> List.map ~f:(fun { recipe; num } ->
@@ -31,7 +31,7 @@ let () =
     |> String.concat ~sep:"\n-------------------------------\n"
     |> print_endline
   in
-  let count r ll = generate r ll |> Every.Map.length in
+  let count r ll = generate r ll |> Every.Table.length in
   let open Glossary in
   let list2 =
     [
@@ -49,12 +49,12 @@ let () =
       Fresh_milk;
       Acorn;
       Chickaloo_tree_nut;
-      Hylian_rice;
-      Tabantha_wheat;
-      Cane_sugar;
-      Goat_butter;
-      Goron_spice;
-      Rock_salt;
+      (* Hylian_rice;
+         Tabantha_wheat;
+         Cane_sugar;
+         Goat_butter;
+         Goron_spice;
+         Rock_salt; *)
       (* Hearty_truffle;
          Hearty_bass;
          Hearty_radish;
