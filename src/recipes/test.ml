@@ -3,7 +3,11 @@ open Cooking
 
 let%expect_test "List of ingredients" =
   let open Glossary in
-  let test ll = ll |> cook |> sprintf !"%{sexp: Cooking.t}" |> print_endline in
+  let list_to_map ll =
+    List.fold ll ~init:Glossary.Map.empty
+      ~f:(Glossary.Map.update ~f:(Option.value_map ~default:1 ~f:succ))
+  in
+  let test ll = ll |> list_to_map |> cook |> sprintf !"%{sexp: Cooking.t}" |> print_endline in
   test [];
   [%expect {| (Failed "No ingredients") |}];
   test [ Endura_shroom ];
@@ -216,21 +220,10 @@ let%expect_test "All basic combinations" =
 
 let%expect_test "Combinations of combinations" =
   let test r ll =
-    Combinations.Advanced.generate r ll
-    |> Combinations.Advanced.Every.Table.data
-    |> List.map ~f:(fun map ->
-           Combinations.Advanced.Recipes.Map.data map
-           |> List.map ~f:(fun { recipe; num } ->
-                  sprintf "-- %dx -- %s" num (Combinations.Recipe.to_string recipe))
-           |> String.concat ~sep:"\n")
-    |> String.concat ~sep:"\n-------------------------------\n"
-    |> print_endline
+    Combinations.Advanced.generate r ll |> Combinations.Advanced.to_string |> print_endline
   in
   let count r ll =
-    Combinations.Advanced.generate r ll
-    |> Combinations.Advanced.Every.Table.length
-    |> sprintf "%d"
-    |> print_endline
+    Combinations.Advanced.generate r ll |> Combinations.Advanced.count |> sprintf "%d" |> print_endline
   in
   let open Glossary in
   let list1 = [ Apple; Cane_sugar; Apple; Goat_butter; Palm_fruit ] in
@@ -480,9 +473,46 @@ let%expect_test "Combinations of combinations" =
   [%expect {| 76 |}]
 
 let%expect_test "Cooking by category" =
-  let test x = x |> Cooking.run |> sprintf !"%{sexp: Glossary.t list}" |> print_endline in
-  test Glossary.[ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 1; Mighty_carp, 1 ];
+  let max_hearts = 20 in
+  let max_stamina = 15 in
+  let data1 = Glossary.[ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 1; Mighty_carp, 1 ] in
+  let data2 =
+    Glossary.
+      [
+        Apple, 2;
+        Goat_butter, 7;
+        Tabantha_wheat, 2;
+        Stamella_shroom, 25;
+        Big_hearty_truffle, 2;
+        Raw_gourmet_meat, 3;
+      ]
+  in
+  data1 |> Cooking.Compute.filter ~kind:Tough |> sprintf !"%{sexp: Glossary.t list}" |> print_endline;
   [%expect
     {|
-    (Ironshell_crab Apple Apple Palm_fruit Palm_fruit Palm_fruit Palm_fruit
-     Palm_fruit) |}]
+    (Ironshell_crab Apple Apple Palm_fruit Palm_fruit Palm_fruit Palm_fruit) |}];
+  data1
+  |> Cooking.Compute.filter ~kind:Tough
+  |> Cooking.Compute.combine
+  |> Combinations.Advanced.count
+  |> Int.to_string
+  |> print_endline;
+  [%expect {| 255 |}];
+  let test ~kind items =
+    Cooking.Compute.run ~max_hearts ~max_stamina ~kind items |> Cooking.Compute.to_string |> print_endline
+  in
+  test ~kind:Tough data1;
+  [%expect
+    {|
+    Best out of 255 with 182 points:
+    -- 1x -- Apple x2, Ironshell_crab, Palm_fruit x2
+    -- 1x -- Palm_fruit x2
+    Timings: ((t_filter 0) (t_combine 0) (t_count 0) (t_cook 0)) |}];
+  test ~kind:Energizing data2;
+  [%expect {|
+    Best out of 340170 with 36 points:
+    -- 1x -- Apple x2
+    -- 2x -- Raw_gourmet_meat
+    -- 1x -- Stamella_shroom x5
+    -- 1x -- Raw_gourmet_meat, Tabantha_wheat x2
+    Timings: ((t_filter 0) (t_combine 12806) (t_count 0) (t_cook 230)) |}]

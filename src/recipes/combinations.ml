@@ -54,11 +54,13 @@ end
 module Advanced = struct
   module Recipes = struct
     module Map = Int.Map
+    module Table = Int.Table
 
     type book = {
       recipe: Recipe.t;
       num: int;
     }
+    [@@deriving sexp]
 
     type t = book Map.t
 
@@ -66,11 +68,35 @@ module Advanced = struct
       Map.fold map ~init:(Hash.create ()) ~f:(fun ~key ~data acc ->
           [%hash_fold: int] ([%hash_fold: int] acc key) data.num)
       |> Hash.get_hash_value
+
+    let to_string map =
+      Map.data map
+      |> List.map ~f:(fun { recipe; num } -> sprintf "-- %dx -- %s" num (Recipe.to_string recipe))
+      |> String.concat ~sep:"\n"
+
+    let best cache map ~score =
+      Map.fold map ~init:0 ~f:(fun ~key ~data:{ recipe; num } acc ->
+          let score_of_one = Table.find_or_add cache key ~default:(fun () -> score recipe) in
+          (score_of_one * num) + acc)
   end
 
   module Every = struct
     module Table = Int.Table
   end
+
+  let to_string t =
+    t
+    |> Every.Table.data
+    |> List.map ~f:Recipes.to_string
+    |> String.concat ~sep:"\n-------------------------------\n"
+
+  let count t = Every.Table.length t
+
+  let best t ~score =
+    let cache = Recipes.Table.create () in
+    Every.Table.fold t ~init:(0, Recipes.Map.empty) ~f:(fun ~key:_ ~data ((best_score, _) as best) ->
+        let new_score = Recipes.best cache data ~score in
+        if new_score > best_score then new_score, data else best)
 
   let rec sideloop r dn t all acc = function
   | x :: rest ->

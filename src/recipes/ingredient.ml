@@ -7,7 +7,7 @@ module Duration = struct
         first: int;
         next: int;
       }
-  [@@deriving sexp, compare, hash]
+  [@@deriving sexp, compare, equal, hash]
 
   let merge ~count = function
   | Always x -> Always (x * count)
@@ -22,7 +22,7 @@ module Duration = struct
 end
 
 module Effect = struct
-  type scaling = int * int * int * int * int [@@deriving sexp, compare, hash]
+  type scaling = int * int * int * int * int [@@deriving sexp, compare, equal, hash]
 
   let scale ~count ((a, b, c, d, e) : scaling) =
     match count with
@@ -38,7 +38,7 @@ module Effect = struct
       potency: int;
       scaling: scaling;
     }
-    [@@deriving sexp, compare, hash]
+    [@@deriving sexp, compare, equal, hash]
 
     let merge ~count { duration; potency = _; scaling } =
       {
@@ -60,7 +60,7 @@ module Effect = struct
       bonus: int;
       scaling: scaling;
     }
-    [@@deriving sexp, compare, hash]
+    [@@deriving sexp, compare, equal, hash]
 
     let merge ~count { bonus = _; scaling } = { bonus = scale ~count scaling; scaling = 0, 0, 0, 0, 0 }
 
@@ -81,7 +81,7 @@ module Effect = struct
     | Sneaky     of Activity.t
     | Mighty     of Activity.t
     | Tough      of Activity.t
-  [@@deriving sexp, compare, hash, variants]
+  [@@deriving sexp, compare, equal, hash, variants]
 
   let merge ~count = function
   | Nothing -> Nothing
@@ -150,7 +150,7 @@ module Effect = struct
       | Sneaky
       | Mighty
       | Tough
-    [@@deriving sexp, compare, hash]
+    [@@deriving sexp, compare, equal, hash]
   end
 end
 
@@ -162,7 +162,7 @@ module Category = struct
     | Monster
     | Elixir
     | Dubious
-  [@@deriving sexp, compare, hash]
+  [@@deriving sexp, compare, equal, hash]
 
   let combine left right =
     match left, right with
@@ -195,7 +195,7 @@ type t = {
   effect: Effect.t;
   category: Category.t;
 }
-[@@deriving sexp, compare, hash]
+[@@deriving sexp, compare, equal, hash]
 
 let to_kind : t -> Effect.Kind.t = function
 | { effect = Nothing; _ } -> Nothing
