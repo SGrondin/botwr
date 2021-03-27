@@ -21,13 +21,13 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 4)) (stamina (Full_plus_bonus 1)) (effect Nothing)
-      (num_ingredients 1))) |}];
+      (num_ingredients 2))) |}];
   test [ Endura_shroom; Endura_shroom; Big_hearty_radish ];
   [%expect
     {|
     (Food
      ((hearts (Restores 12)) (stamina Nothing) (effect Nothing)
-      (num_ingredients 2))) |}];
+      (num_ingredients 3))) |}];
   test [ Big_hearty_radish ];
   [%expect
     {|
@@ -47,37 +47,37 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 1)) (stamina Nothing)
-      (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 2))) |}];
+      (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 3))) |}];
   test [ Chillshroom; Chillshroom; Hydromelon; Hydromelon; Hydromelon ];
   [%expect
     {|
     (Food
      ((hearts (Restores 5)) (stamina Nothing)
-      (effect (Chilly ((potency 2) (duration 750)))) (num_ingredients 2))) |}];
+      (effect (Chilly ((potency 2) (duration 750)))) (num_ingredients 5))) |}];
   test [ Monster_fang; Bladed_rhino_beetle; Bladed_rhino_beetle; Bladed_rhino_beetle ];
   [%expect
     {|
     (Elixir
      ((hearts Nothing) (stamina Nothing)
-      (effect (Mighty ((potency 1) (duration 260)))) (num_ingredients 2))) |}];
+      (effect (Mighty ((potency 1) (duration 260)))) (num_ingredients 4))) |}];
   test [ Stamella_shroom; Stamella_shroom; Stamella_shroom ];
   [%expect
     {|
     (Food
      ((hearts (Restores 3)) (stamina (Restores 4)) (effect Nothing)
-      (num_ingredients 1))) |}];
+      (num_ingredients 3))) |}];
   test [ Stamella_shroom; Goat_butter; Goat_butter; Goat_butter; Goat_butter ];
   [%expect
     {|
     (Food
      ((hearts (Restores 1)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 2))) |}];
+      (num_ingredients 5))) |}];
   test [ Apple; Raw_gourmet_meat; Raw_gourmet_meat; Raw_gourmet_meat; Stamella_shroom ];
   [%expect
     {|
     (Food
      ((hearts (Restores 20)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 3))) |}]
+      (num_ingredients 5))) |}]
 
 let%expect_test "Hashing" =
   let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in
@@ -96,8 +96,10 @@ let%expect_test "Hashing" =
 
 let%expect_test "Combinations" =
   let test r ll =
-    Combinations.Basic.generate r ll
-    |> Combinations.Basic.Table.keys
+    let init = Combinations.Recipe.Set.empty in
+    let f acc recipe = Combinations.Recipe.Set.add acc recipe in
+    Combinations.Basic.generate ~init ~f r ll
+    |> Combinations.Recipe.Set.to_list
     |> Combinations.Recipe.to_string_many
     |> print_endline
   in
@@ -194,14 +196,18 @@ let%expect_test "Combinations" =
 
 let%expect_test "All basic combinations" =
   let test r ll =
-    Combinations.Basic.generate_all r ll
-    |> Combinations.Basic.Table.keys
+    let init = Combinations.Recipe.Set.empty in
+    let f acc recipe = Combinations.Recipe.Set.add acc recipe in
+    Combinations.Basic.generate_all ~init ~f r ll
+    |> Combinations.Recipe.Set.to_list
     |> Combinations.Recipe.to_string_many
     |> print_endline
   in
   let count r ll =
-    Combinations.Basic.generate_all r ll
-    |> Combinations.Basic.Table.length
+    let init = Combinations.Recipe.Set.empty in
+    let f acc recipe = Combinations.Recipe.Set.add acc recipe in
+    Combinations.Basic.generate_all ~init ~f r ll
+    |> Combinations.Recipe.Set.length
     |> Int.to_string
     |> print_endline
   in
@@ -252,38 +258,3 @@ let%expect_test "All basic combinations" =
       Palm_fruit;
     ];
   [%expect {| 50557 |}]
-
-let%expect_test "Cooking by category" =
-  let max_hearts = 20 in
-  let max_stamina = 15 in
-  let factor = 10 in
-  let data1 = Glossary.[ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 1; Mighty_carp, 1 ] in
-  let data2 =
-    Glossary.
-      [
-        Apple, 2;
-        Goat_butter, 7;
-        Tabantha_wheat, 2;
-        Stamella_shroom, 25;
-        Big_hearty_truffle, 2;
-        Raw_gourmet_meat, 3;
-      ]
-  in
-  data1 |> Cooking.Compute.filter ~kind:Tough |> sprintf !"%{sexp: Glossary.t list}" |> print_endline;
-  [%expect {|
-    (Ironshell_crab Apple Apple Palm_fruit Palm_fruit Palm_fruit Palm_fruit) |}];
-  let test ~kind items =
-    Cooking.Compute.run ~max_hearts ~max_stamina ~factor ~kind items
-    |> Cooking.Compute.to_string
-    |> print_endline
-  in
-  test ~kind:Tough data1;
-  [%expect {|
-    Best of 57 with 48 points (0s) :
-    -- 1x -- Ironshell_crab, Palm_fruit x4 |}];
-  test ~kind:Energizing data2;
-  [%expect
-    {|
-    Best of 81224 with 57 points (0s) :
-    -- 1x -- Stamella_shroom x4
-    -- 1x -- Apple x2, Stamella_shroom |}]

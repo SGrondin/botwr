@@ -6,6 +6,5 @@
   )
   (preprocess (pps
     ppx_jane
-    ppx_expect
   ))
 )

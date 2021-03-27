@@ -2,7 +2,19 @@ open! Core
 
 (* A recipe is a collection of ingredients and how many times to use each *)
 module Recipe = struct
-  type t = int Glossary.Map.t [@@deriving sexp, compare]
+  module Self = struct
+    type t = int Glossary.Map.t [@@deriving sexp, compare]
+
+    let hash_fold_t init map =
+      Glossary.Map.fold map ~init ~f:(fun ~key ~data acc ->
+          [%hash_fold: int] ([%hash_fold: Glossary.t] acc key) data)
+
+    let hash map = hash_fold_t (Hash.create ()) map |> Hash.get_hash_value
+  end
+
+  module Table = Hashtbl.Make (Self)
+  module Set = Set.Make (Self)
+  include Self
 
   let to_string recipe =
     Glossary.Map.to_alist recipe
@@ -17,38 +29,26 @@ module Recipe = struct
     |> List.sort ~compare:String.compare
     |> List.mapi ~f:(sprintf "%d. %s")
     |> String.concat ~sep:"\n"
-
-  let hash map =
-    Glossary.Map.fold map ~init:(Hash.create ()) ~f:(fun ~key ~data acc ->
-        [%hash_fold: int] ([%hash_fold: Glossary.t] acc key) data)
-    |> Hash.get_hash_value
 end
 
 module Basic = struct
-  (* The output of the basic combinations is deduped *)
-  module Table = Hashtbl.Make (struct
-    type t = Recipe.t [@@deriving sexp, compare]
-
-    let hash = Recipe.hash
-  end)
-
-  let rec sideloop dn t acc = function
+  let rec sideloop dn t ~f acc = function
   | x :: rest ->
-    downloop dn t (Glossary.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ)) rest;
-    (sideloop [@tailcall]) dn t acc rest
+    downloop dn t ~f (Glossary.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ)) rest;
+    (sideloop [@tailcall]) dn t ~f acc rest
   | _ -> ()
 
-  and downloop dn t acc = function
-  | _ when dn = 0 -> Table.set t ~key:acc ~data:()
-  | items -> (sideloop [@tailcall]) (dn - 1) t acc items
+  and downloop dn t ~f acc = function
+  | _ when dn = 0 -> t := f !t acc
+  | items -> (sideloop [@tailcall]) (dn - 1) t ~f acc items
 
-  let generate ?(t = Table.create ()) r items =
-    downloop r t Glossary.Map.empty items;
-    t
+  let generate ~init ~f r items =
+    let t = ref init in
+    downloop r t ~f Glossary.Map.empty items;
+    !t
 
-  let generate_all r items =
-    List.init r ~f:(( + ) 1)
-    |> List.fold ~init:(Table.create ()) ~f:(fun acc r -> generate ~t:acc r items)
+  let generate_all ~init ~f r items =
+    List.init r ~f:(( + ) 1) |> List.fold ~init ~f:(fun acc r -> generate ~init:acc ~f r items)
 end
 
 module Advanced = struct
@@ -62,11 +62,6 @@ module Advanced = struct
     [@@deriving sexp]
 
     type t = book Map.t
-
-    let hash map =
-      Map.fold map ~init:(Hash.create ()) ~f:(fun ~key ~data acc ->
-          [%hash_fold: int] ([%hash_fold: int] acc key) data.num)
-      |> Hash.get_hash_value
 
     let to_string map =
       Map.data map
