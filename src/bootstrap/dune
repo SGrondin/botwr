@@ -1,21 +1,15 @@
-(executable
-  (name app)
+(library
+  (name bootstrap)
   (libraries
     recipes
-    bootstrap
 
     core_kernel
-    re
     bonsai.web
-    lwt
     js_of_ocaml
-    js_of_ocaml-lwt
+    yojson
   )
   (preprocess (pps
     ppx_jane
-    ppx_pattern_bind
     js_of_ocaml-ppx
-    lwt_ppx
   ))
-  (modes js)
 )

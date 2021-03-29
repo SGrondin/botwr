@@ -1,9 +1,9 @@
-open! Core
+open! Core_kernel
 
 (* A recipe is a collection of ingredients and how many times to use each *)
 module Recipe = struct
   module Self = struct
-    type t = int Glossary.Map.t [@@deriving sexp, compare]
+    type t = int Glossary.Map.t [@@deriving sexp, compare, equal]
 
     let hash_fold_t init map =
       Glossary.Map.fold map ~init ~f:(fun ~key ~data acc ->

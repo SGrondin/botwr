@@ -12,6 +12,67 @@ tags: []
 homepage: "https://github.com/SGrondin/botwr"
 doc: "https://github.com/SGrondin/botwr"
 bug-reports: "https://github.com/SGrondin/botwr/issues"
+pin-depends: [
+  [ "ppx_sexp_message.v0.15~preview.123.18+275.custom"             "git+https://github.com/janestreet/ppx_sexp_message.git#e708cbcb3ae747c206d5496f7beaa3dc31eda217" ]
+  [ "stdio.v0.15~preview.123.18+275.custom"                        "git+https://github.com/janestreet/stdio.git#8c7482ebe18c35bc9a5ee4d3365631c662a87521" ]
+  [ "ppx_bench.v0.15~preview.123.18+275.custom"                    "git+https://github.com/janestreet/ppx_bench.git#adf8a28e1d8c1106fdbd632a0ff2872d9b9035f5" ]
+  [ "protocol_version_header.v0.15~preview.123.18+275.custom"      "git+https://github.com/janestreet/protocol_version_header.git#60b1eb274f4b2d8bef92b5edca2ce975dc9a75d0" ]
+  [ "async_js.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/async_js.git#5adfc96c72f7a6c2b1822377aa80719af2dbe3bd" ]
+  [ "jst-config.v0.15~preview.123.18+275.custom"                   "git+https://github.com/janestreet/jst-config.git#150b1bdb16c2dab8a8bca0f3bdc146791a5c1ddb" ]
+  [ "virtual_dom.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/virtual_dom.git#09f0b1845d99a5c7dccccfafee8d12ddd3bbd6a7" ]
+  [ "ppx_let.v0.15~preview.123.18+275.custom"                      "git+https://github.com/janestreet/ppx_let.git#8681291c2d949773553b44214faac750d2f076c1" ]
+  [ "ppx_compare.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/ppx_compare.git#97325464729800f145c83f9c6cb89615d68c2bd8" ]
+  [ "ppx_fields_conv.v0.15~preview.123.18+275.custom"              "git+https://github.com/janestreet/ppx_fields_conv.git#3990c7084a8aca4632f184f3d84c801628c1fe0b" ]
+  [ "ppx_disable_unused_warnings.v0.15~preview.123.18+275.custom"  "git+https://github.com/janestreet/ppx_disable_unused_warnings.git#8aa2221336a95248f39f96bd03d85b2b68701ddd" ]
+  [ "incr_map.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/incr_map.git#d8a7bf9301099d341e16cfb7766a9a5f8125ef40" ]
+  [ "jane-street-headers.v0.15~preview.123.18+275.custom"          "git+https://github.com/janestreet/jane-street-headers.git#b90ae4d1fc4356e68e30de6ce7c71cde771c0c52" ]
+  [ "splittable_random.v0.15~preview.123.18+275.custom"            "git+https://github.com/janestreet/splittable_random.git#41b410ca0e0fdbced483a49f8acb951d0b9867d1" ]
+  [ "incr_dom.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/incr_dom.git#28f6068b294f1a886448d7fe3b22ab928133172a" ]
+  [ "ppx_stable.v0.15~preview.123.18+275.custom"                   "git+https://github.com/janestreet/ppx_stable.git#3c87ac7b4a42a0ea25949acb1dd25aad9be813e2" ]
+  [ "ppx_inline_test.v0.15~preview.123.18+275.custom"              "git+https://github.com/janestreet/ppx_inline_test.git#d9201d312ab9f0513b60d2db52f21b071fc368d4" ]
+  [ "ppx_pipebang.v0.15~preview.123.18+275.custom"                 "git+https://github.com/janestreet/ppx_pipebang.git#a77cf0e168dea4db45a32861f239dd30ebbccf87" ]
+  [ "sexplib0.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/sexplib0.git#4d248d175a296a13ce95d23c78f5aca5ad04bfc9" ]
+  [ "ppx_variants_conv.v0.15~preview.123.18+275.custom"            "git+https://github.com/janestreet/ppx_variants_conv.git#1760e2931130a51a8ed9e9e30ff82f9518bdb883" ]
+  [ "incr_select.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/incr_select.git#16a5fef5018cd54dea35c606d558bb5b29e7fd2c" ]
+  [ "ppx_typerep_conv.v0.15~preview.123.18+275.custom"             "git+https://github.com/janestreet/ppx_typerep_conv.git#fbb8ed96c39066df21b99d507bd763ba82958dd5" ]
+  [ "ppx_sexp_conv.v0.15~preview.123.18+275.custom"                "git+https://github.com/janestreet/ppx_sexp_conv.git#9a7fa6e6743cbef0438e015143eb7be476ec6e99" ]
+  [ "ppx_cold.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/ppx_cold.git#8dc55aa607823c0e1865942eadc7ce68d961580e" ]
+  [ "ppx_enumerate.v0.15~preview.123.18+275.custom"                "git+https://github.com/janestreet/ppx_enumerate.git#990940d3197c8d107714a61145ded1694669f2ab" ]
+  [ "typerep.v0.15~preview.123.18+275.custom"                      "git+https://github.com/janestreet/typerep.git#279bbf73250fc5889a93f8897f8342b7302b07b7" ]
+  [ "ppx_bin_prot.v0.15~preview.123.18+275.custom"                 "git+https://github.com/janestreet/ppx_bin_prot.git#1f5cbc76ffc760286a58f2e141b7d8fe5865bf92" ]
+  [ "bin_prot.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/bin_prot.git#0432d7fca6decdc2e7266085fd9629b9623bcf4a" ]
+  [ "variantslib.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/variantslib.git#057f84cbf2ddfeefa9f887d4f0675aa30d52907d" ]
+  [ "ppx_custom_printf.v0.15~preview.123.18+275.custom"            "git+https://github.com/janestreet/ppx_custom_printf.git#de52b39c21708089641d7d5824c157a22ebcaf02" ]
+  [ "ppx_expect.v0.15~preview.123.18+275.custom"                   "git+https://github.com/janestreet/ppx_expect.git#13af5f180f94853a4b7af79d37ab002141a88d20" ]
+  [ "bonsai.v0.15~preview.123.18+275.custom"                       "git+https://github.com/janestreet/bonsai.git#b6c1a0e7a2f1e9df829383a3cd708c950502856e" ]
+  [ "ppx_here.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/ppx_here.git#8549d04fb3742dd4a85c1c3d40e78e5c46aff429" ]
+  [ "sexplib.v0.15~preview.123.18+275.custom"                      "git+https://github.com/janestreet/sexplib.git#ac2686d270034173aaa37d8ea3e64be042c99b19" ]
+  [ "ppx_string.v0.15~preview.123.18+275.custom"                   "git+https://github.com/janestreet/ppx_string.git#ffee5738d8c2b28dcf8ba7b61f582da34fd13d26" ]
+  [ "parsexp.v0.15~preview.123.18+275.custom"                      "git+https://github.com/janestreet/parsexp.git#3daf304fc01693d8707f98c8d2b7dc4f8696b8d1" ]
+  [ "ppx_assert.v0.15~preview.123.18+275.custom"                   "git+https://github.com/janestreet/ppx_assert.git#6b9b7736c5cec75d4d6f3535d3cca820893c16ca" ]
+  [ "fieldslib.v0.15~preview.123.18+275.custom"                    "git+https://github.com/janestreet/fieldslib.git#61d5706c460872fe55efdd8bc434d03b0d2e3fdf" ]
+  [ "base.v0.15~preview.123.18+275.custom"                         "git+https://github.com/janestreet/base.git#9ef390d678d4573ff54b7d94c2cb5ccdf92dc0ad" ]
+  [ "ppx_module_timer.v0.15~preview.123.18+275.custom"             "git+https://github.com/janestreet/ppx_module_timer.git#0c2511d8b503530e35d00dc6067807de3632b7ec" ]
+  [ "ppx_hash.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/ppx_hash.git#076d57eac6750da09213b271711ab342aeeaf520" ]
+  [ "ppx_pattern_bind.v0.15~preview.123.18+275.custom"             "git+https://github.com/janestreet/ppx_pattern_bind.git#3d5f07f8755da6b3bb29c301471ff8d107b3ddd2" ]
+  [ "ppx_jane.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/ppx_jane.git#ff2b13619e300b596cf1418caba16ae771e4cdac" ]
+  [ "core_kernel.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/core_kernel.git#0ca444d236acc08bbb52e50c67af69a3fa7f8bd7" ]
+  [ "ppx_fixed_literal.v0.15~preview.123.18+275.custom"            "git+https://github.com/janestreet/ppx_fixed_literal.git#0b751c15a2b682fb29f5f5cbae1ce436ea87da64" ]
+  [ "ppx_optional.v0.15~preview.123.18+275.custom"                 "git+https://github.com/janestreet/ppx_optional.git#334129ffcc93a30121d87365a53fbd759777312b" ]
+  [ "time_now.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/time_now.git#b09d087f2c350d5c6af3a4bcc54f28a12b735d0f" ]
+  [ "core.v0.15~preview.123.18+275.custom"                         "git+https://github.com/janestreet/core.git#1bc0b4967bdbd15c767102899b480b6382424efb" ]
+  [ "base_bigstring.v0.15~preview.123.18+275.custom"               "git+https://github.com/janestreet/base_bigstring.git#89b21b85662362e243c143ac34b5ea1745b6a08b" ]
+  [ "ppx_js_style.v0.15~preview.123.18+275.custom"                 "git+https://github.com/janestreet/ppx_js_style.git#7915232f477977a4db75a402c557ef2499e7c1c1" ]
+  [ "async_rpc_kernel.v0.15~preview.123.18+275.custom"             "git+https://github.com/janestreet/async_rpc_kernel.git#14ee6a730982d49d94c0e59392949d3ccf63073b" ]
+  [ "ppx_base.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/ppx_base.git#92d1f73be8e5d7e95d96042bafdaf5563f64a537" ]
+  [ "base_quickcheck.v0.15~preview.123.18+275.custom"              "git+https://github.com/janestreet/base_quickcheck.git#c9c624494c18a77801b202916229e550dff60f96" ]
+  [ "timezone.v0.15~preview.123.18+275.custom"                     "git+https://github.com/janestreet/timezone.git#2c731209bd64231743d28fc3c7ede6a0f528a9cb" ]
+  [ "ppx_yojson_conv_lib.v0.15~preview.124.03+65.custom"           "git+https://github.com/janestreet/ppx_yojson_conv_lib.git#d5e1575093426a9668589b3218025a98e8697381" ]
+  [ "ppx_sexp_value.v0.15~preview.123.18+275.custom"               "git+https://github.com/janestreet/ppx_sexp_value.git#f0613f43a3a9abb5b603a991c2fa826eba3f8b49" ]
+  [ "incremental.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/incremental.git#95972da915be2fb42726b676305157836e2f9945" ]
+  [ "async_kernel.v0.15~preview.123.18+275.custom"                 "git+https://github.com/janestreet/async_kernel.git#e6c3a4f2af6106cb7b1c7bccb7e1f71da7812b22" ]
+  [ "ppx_optcomp.v0.15~preview.123.18+275.custom"                  "git+https://github.com/janestreet/ppx_optcomp.git#e096abcdb6a904ad17be1a176e7a932c3622c2fd" ]
+]
 depends: [
   "ocaml" { = "4.10.0"}
   "dune" { >= "2.0.0"}
@@ -19,12 +80,76 @@ depends: [
   "ocaml-lsp-server"
   "ocamlformat" { = "0.15.0" }
 
-  "core" { >= "v0.14.0" }
-  "ppx_expect"
+  "yojson" { >= "1.7.0" & < "2.0.0" }
+  "ppx_deriving_yojson" { >= "3.5.2" }
 
-  "conf-libev"
   "lwt" { >= "5.2.0" & < "6.0.0" }
+  "lwt_ppx" { >= "2.0.1" & < "3.0.0" }
 
-  "yojson"
-  "ppx_deriving_yojson"
+  "re" { >= "1.9.0" & < "2.0.0" }
+
+  "js_of_ocaml" { >= "3.6.0" & < "4.0.0" }
+  "js_of_ocaml-lwt" { >= "3.6.0" & < "4.0.0" }
+  "js_of_ocaml-ppx" { >= "3.6.0" & < "4.0.0" }
+  "gen_js_api" { = "1.0.6" } # Remove once Jane Street libs are unpinned
+
+  "ppx_sexp_message"             { = "v0.15~preview.123.18+275.custom" }
+  "stdio"                        { = "v0.15~preview.123.18+275.custom" }
+  "ppx_bench"                    { = "v0.15~preview.123.18+275.custom" }
+  "protocol_version_header"      { = "v0.15~preview.123.18+275.custom" }
+  "async_js"                     { = "v0.15~preview.123.18+275.custom" }
+  "jst-config"                   { = "v0.15~preview.123.18+275.custom" }
+  "virtual_dom"                  { = "v0.15~preview.123.18+275.custom" }
+  "ppx_let"                      { = "v0.15~preview.123.18+275.custom" }
+  "ppx_compare"                  { = "v0.15~preview.123.18+275.custom" }
+  "ppx_fields_conv"              { = "v0.15~preview.123.18+275.custom" }
+  "ppx_disable_unused_warnings"  { = "v0.15~preview.123.18+275.custom" }
+  "incr_map"                     { = "v0.15~preview.123.18+275.custom" }
+  "jane-street-headers"          { = "v0.15~preview.123.18+275.custom" }
+  "splittable_random"            { = "v0.15~preview.123.18+275.custom" }
+  "incr_dom"                     { = "v0.15~preview.123.18+275.custom" }
+  "ppx_stable"                   { = "v0.15~preview.123.18+275.custom" }
+  "ppx_inline_test"              { = "v0.15~preview.123.18+275.custom" }
+  "ppx_pipebang"                 { = "v0.15~preview.123.18+275.custom" }
+  "sexplib0"                     { = "v0.15~preview.123.18+275.custom" }
+  "ppx_variants_conv"            { = "v0.15~preview.123.18+275.custom" }
+  "incr_select"                  { = "v0.15~preview.123.18+275.custom" }
+  "ppx_typerep_conv"             { = "v0.15~preview.123.18+275.custom" }
+  "ppx_sexp_conv"                { = "v0.15~preview.123.18+275.custom" }
+  "ppx_cold"                     { = "v0.15~preview.123.18+275.custom" }
+  "ppx_enumerate"                { = "v0.15~preview.123.18+275.custom" }
+  "typerep"                      { = "v0.15~preview.123.18+275.custom" }
+  "ppx_bin_prot"                 { = "v0.15~preview.123.18+275.custom" }
+  "bin_prot"                     { = "v0.15~preview.123.18+275.custom" }
+  "variantslib"                  { = "v0.15~preview.123.18+275.custom" }
+  "ppx_custom_printf"            { = "v0.15~preview.123.18+275.custom" }
+  "ppx_expect"                   { = "v0.15~preview.123.18+275.custom" }
+  "bonsai"                       { = "v0.15~preview.123.18+275.custom" }
+  "ppx_here"                     { = "v0.15~preview.123.18+275.custom" }
+  "sexplib"                      { = "v0.15~preview.123.18+275.custom" }
+  "ppx_string"                   { = "v0.15~preview.123.18+275.custom" }
+  "parsexp"                      { = "v0.15~preview.123.18+275.custom" }
+  "ppx_assert"                   { = "v0.15~preview.123.18+275.custom" }
+  "fieldslib"                    { = "v0.15~preview.123.18+275.custom" }
+  "base"                         { = "v0.15~preview.123.18+275.custom" }
+  "ppx_module_timer"             { = "v0.15~preview.123.18+275.custom" }
+  "ppx_hash"                     { = "v0.15~preview.123.18+275.custom" }
+  "ppx_pattern_bind"             { = "v0.15~preview.123.18+275.custom" }
+  "ppx_jane"                     { = "v0.15~preview.123.18+275.custom" }
+  "core_kernel"                  { = "v0.15~preview.123.18+275.custom" }
+  "ppx_fixed_literal"            { = "v0.15~preview.123.18+275.custom" }
+  "ppx_optional"                 { = "v0.15~preview.123.18+275.custom" }
+  "time_now"                     { = "v0.15~preview.123.18+275.custom" }
+  "core"                         { = "v0.15~preview.123.18+275.custom" }
+  "base_bigstring"               { = "v0.15~preview.123.18+275.custom" }
+  "ppx_js_style"                 { = "v0.15~preview.123.18+275.custom" }
+  "async_rpc_kernel"             { = "v0.15~preview.123.18+275.custom" }
+  "ppx_base"                     { = "v0.15~preview.123.18+275.custom" }
+  "base_quickcheck"              { = "v0.15~preview.123.18+275.custom" }
+  "timezone"                     { = "v0.15~preview.123.18+275.custom" }
+  "ppx_yojson_conv_lib"          { = "v0.15~preview.124.03+65.custom" }
+  "ppx_sexp_value"               { = "v0.15~preview.123.18+275.custom" }
+  "incremental"                  { = "v0.15~preview.123.18+275.custom" }
+  "async_kernel"                 { = "v0.15~preview.123.18+275.custom" }
+  "ppx_optcomp"                  { = "v0.15~preview.123.18+275.custom" }
 ]

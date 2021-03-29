@@ -3,11 +3,15 @@ open Cooking
 
 let%expect_test "List of ingredients" =
   let open Glossary in
+  let max_hearts = 20 in
+  let max_stamina = 15 in
   let list_to_map ll =
     List.fold ll ~init:Glossary.Map.empty
       ~f:(Glossary.Map.update ~f:(Option.value_map ~default:1 ~f:succ))
   in
-  let test ll = ll |> list_to_map |> cook |> sprintf !"%{sexp: Cooking.t}" |> print_endline in
+  let test ll =
+    ll |> list_to_map |> cook ~max_hearts ~max_stamina |> sprintf !"%{sexp: Cooking.t}" |> print_endline
+  in
   test [];
   [%expect {| (Failed "No ingredients") |}];
   test [ Endura_shroom ];
@@ -249,7 +253,7 @@ let%expect_test "All basic combinations" =
       Hearty_truffle;
       Hearty_bass;
       Hearty_radish;
-      Hearty_blueshel_snail;
+      Hearty_blueshell_snail;
       Hearty_durian;
       Big_hearty_truffle;
       Hearty_salmon;

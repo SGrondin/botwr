@@ -8,7 +8,7 @@ let group items =
 
 let filter ~kind grouped =
   Glossary.Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
-      match key |> Glossary.to_ingredient |> Ingredient.to_kind with
+      match key |> Glossary.to_kind with
       | Neutral -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
       | x when [%equal: Ingredient.Effect.Kind.t] x kind ->
         Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
@@ -23,7 +23,7 @@ let diff_time r =
   let t0 = !r in
   let t1 = Time_now.nanoseconds_since_unix_epoch () |> Int63.to_int64 in
   r := t1;
-  Int64.((t1 - t0) / 1_000L)
+  Int64.((t1 - t0) // 1_000_000_000L)
 
 module Basic = struct
   let combine ~max_hearts ~max_stamina ~factor list =
@@ -31,7 +31,7 @@ module Basic = struct
     let f (((best_score, all_best) as best), i) (recipe : Recipe.t) =
       let score =
         Recipe.Table.find_or_add cache recipe ~default:(fun () ->
-            match cook recipe with
+            match cook ~max_hearts ~max_stamina recipe with
             | Food meal
              |Elixir meal ->
               Meal.score ~max_hearts ~max_stamina ~factor meal
@@ -68,27 +68,32 @@ module Basic = struct
 
   type t = {
     iterations: iteration list;
-    duration: Int64.t;
+    duration: float;
   }
   [@@deriving sexp]
 
-  let to_string { iterations; duration } =
+  let to_string ~max_hearts ~max_stamina { iterations; duration } =
     let buf = Buffer.create 128 in
-    bprintf buf "(%Lds)" Int64.(duration / 1_000_000L);
+    bprintf buf "(%fs)" duration;
     List.iter iterations ~f:(fun { score; count; best } ->
-        bprintf buf !"\n%d pts (%d) -- %{Recipe} -- %{sexp: Cooking.t}" score count best (cook best));
+        bprintf buf
+          !"\n%d pts (%d) -- %{Recipe} -- %{sexp: Cooking.t}"
+          score count best
+          (cook ~max_hearts ~max_stamina best));
     Buffer.contents buf
 
-  let run ~max_hearts ~max_stamina ~factor ~kind items =
-    let rec loop remaining acc =
-      let (score, ties), count = filter ~kind remaining |> combine ~max_hearts ~max_stamina ~factor in
-      let best = break_tie remaining ties in
-      Glossary.Map.iteri best ~f:(fun ~key ~data ->
-          Glossary.Table.decr remaining key ~by:data ~remove_if_zero:true);
-      if score > 0 then (loop [@tailcall]) remaining ({ score; count; best } :: acc) else acc
+  let run ?(n = 2) ~max_hearts ~max_stamina ~factor ~kind items =
+    let rec loop remaining acc = function
+      | 0 -> acc
+      | n ->
+        let (score, ties), count = filter ~kind remaining |> combine ~max_hearts ~max_stamina ~factor in
+        let best = break_tie remaining ties in
+        Glossary.Map.iteri best ~f:(fun ~key ~data ->
+            Glossary.Table.decr remaining key ~by:data ~remove_if_zero:true);
+        if score > 0 then (loop [@tailcall]) remaining ({ score; count; best } :: acc) (n - 1) else acc
     in
     let r = time () in
-    let iterations = loop (group items) [] |> List.rev in
+    let iterations = loop (group items) [] n |> List.rev in
     let duration = diff_time r in
     { iterations; duration }
 end
@@ -101,7 +106,7 @@ module Advanced = struct
         Advanced.Recipes.Map.fold ~init:0 recipes ~f:(fun ~key ~data:{ recipe; num } acc ->
             let score =
               Int.Table.find_or_add cache key ~default:(fun () ->
-                  match cook recipe with
+                  match cook ~max_hearts ~max_stamina recipe with
                   | Food meal
                    |Elixir meal ->
                     Meal.score ~max_hearts ~max_stamina ~factor meal
@@ -119,16 +124,14 @@ module Advanced = struct
     score: int;
     count: int;
     best: Advanced.Recipes.book Advanced.Recipes.Map.t;
-    duration: Int64.t;
+    duration: float;
   }
   [@@deriving sexp]
 
   let to_string { score; count; best; duration } =
     sprintf
-      !"Best of %d with %d points (%Lds) :\n%{Combinations.Advanced.Recipes}"
-      count score
-      Int64.(duration / 1_000_000L)
-      best
+      !"Best of %d with %d points (%fs) :\n%{Combinations.Advanced.Recipes}"
+      count score duration best
 
   let run ~max_hearts ~max_stamina ~factor ~kind items =
     let r = time () in

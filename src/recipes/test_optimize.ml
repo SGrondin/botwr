@@ -21,7 +21,7 @@ let%expect_test "Cooking by category, basic" =
   in
   let test ~kind ll =
     Optimize.Basic.run ll ~max_hearts ~max_stamina ~factor ~kind
-    |> Optimize.Basic.to_string
+    |> Optimize.Basic.to_string ~max_hearts ~max_stamina
     |> print_endline
   in
   test ~kind:Tough data1;

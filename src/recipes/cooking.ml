@@ -66,7 +66,7 @@ module Meal = struct
     effect: Effect.t;
     num_ingredients: int;
   }
-  [@@deriving sexp, compare, equal]
+  [@@deriving sexp, compare, equal, fields]
 
   let score ~max_hearts ~max_stamina ~factor = function
   | { hearts; stamina; effect; num_ingredients } ->
@@ -83,7 +83,7 @@ type t =
   | Failed  of string
 [@@deriving sexp, compare, equal]
 
-let cook map =
+let cook ~max_hearts ~max_stamina map =
   let ingredients, num_ingredients =
     Glossary.Map.fold map ~init:([], 0) ~f:(fun ~key:g ~data:count (acc, i) ->
         Ingredient.merge (Glossary.to_ingredient g) ~count :: acc, i + count)
@@ -100,11 +100,11 @@ let cook map =
       match res.effect, res.hearts with
       | Hearty x, _ -> Hearts.Full_plus_bonus x
       | _, 0 -> Nothing
-      | _, x -> Restores x
+      | _, x -> Restores (min x max_hearts)
     in
     let stamina =
       match res.effect with
-      | Energizing { bonus; _ } -> Stamina.Restores bonus
+      | Energizing { bonus; _ } -> Stamina.Restores (min bonus max_stamina)
       | Enduring { bonus; _ } -> Stamina.Full_plus_bonus bonus
       | _ -> Nothing
     in

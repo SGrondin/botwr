@@ -2,7 +2,8 @@
   (name recipes)
   (inline_tests)
   (libraries
-    core
+    core_kernel
+    uri
   )
   (preprocess (pps
     ppx_jane

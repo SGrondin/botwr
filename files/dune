@@ -1,0 +1,15 @@
+(rule
+  (targets style.css style.css.map)
+  (deps custom.scss)
+  (action (bash "
+    if [ '%{profile}' = 'dev' ]; then
+      sassc --sourcemap=auto -t expanded custom.scss style.css
+    elif [ '%{profile}' = 'release' ]; then
+      sassc --sourcemap=auto -t compressed custom.scss style.css
+    else
+      echo 'Invalid dune profile during scss compilation'
+      exit 1
+    fi
+  "))
+  (mode promote)
+)

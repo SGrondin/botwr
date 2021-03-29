@@ -1,0 +1,29 @@
+// Base colors
+$primary: #2a4365;
+$secondary: #f7efd7;
+$info: #1680c2;
+$danger: #de1c22;
+$warning: #e0ca0a;
+// The following colors are the same as the default colors
+$success: #198754;
+$light: #f7fafc;
+$dark: #4a5568;
+
+$enable-rounded: true;
+$enable-caret: false;
+$font-family-base: Inter, sans-serif;
+
+// Additional colors
+$tertiary: #42699E;
+
+$font-size-base: 0.9rem;
+$small-font-size: 0.75em;
+$badge-font-size: 0.8em;
+
+.v-center {
+  @extend .d-flex;
+  @extend .flex-column;
+  @extend .justify-content-center;
+}
+
+@import "../../../twbs/bootstrap-5.0.0-beta2/scss/bootstrap";

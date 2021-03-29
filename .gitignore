@@ -2,5 +2,9 @@
 .vscode
 _opam/
 _build/
+twbs/
+files/style.css*
+files/fonts
+files/images
 **/.merlin
 *.txt

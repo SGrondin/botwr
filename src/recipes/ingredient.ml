@@ -1,4 +1,4 @@
-open! Core
+open! Core_kernel
 
 module Duration = struct
   type t =
@@ -136,21 +136,26 @@ module Effect = struct
     | _ -> Nothing
 
   module Kind = struct
-    type t =
-      | Nothing
-      | Neutral
-      | Hearty
-      | Energizing
-      | Enduring
-      | Spicy
-      | Chilly
-      | Electro
-      | Fireproof
-      | Hasty
-      | Sneaky
-      | Mighty
-      | Tough
-    [@@deriving sexp, compare, equal, hash]
+    module Self = struct
+      type t =
+        | Nothing
+        | Neutral
+        | Hearty
+        | Energizing
+        | Enduring
+        | Spicy
+        | Chilly
+        | Electro
+        | Fireproof
+        | Hasty
+        | Sneaky
+        | Mighty
+        | Tough
+      [@@deriving sexp, compare, equal, hash]
+    end
+
+    module Map = Map.Make (Self)
+    include Self
   end
 end
 
