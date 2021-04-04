@@ -38,7 +38,7 @@ let application =
        in
        Node.div []
          [
-           Node.h3 [] [ Node.text "BOTW Cooking Optimizer" ];
+           Node.h3 Attr.[ id "top" ] [ Node.text "BOTW Cooking Optimizer" ];
            kind_buttons;
            meals_switch;
            elixirs_switch;

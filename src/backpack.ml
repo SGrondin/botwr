@@ -22,6 +22,8 @@ let unselectable = Attr.style Css_gen.(user_select `None)
 
 let pointer = Attr.style Css_gen.(create ~field:"cursor" ~value:"pointer")
 
+let no_decoration = Attr.style Css_gen.(text_decoration ~line:[ `None ] ())
+
 let quantity_node_id = "quantity-input"
 
 let get_quantity_element () =
@@ -156,7 +158,14 @@ let render_items ~update_backpack ~update_selected backpack selected =
                 Event.Many [ update_backpack (Action.Set (item, quantity)); update_selected None ]
               | None -> update_selected None
             )
-            | _ev -> update_selected (Some item))
+            | _ev ->
+              let evts =
+                [ update_selected (Some item); Event.Stop_propagation ]
+                |> add_opt
+                     (Option.both selected (get_quantity ()))
+                     ~f:(fun pair -> update_backpack (Action.Set pair))
+              in
+              Event.Many evts)
         in
         let node =
           let first_col =
@@ -206,17 +215,33 @@ let render_items ~update_backpack ~update_selected backpack selected =
         node :: acc)
     |> Node.div Attr.[ classes [ "row"; "row-cols-auto" ] ]
   in
-  List.map backpack ~f:(fun (title, items) ->
-      Node.div
-        Attr.[ class_ "mb-4" ]
-        [
-          Option.value_map title ~default:Node.none ~f:(fun (s, icon) ->
-              Node.h4
-                Attr.[ class_ "ms-3"; id (sprintf "anchor-%s" s) ]
-                [ Node.text s; Icon.svg icon ~width:2.0 ~height:2.0 ~container:Span [] ]);
-          render_category items;
-        ])
-  |> Node.div []
+  let nodes =
+    List.map backpack ~f:(fun (title, items) ->
+        Node.div
+          Attr.[ class_ "mb-4" ]
+          [
+            Option.value_map title ~default:Node.none ~f:(fun (s, icon) ->
+                Node.h4
+                  Attr.[ class_ "ms-3"; id s ]
+                  [ Node.text s; Icon.svg icon ~width:2.0 ~height:2.0 ~container:Span [] ]);
+            render_category items;
+            Node.a
+              Attr.[ href "#top"; no_decoration ]
+              [
+                Icon.svg Arrow_up ~width:1.5 ~height:1.5 ~container:Span []; Node.text "Scroll to the top";
+              ];
+          ])
+  in
+  let handler _evt =
+    let evts =
+      [ update_selected None ]
+      |> add_opt
+           (Option.both selected (get_quantity ()))
+           ~f:(fun pair -> update_backpack (Action.Set pair))
+    in
+    Event.Many evts
+  in
+  Node.div Attr.[ on_click handler ] nodes
 
 let all_items =
   let open Glossary in
@@ -270,13 +295,12 @@ let component ~inventory () =
        let jump_to =
          match organize with
          | Effect when show_all ->
-           let no_decoration = Attr.style Css_gen.(text_decoration ~line:[ `None ] ()) in
            let links =
              List.filter_map organized ~f:(function
                | None, _ -> None
                | Some (s, icon), _ ->
                  Node.a
-                   Attr.[ href (sprintf "#anchor-%s" s); no_decoration ]
+                   Attr.[ href (sprintf "#%s" s); no_decoration ]
                    [ Icon.svg icon ~width:2.0 ~height:2.0 ~container:Span Attr.[ class_ "ps-2" ] ]
                  |> Option.return)
            in

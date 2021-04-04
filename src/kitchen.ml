@@ -179,6 +179,7 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
     let cook_button =
       let handler _evt =
         let evts =
+          let _x = window##scrollTo 0 0 in
           update_data Model.Completed
           :: Recipes.Glossary.Map.fold_right best ~init:[] ~f:(fun ~key ~data acc ->
                  update_backpack (Backpack.Action.Decrement_by (key, data)) :: acc)
