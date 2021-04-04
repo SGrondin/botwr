@@ -4,72 +4,10 @@ open! Bonsai.Let_syntax
 open! Vdom
 open Bootstrap
 
-let inventory1 =
-  let open Recipes.Glossary in
-  ( Recipes.Ingredient.Effect.Kind.Hearty,
-    [
-      Apple, 2;
-      Goat_butter, 7;
-      Tabantha_wheat, 2;
-      Stamella_shroom, 24;
-      Big_hearty_truffle, 2;
-      Raw_gourmet_meat, 3;
-      Goron_spice, 2;
-    ]
-    |> Map.of_alist_exn )
-
-let inventory2 =
-  let open Recipes.Glossary in
-  ( Recipes.Ingredient.Effect.Kind.Energizing,
-    [
-      Apple, 2;
-      Goat_butter, 7;
-      Tabantha_wheat, 2;
-      Stamella_shroom, 6;
-      Staminoka_bass, 4;
-      Courser_bee_honey, 4;
-      Goron_spice, 2;
-    ]
-    |> Map.of_alist_exn )
-
-let inventory3 =
-  let open Recipes.Glossary in
-  ( Recipes.Ingredient.Effect.Kind.Chilly,
-    [
-      Apple, 2;
-      Goat_butter, 7;
-      Tabantha_wheat, 2;
-      Chillshroom, 6;
-      Chillfin_trout, 4;
-      Cool_safflina, 1;
-      Hydromelon, 2;
-    ]
-    |> Map.of_alist_exn )
-
-let inventory4 =
-  let open Recipes.Glossary in
-  ( Recipes.Ingredient.Effect.Kind.Mighty,
-    [
-      Apple, 2;
-      Goat_butter, 7;
-      Mighty_bananas, 3;
-      Mighty_carp, 3;
-      Razorshroom, 6;
-      Mighty_porgy, 4;
-      Razorclaw_crab, 2;
-    ]
-    |> Map.of_alist_exn )
-
-let inventory5 =
-  let open Recipes.Glossary in
-  ( Recipes.Ingredient.Effect.Kind.Sneaky,
-    [ Apple, 2; Goat_butter, 7; Sunset_firefly, 5; Monster_guts, 3 ] |> Map.of_alist_exn )
-
 let application =
   let max_hearts = 20 in
   let max_stamina = 15 in
-  let _kind, inventory = inventory5 in
-  let%sub backpack = Backpack.component ~inventory () in
+  let%sub backpack = Backpack.component ~inventory:Recipes.Glossary.Map.empty () in
   let%pattern_bind backpack, update_backpack, backpack_nodes = backpack in
   let backpack_is_empty = backpack >>| Recipes.Glossary.Map.is_empty in
   let%sub kitchen = Kitchen.component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina () in
