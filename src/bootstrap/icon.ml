@@ -33,6 +33,12 @@ type t =
   | Spicy
   | Mighty
   | Tough
+  | Check_all
+  | Reception_0
+  | Reception_1
+  | Reception_2
+  | Reception_3
+  | Reception_4
   | X
 [@@deriving sexp]
 
@@ -52,19 +58,23 @@ let of_kind : Recipes.Ingredient.Effect.Kind.t -> t = function
 | Tough -> Tough
 
 let get_fill = function
-| Up
+| Check_all
+ |Up
  |Down
  |X ->
   "currentColor"
 | Arrow_up
  |Arrow_down
- |Chilly ->
+ |Chilly
+ |Reception_1 ->
   "#ff9902"
 | Energizing1
  |Energizing2
  |Energizing3
  |Energizing4
- |Energizing ->
+ |Energizing
+ |Reception_3
+ |Reception_4 ->
   "#05e704"
 | Heart1
  |Heart2
@@ -77,9 +87,12 @@ let get_fill = function
  |Enduring2
  |Enduring3
  |Enduring4
- |Hearty ->
+ |Hearty
+ |Reception_2 ->
   "#e8e527"
-| Fireproof -> "#ec444a"
+| Fireproof
+ |Reception_0 ->
+  "#ec444a"
 | Hasty -> "#108fff"
 | Sneaky -> "#d03bfe"
 | Spicy -> "#71d6f0"
@@ -122,7 +135,14 @@ let get_viewbox = function
  |Mighty
  |Tough ->
   -10, 0, 1034, 1024
-| X -> 0, 0, 16, 16
+| Check_all
+ |Reception_0
+ |Reception_1
+ |Reception_2
+ |Reception_3
+ |Reception_4
+ |X ->
+  0, 0, 16, 16
 
 type container =
   | Div
@@ -199,6 +219,18 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
 <path d="M276 494l332 -332l166 -4l-7 162l-333 332l-53 -53l191 -191l-48 -48l-191 191z" />|svg}
     | Tough ->
       {svg|<path d="M272 140q42 45 86 67q44 23 89 23t89 -22q44 -23 86 -68q174 127 203 148.5l29 21.5l-132 160l-68 -60l50 390h-514l50 -390l-68 60l-132 -160l29 -21t203 -149zM447 422q22 0 37.5 -15.5t15.5 -37.5t-15.5 -37.5t-37.5 -15.5t-37.5 15.5t-15.5 37.5t15.5 37.5t37.5 15.5 zM447 570q22 0 37.5 -15.5t15.5 -37.5t-15.5 -37.5t-37.5 -15.5t-37.5 15.5t-15.5 37.5t15.5 37.5t37.5 15.5z" />|svg}
+    | Check_all ->
+      {svg|<path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992a.252.252 0 0 1 .02-.022zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486-.943 1.179z"/>|svg}
+    | Reception_0 ->
+      {svg|<path d="M0 13.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>|svg}
+    | Reception_1 ->
+      {svg|<path d="M0 11.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2zm4 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>|svg}
+    | Reception_2 ->
+      {svg|<path d="M0 11.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2zm4-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-5zm4 5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5zm4 0a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>|svg}
+    | Reception_3 ->
+      {svg|<path d="M0 11.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2zm4-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-5zm4-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-8zm4 8a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>|svg}
+    | Reception_4 ->
+      {svg|<path d="M0 11.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2zm4-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-5zm4-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-8zm4-3a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 .5.5v11a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-11z"/>|svg}
     | X ->
       {svg|<path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>|svg}
   in

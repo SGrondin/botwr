@@ -1,5 +1,7 @@
 open! Core_kernel
 
+let factor = 2
+
 module Hearts = struct
   type t =
     | Nothing
@@ -7,11 +9,13 @@ module Hearts = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts ~factor = function
+  let score ~max_hearts = function
   | Nothing
    |Restores _ ->
     0
-  | Full_plus_bonus x -> (max_hearts + x) * factor
+  | Full_plus_bonus x ->
+    let total = max_hearts + x in
+    (min total 30 * factor) - max (total - 30) 0
 end
 
 module Stamina = struct
@@ -21,10 +25,12 @@ module Stamina = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_stamina ~factor = function
+  let score ~max_stamina = function
   | Nothing -> 0
   | Restores x -> x * factor
-  | Full_plus_bonus x -> (max_stamina + x) * factor
+  | Full_plus_bonus x ->
+    let total = max_stamina + x in
+    (min total 15 * factor) - max (total - 15) 0
 end
 
 module Effect = struct
@@ -46,7 +52,7 @@ module Effect = struct
     | Tough     of bonus
   [@@deriving sexp, compare, equal]
 
-  let score ~factor = function
+  let score = function
   | Nothing -> 0
   | Spicy { potency; duration }
    |Chilly { potency; duration }
@@ -56,7 +62,7 @@ module Effect = struct
    |Sneaky { potency; duration }
    |Mighty { potency; duration }
    |Tough { potency; duration } ->
-    potency * (duration / 30) * factor
+    (potency * (duration / 20) * factor) + (potency * potency * factor)
 end
 
 module Meal = struct
@@ -68,11 +74,11 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina ~factor = function
+  let score ~max_hearts ~max_stamina = function
   | { hearts; stamina; effect; num_ingredients } ->
-    Hearts.score ~max_hearts ~factor hearts
-    + Stamina.score ~max_stamina ~factor stamina
-    + Effect.score effect ~factor
+    Hearts.score ~max_hearts hearts
+    + Stamina.score ~max_stamina stamina
+    + Effect.score effect
     - num_ingredients
 end
 

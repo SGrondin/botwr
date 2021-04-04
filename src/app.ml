@@ -60,43 +60,61 @@ let inventory4 =
     ]
     |> Map.of_alist_exn )
 
+let inventory5 =
+  let open Recipes.Glossary in
+  ( Recipes.Ingredient.Effect.Kind.Sneaky,
+    [ Apple, 2; Goat_butter, 7; Sunset_firefly, 5; Monster_guts, 3 ] |> Map.of_alist_exn )
+
 let application =
   let max_hearts = 20 in
   let max_stamina = 15 in
-  let _kind, inventory = inventory4 in
+  let _kind, inventory = inventory5 in
   let%sub backpack = Backpack.component ~inventory () in
-  let%sub kitchen = Kitchen.component ~max_hearts ~max_stamina ~factor:2 () in
+  let%pattern_bind backpack, update_backpack, backpack_nodes = backpack in
+  let backpack_is_empty = backpack >>| Recipes.Glossary.Map.is_empty in
+  let%sub kitchen = Kitchen.component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina () in
   return
-  @@ let%map ( (backpack, _update_backpack),
-               `Organize buttons_node,
-               `Show_all show_all_node,
-               `Items items_node ) =
-       backpack
-     and `Kitchen kitchen, `Kind kind_buttons, update_kitchen = kitchen in
+  @@ let%map backpack = backpack
+     and `Organize buttons_node, `Show_all show_all_node, `Jump_to jump_to, `Items items_node =
+       backpack_nodes
+     and ( `Kitchen kitchen,
+           `Kind kind_buttons,
+           `Meals meals_switch,
+           `Elixirs elixirs_switch,
+           update_kitchen ) =
+       kitchen
+     in
      let kitchen_node =
-       match Recipes.Glossary.Map.is_empty backpack with
-       | true -> Node.none
-       | false ->
-         let cook_button =
-           Node.div []
-             [
-               Node.button
-                 Attr.
-                   [
-                     type_ "button";
-                     classes [ "btn"; "btn-primary"; "mx-2" ];
-                     on_click (fun _evt -> update_kitchen (Recipes.Glossary.Map.to_alist backpack));
-                   ]
-                 [ Node.text "Cook!" ];
-             ]
-         in
-         Node.div [] [ Node.h3 [] [ Node.text "Cooking" ]; kitchen; kind_buttons; cook_button ]
+       let recipes_button =
+         Node.div []
+           [
+             Node.button
+               Attr.
+                 [
+                   type_ "button";
+                   classes [ "btn"; "btn-primary"; "m-2" ];
+                   on_click (fun _evt -> update_kitchen (Ready (Recipes.Glossary.Map.to_alist backpack)));
+                 ]
+               [ Node.text "Generate recipes" ];
+           ]
+       in
+       Node.div []
+         [
+           Node.h3 [] [ Node.text "BOTW Cooking Optimizer" ];
+           kind_buttons;
+           meals_switch;
+           elixirs_switch;
+           recipes_button;
+           kitchen;
+         ]
      in
 
-     Node.div []
+     Node.div
+       Attr.[ class_ "m-2" ]
        [
          kitchen_node;
          Node.h3 Attr.[ class_ "mt-4" ] [ Node.text "Ingredients" ];
+         jump_to;
          Node.div
            Attr.[ classes [ "mb-3"; "d-flex"; "align-items-center" ] ]
            (List.map ~f:(fun x -> Node.div Attr.[ class_ "mx-2" ] [ x ]) [ buttons_node; show_all_node ]);

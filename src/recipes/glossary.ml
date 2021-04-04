@@ -383,6 +383,27 @@ let to_ingredient x = mapped.(Variants.to_rank x)
 
 let to_kind = Fn.compose Ingredient.to_kind to_ingredient
 
+module Category = struct
+  type t =
+    | Meals
+    | Elixirs
+    | Any
+end
+
+let to_category : Ingredient.t -> Category.t = function
+| { category = Food; _ }
+ |{ category = Spice; _ } ->
+  Meals
+| { category = Critter; _ }
+ |{ category = Monster; _ }
+ |{ category = Elixir; _ } ->
+  Elixirs
+| { category = Dubious; _ } -> Any
+
+let kind_and_category x =
+  let ingredient = to_ingredient x in
+  Ingredient.to_kind ingredient, to_category ingredient
+
 let to_string = function
 | Palm_fruit -> "Palm Fruit"
 | Apple -> "Apple"
@@ -475,7 +496,7 @@ let to_string = function
 | Monster_fang -> "Monster Fang"
 | Monster_guts -> "Monster Guts"
 
-let to_img_uri current_uri x =
+let to_filename x =
   let id =
     match x with
     | Palm_fruit -> 2
@@ -572,12 +593,4 @@ let to_img_uri current_uri x =
     (* | Monster_extract -> 53 *)
     (* | Star_fragment -> 54 *)
   in
-  let arr = Uri.path current_uri |> Filename.parts in
-  List.fold_right arr
-    ~init:([ "images"; sprintf "%d.png" id ], 0)
-    ~f:(fun x -> function
-      | acc, (0 as i) -> acc, i + 1
-      | acc, i -> x :: acc, i + 1)
-  |> fst
-  |> Filename.of_parts
-  |> Uri.with_path current_uri
+  sprintf "%d.png" id
