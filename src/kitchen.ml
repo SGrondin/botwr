@@ -112,7 +112,7 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
       meal >>| Recipes.Cooking.Meal.stamina >>= function
       | Nothing -> None
       | Restores x ->
-        let wheels = Int.( /% ) x 5 in
+        let wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Energizing)) in
         let remainder =
           match Int.( % ) x 5 with
           | 1 -> [ make_icon Energizing1 ]
@@ -121,10 +121,27 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
           | 4 -> [ make_icon Energizing4 ]
           | _ -> []
         in
-        List.init wheels ~f:(const (make_icon Energizing)) @ remainder |> Node.span [] |> Option.return
+        wheels @ remainder |> Node.span [] |> Option.return
       | Full_plus_bonus x ->
-        List.init max_stamina ~f:(const (make_icon Enduring1))
-        @ List.init x ~f:(const (make_icon Enduring2))
+        let green_wheels = Int.( /% ) max_stamina 5 |> List.init ~f:(const (make_icon Energizing)) in
+        let green_remainder =
+          match Int.( % ) max_stamina 5 with
+          | 1 -> [ make_icon Energizing1 ]
+          | 2 -> [ make_icon Energizing2 ]
+          | 3 -> [ make_icon Energizing3 ]
+          | 4 -> [ make_icon Energizing4 ]
+          | _ -> []
+        in
+        let yellow_wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Enduring)) in
+        let yellow_remainder =
+          match Int.( % ) x 5 with
+          | 1 -> [ make_icon Enduring1 ]
+          | 2 -> [ make_icon Enduring2 ]
+          | 3 -> [ make_icon Enduring3 ]
+          | 4 -> [ make_icon Enduring4 ]
+          | _ -> []
+        in
+        List.concat [ green_wheels; green_remainder; yellow_wheels; yellow_remainder ]
         |> Node.span []
         |> Option.return
     in
@@ -248,12 +265,9 @@ let button_choices =
         "Tough", Tough;
       ]
 
-let render_buttons ~update_kind selected_kind =
+let render_buttons ~update selected_kind =
   Node.div
-    Attr.
-      [
-        class_ "d-inline-block"; on_change (fun _evt s -> update_kind (String.Map.find button_choices s));
-      ]
+    Attr.[ class_ "d-inline-block"; on_change (fun _evt s -> update (String.Map.find button_choices s)) ]
     (String.Map.fold_right button_choices ~init:[] ~f:(fun ~key:label ~data:kind acc ->
          let id_ = sprintf "kind-choice-%s" label in
          let attrs =
@@ -307,7 +321,7 @@ let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind
          [
            "Pick a bonus: Hearty, Tough, etc.", Option.is_some kind;
            "Add ingredients to your inventory.", not backpack_is_empty;
-           "Click Generate Recipes!", not_loaded;
+           "Click on Best Recipe!", not_loaded;
          ]
        in
        match data, kind with
@@ -322,8 +336,7 @@ let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind
                  Node.text "All done!";
                  Icon.svg Check_all ~width:1.5 ~height:1.5 ~container:Span Attr.[ class_ "text-success" ];
                ];
-             Node.div []
-               [ Node.text "Click Generate Recipes to continue with your remaining ingredients." ];
+             Node.div [] [ Node.text "Click on Best Recipe to continue with your remaining ingredients." ];
            ]
        | _ ->
          let nodes =
@@ -336,7 +349,10 @@ let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind
          in
          Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ] nodes
      in
-     let buttons = render_buttons ~update_kind kind in
+     let buttons =
+       let update x = Event.Many [ update_kind x; update_data New ] in
+       render_buttons ~update kind
+     in
      let meals_switch =
        Utils.render_switch ~update:update_meals ~disabled:(not elixirs) ~id:"meals-switch" "Meals" meals
      in

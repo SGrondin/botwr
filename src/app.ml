@@ -4,10 +4,16 @@ open! Bonsai.Let_syntax
 open! Vdom
 open Bootstrap
 
+let inventory = Recipes.Glossary.Map.empty
+
+(* let inventory =
+  let open Recipes.Glossary in
+  [ Endura_carrot, 2; Endura_shroom, 2 ] |> Map.of_alist_exn *)
+
 let application =
   let max_hearts = 20 in
   let max_stamina = 15 in
-  let%sub backpack = Backpack.component ~inventory:Recipes.Glossary.Map.empty () in
+  let%sub backpack = Backpack.component ~inventory () in
   let%pattern_bind backpack, update_backpack, backpack_nodes = backpack in
   let backpack_is_empty = backpack >>| Recipes.Glossary.Map.is_empty in
   let%sub kitchen = Kitchen.component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina () in
@@ -33,7 +39,7 @@ let application =
                    classes [ "btn"; "btn-primary"; "m-2" ];
                    on_click (fun _evt -> update_kitchen (Ready (Recipes.Glossary.Map.to_alist backpack)));
                  ]
-               [ Node.text "Generate recipes" ];
+               [ Node.text "Best Recipe" ];
            ]
        in
        Node.div []

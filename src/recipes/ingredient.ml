@@ -140,16 +140,16 @@ module Effect = struct
       type t =
         | Nothing
         | Neutral
-        | Hearty
-        | Energizing
-        | Enduring
-        | Spicy
         | Chilly
         | Electro
+        | Enduring
+        | Energizing
         | Fireproof
         | Hasty
-        | Sneaky
+        | Hearty
         | Mighty
+        | Sneaky
+        | Spicy
         | Tough
       [@@deriving sexp, compare, equal, hash]
     end
