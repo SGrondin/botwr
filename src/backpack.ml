@@ -142,7 +142,6 @@ let render_organize_buttons ~update_organize organize buttons =
          ]
 
 let render_items ~update_backpack ~update_selected backpack selected =
-  let current_uri = Uri.of_string Js_of_ocaml.Url.Current.as_string in
   let svg x action =
     Icon.svg ~bold:true ~width:1.6 ~height:1.6 x
       Attr.[ on_click (fun _ev -> update_backpack action); pointer ]
@@ -173,13 +172,7 @@ let render_items ~update_backpack ~update_selected backpack selected =
               [
                 Node.create "img"
                   (Attrs.merge_classes_and_styles
-                     Attr.
-                       [
-                         pointer;
-                         unselectable;
-                         src (Glossary.to_filename item |> Utils.image_uri current_uri |> Uri.to_string);
-                         handler;
-                       ])
+                     Attr.[ pointer; unselectable; src (Glossary.to_img_src item); handler ])
                   [];
               ]
           in

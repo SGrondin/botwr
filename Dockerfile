@@ -8,7 +8,6 @@ RUN apk update \
 COPY files/index.html .
 COPY files/style.css .
 COPY _build/default/src/app.bc.js app.js
-COPY files/images images
 COPY files/HyliaSerifBeta-Regular.otf .
 COPY files/favicon.png .
 

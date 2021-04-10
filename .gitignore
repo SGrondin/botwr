@@ -5,6 +5,6 @@ _build/
 twbs/
 files/style.css*
 files/fonts
-files/images
+src/recipes/images
 **/.merlin
 *.txt

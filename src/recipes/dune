@@ -4,8 +4,13 @@
   (libraries
     core_kernel
     uri
+    base64
   )
   (preprocess (pps
     ppx_jane
+    ppx_blob
   ))
+  (preprocessor_deps
+    (glob_files "images/*.png")
+  )
 )

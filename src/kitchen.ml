@@ -62,15 +62,7 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
                 [
                   Node.div [] [ Node.textf !"%{Recipes.Glossary}" key ];
                   Node.create "img"
-                    Attr.
-                      [
-                        style Css_gen.(height (`Em 2));
-                        src
-                          (Recipes.Glossary.to_filename key
-                          |> Utils.image_uri current_uri
-                          |> Uri.to_string
-                          );
-                      ]
+                    Attr.[ style Css_gen.(height (`Em 2)); src (Recipes.Glossary.to_img_src key) ]
                     [];
                 ])
           :: acc)
