@@ -1,13 +1,13 @@
 # BOTWR
 
 ```bash
-dune build src/app.bc.js files/ -w
+dune build src/app.bc.js files/style.css -w
 
 python3 -m http.server --directory files/ 8081
 ```
 
 ```bash
-dune clean && DUNE_PROFILE=release dune build src/app.bc.js files/
+dune clean && DUNE_PROFILE=release dune build src/app.bc.js files/style.css
 
 docker build . -t botwr:latest
 

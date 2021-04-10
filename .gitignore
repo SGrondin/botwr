@@ -4,7 +4,6 @@ _opam/
 _build/
 twbs/
 files/style.css*
-files/fonts
 src/recipes/images
 **/.merlin
 *.txt

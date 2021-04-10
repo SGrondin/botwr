@@ -25,4 +25,54 @@ $badge-font-size: 0.8em;
   @extend .justify-content-center;
 }
 
+.loading-animation {
+  position: relative;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: $primary;
+  color: $primary;
+  animation: loadingAnimation 1s infinite linear alternate;
+  animation-delay: .5s;
+}
+
+.loading-animation::before, .loading-animation::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.loading-animation::before {
+  left: -15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: $primary;
+  color: $primary;
+  animation: loadingAnimation 1s infinite alternate;
+  animation-delay: 0s;
+}
+
+.loading-animation::after {
+  left: 15px;
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  background-color: $primary;
+  color: $primary;
+  animation: loadingAnimation 1s infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes loadingAnimation {
+  0% {
+    background-color: $primary;
+  }
+  50%,
+  100% {
+    background-color: $success;
+  }
+}
+
 @import "../../../twbs/bootstrap-5.0.0-beta2/scss/bootstrap";
