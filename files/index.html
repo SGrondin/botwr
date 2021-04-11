@@ -10,6 +10,59 @@
         src: url(/HyliaSerifBeta-Regular.otf) format('opentype');
         font-display: fallback;
       }
+      .loading-animation {
+        position: relative;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: #536f50;
+        color: #536f50;
+        animation: loadingAnimation 1s infinite linear alternate;
+        animation-delay: .5s;
+      }
+      .loading-animation::before, .loading-animation::after {
+        content: '';
+        display: inline-block;
+        position: absolute;
+        top: 0;
+      }
+      .loading-animation::before {
+        left: -15px;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: #536f50;
+        color: #536f50;
+        animation: loadingAnimation 1s infinite alternate;
+        animation-delay: 0s;
+      }
+      .loading-animation::after {
+        left: 15px;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+        background-color: #536f50;
+        color: #536f50;
+        animation: loadingAnimation 1s infinite alternate;
+        animation-delay: 1s;
+      }
+      @keyframes loadingAnimation {
+        0% {
+          background-color: #536f50;
+        }
+        50%,
+        100% {
+          background-color: #92c582;
+        }
+      }
+      .loading {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        font-display: swap;
+      }
     </style>
     <link rel="stylesheet" href="/style.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
@@ -18,7 +71,7 @@
   </head>
   <body>
     <div id="main">
-      <div class="v-center align-items-center vh-100">
+      <div class="loading">
         <div>Loading...</div>
         <div class="loading-animation"></div>
       </div>
