@@ -28,6 +28,10 @@ let plural s = function
 
 let v_center content = [ Node.div Attr.[ class_ "v-center" ] content ]
 
+let unselectable = Css_gen.(user_select `None)
+
+let pointer = Css_gen.(create ~field:"cursor" ~value:"pointer")
+
 let add_if cond x ll = if cond then x :: ll else ll
 
 let add_fold ~f x ll = List.fold x ~init:ll ~f:(fun acc x -> f x :: acc)

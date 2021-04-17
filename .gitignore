@@ -7,3 +7,4 @@ files/style.css*
 src/recipes/images
 **/.merlin
 *.txt
+graph*.png

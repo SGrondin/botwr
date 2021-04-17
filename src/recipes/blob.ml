@@ -1,6 +1,16 @@
 open! Core_kernel
 open Items
 
+let compute blob =
+  let b64 =
+    match Base64.encode ~pad:true blob with
+    | Ok x -> x
+    | Error (`Msg msg) -> failwith msg
+  in
+  sprintf "data:image/png;base64,%s" b64
+
+let dubious = lazy ([%blob "images/dubious.png"] |> compute)
+
 let blobs =
   List.fold all ~init:Map.empty ~f:(fun acc key ->
       let blob =
@@ -99,9 +109,4 @@ let blobs =
         (* | Monster_extract -> {|53|} *)
         (* | Star_fragment -> {|54|} *)
       in
-      let b64 =
-        match Base64.encode ~pad:true blob with
-        | Ok x -> x
-        | Error (`Msg msg) -> failwith msg
-      in
-      Map.set acc ~key ~data:(sprintf "data:image/png;base64,%s" b64))
+      Map.set acc ~key ~data:(compute blob))

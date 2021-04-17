@@ -3,65 +3,119 @@ open! Bonsai_web
 open! Bonsai.Let_syntax
 open! Vdom
 open Bootstrap
+open Bootstrap.Basic
 
 let inventory = Recipes.Glossary.Map.empty
 
-(* let inventory =
+let _inventory =
   let open Recipes.Glossary in
-  [ Endura_carrot, 2; Endura_shroom, 2 ] |> Map.of_alist_exn *)
+  [ Endura_carrot, 2; Endura_shroom, 2 ] |> Map.of_alist_exn
+
+let render_help (data : Kitchen.Model.t) kind total ~kind_buttons ~max_hearts_node ~max_stamina_node =
+  let is_loaded =
+    match data with
+    | New
+     |Completed ->
+      true
+    | Ready _
+     |Loading ->
+      false
+  in
+  let instructions =
+    [
+      "Set your maximum hearts containers.", None, max_hearts_node;
+      "Set your maximum stamina containers.", None, max_stamina_node;
+      "Pick a bonus.", Some (Option.is_some kind), kind_buttons;
+      "Add ingredients to your inventory.", Some (total <> 0), Node.none;
+      sprintf "Click on %s!" Kitchen.button_label, Some (not is_loaded), Node.none;
+    ]
+  in
+  List.mapi instructions ~f:(fun i (s, ok, node) ->
+      let svg =
+        Option.value_map ok ~default:Node.none ~f:(fun ok ->
+            let icon, cl = if ok then Icon.Check_all, "text-success" else Icon.X, "text-danger" in
+            Icon.svg icon ~width:1.5 ~height:1.5 ~container:Span Attr.[ class_ cl ])
+      in
+      Node.li
+        Attr.[ class_ "list-group-item"; style unselectable ]
+        [ Node.textf "%d. %s" (i + 1) s; svg; node ])
+  |> Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ]
 
 let application =
-  let max_hearts = 20 in
-  let max_stamina = 15 in
-  let%sub backpack = Backpack.component ~inventory () in
-  let%pattern_bind backpack, update_backpack, backpack_nodes = backpack in
-  let backpack_is_empty = backpack >>| Recipes.Glossary.Map.is_empty in
-  let%sub kitchen = Kitchen.component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina () in
+  let%sub backpack = Backpack.component ~inventory:(Bonsai.Value.return inventory) () in
+  let%pattern_bind backpack, updates = backpack in
+  let%sub kitchen = Kitchen.component ~updates () in
   return
-  @@ let%map backpack = backpack
-     and `Organize buttons_node, `Show_all show_all_node, `Jump_to jump_to, `Items items_node =
-       backpack_nodes
-     and ( `Kitchen kitchen,
+  @@ let%map Backpack.{ total; items_node; show_all_node; jump_to_node; ingredients } = backpack
+     and ( data,
+           kind,
+           `Kitchen kitchen,
            `Kind kind_buttons,
            `Meals meals_switch,
            `Elixirs elixirs_switch,
+           `Max_hearts max_hearts_node,
+           `Max_stamina max_stamina_node,
            update_kitchen ) =
        kitchen
      in
      let kitchen_node =
-       let recipes_button =
+       let id_ = "hidden-btn" in
+       let hidden =
+         Node.button
+           Attr.
+             [
+               class_ "d-none";
+               id id_;
+               type_ "button";
+               on_click (fun _evt -> update_kitchen (Ready ingredients));
+             ]
+           []
+       in
+       let button =
+         let cl =
+           [ "btn"; "btn-primary"; "m-2" ] |> add_if ([%equal: Kitchen.Model.t] data Loading) "d-none"
+         in
          Node.div []
            [
+             hidden;
              Node.button
                Attr.
                  [
                    type_ "button";
-                   classes [ "btn"; "btn-primary"; "m-2" ];
-                   on_click (fun _evt -> update_kitchen (Ready (Recipes.Glossary.Map.to_alist backpack)));
+                   classes cl;
+                   on_click (fun _evt ->
+                       match data with
+                       | Ready _
+                        |Completed
+                        |New ->
+                         Js_of_ocaml_lwt.Lwt_js_events.async (fun () ->
+                             Js_of_ocaml.Dom_html.getElementById_opt id_
+                             |> Option.iter ~f:(fun el -> el##click);
+                             Lwt.return_unit);
+                         update_kitchen Loading
+                       | _ -> Event.Ignore);
                  ]
-               [ Node.text "Best Recipe" ];
+               [ Node.text Kitchen.button_label ];
            ]
        in
+       let help_node = render_help data kind total ~kind_buttons ~max_hearts_node ~max_stamina_node in
        Node.div []
          [
            Node.h3 Attr.[ id "top" ] [ Node.text "BOTW Cooking Optimizer" ];
-           kind_buttons;
-           meals_switch;
-           elixirs_switch;
-           recipes_button;
+           help_node;
+           Node.div
+             Attr.[ classes [ "d-flex"; "align-items-center" ] ]
+             [ button; meals_switch; elixirs_switch ];
            kitchen;
          ]
      in
-
      Node.div
        Attr.[ class_ "m-2" ]
        [
          kitchen_node;
          Node.h3 Attr.[ class_ "mt-4" ] [ Node.text "Ingredients" ];
-         jump_to;
-         Node.div
-           Attr.[ classes [ "mb-3"; "d-flex"; "align-items-center" ] ]
-           (List.map ~f:(fun x -> Node.div Attr.[ class_ "mx-2" ] [ x ]) [ buttons_node; show_all_node ]);
+         Node.div Attr.[ class_ "my-3" ] [ show_all_node ];
+         jump_to_node;
          items_node;
        ]
 

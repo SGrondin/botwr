@@ -8,15 +8,63 @@ open Bootstrap.Basic
 module Model = struct
   type t =
     | New
+    | Loading
     | Ready     of (Recipes.Glossary.t * int) list
     | Completed
   [@@deriving sexp, equal]
 end
 
-let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.Basic.t) =
+let make_icon icon = Icon.svg icon ~width:1.5 ~height:1.5 ~container:Span []
+
+let wrap_icon_list nodes = Node.div Attr.[ style Css_gen.(max_width (`Em 30) @> unselectable) ] nodes
+
+let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> Node.t option = function
+| Nothing -> None
+| Restores x -> List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list |> Option.return
+| Full_plus_bonus x ->
+  List.init max_hearts ~f:(const (make_icon Heart)) @ List.init x ~f:(const (make_icon Hearty))
+  |> wrap_icon_list
+  |> Option.return
+
+let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = function
+| Nothing -> None
+| Restores x ->
+  let wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Energizing)) in
+  let remainder =
+    match Int.( % ) x 5 with
+    | 1 -> [ make_icon Energizing1 ]
+    | 2 -> [ make_icon Energizing2 ]
+    | 3 -> [ make_icon Energizing3 ]
+    | 4 -> [ make_icon Energizing4 ]
+    | _ -> []
+  in
+  wheels @ remainder |> wrap_icon_list |> Option.return
+| Full_plus_bonus x ->
+  let green_wheels = Int.( /% ) max_stamina 5 |> List.init ~f:(const (make_icon Energizing)) in
+  let green_remainder =
+    match Int.( % ) max_stamina 5 with
+    | 1 -> [ make_icon Energizing1 ]
+    | 2 -> [ make_icon Energizing2 ]
+    | 3 -> [ make_icon Energizing3 ]
+    | 4 -> [ make_icon Energizing4 ]
+    | _ -> []
+  in
+  let yellow_wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Enduring)) in
+  let yellow_remainder =
+    match Int.( % ) x 5 with
+    | 1 -> [ make_icon Enduring1 ]
+    | 2 -> [ make_icon Enduring2 ]
+    | 3 -> [ make_icon Enduring3 ]
+    | 4 -> [ make_icon Enduring4 ]
+    | _ -> []
+  in
+  List.concat [ green_wheels; green_remainder; yellow_wheels; yellow_remainder ]
+  |> wrap_icon_list
+  |> Option.return
+
+let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.Basic.t) =
   let open Option.Monad_infix in
   let open Recipes.Optimize.Basic in
-  let current_uri = Uri.of_string Js_of_ocaml.Url.Current.as_string in
   let score_icon, score_text =
     let icon : Icon.t =
       match basic.score with
@@ -34,7 +82,6 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
     | _ -> false
   in
   let render_iteration { rarity; best } =
-    let make_icon icon = Icon.svg icon ~width:1.5 ~height:1.5 ~container:Span [] in
     let make_duration sec =
       let minutes = Int.( /% ) sec 60 in
       let remainder = Int.( % ) sec 60 in
@@ -44,30 +91,6 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
       | x, y -> Node.textf "%d minutes and %d seconds" x y
     in
     let icon_text icon text = Node.span [] [ icon >>| make_icon |> or_none; Node.text text ] in
-    let recipe_rows =
-      Recipes.Glossary.Map.fold_right best ~init:[] ~f:(fun ~key ~data acc ->
-          List.init data ~f:(fun _ ->
-              Node.li
-                Attr.
-                  [
-                    classes
-                      [
-                        "list-group-item";
-                        "p-1";
-                        "d-flex";
-                        "align-items-center";
-                        "justify-content-between";
-                      ];
-                  ]
-                [
-                  Node.div [] [ Node.textf !"%{Recipes.Glossary}" key ];
-                  Node.create "img"
-                    Attr.[ style Css_gen.(height (`Em 2)); src (Recipes.Glossary.to_img_src key) ]
-                    [];
-                ])
-          :: acc)
-      |> List.concat
-    in
     let cooked = Recipes.Cooking.cook ~max_hearts ~max_stamina best in
 
     let rarity_icon, rarity_text =
@@ -90,53 +113,8 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
         sprintf "Error: %s" msg, None, None
     in
 
-    let hearts =
-      meal >>| Recipes.Cooking.Meal.hearts >>= function
-      | Nothing -> None
-      | Restores x -> List.init x ~f:(const (make_icon Heart)) |> Node.span [] |> Option.return
-      | Full_plus_bonus x ->
-        List.init max_hearts ~f:(const (make_icon Heart)) @ List.init x ~f:(const (make_icon Hearty))
-        |> Node.span []
-        |> Option.return
-    in
-
-    let stamina =
-      meal >>| Recipes.Cooking.Meal.stamina >>= function
-      | Nothing -> None
-      | Restores x ->
-        let wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Energizing)) in
-        let remainder =
-          match Int.( % ) x 5 with
-          | 1 -> [ make_icon Energizing1 ]
-          | 2 -> [ make_icon Energizing2 ]
-          | 3 -> [ make_icon Energizing3 ]
-          | 4 -> [ make_icon Energizing4 ]
-          | _ -> []
-        in
-        wheels @ remainder |> Node.span [] |> Option.return
-      | Full_plus_bonus x ->
-        let green_wheels = Int.( /% ) max_stamina 5 |> List.init ~f:(const (make_icon Energizing)) in
-        let green_remainder =
-          match Int.( % ) max_stamina 5 with
-          | 1 -> [ make_icon Energizing1 ]
-          | 2 -> [ make_icon Energizing2 ]
-          | 3 -> [ make_icon Energizing3 ]
-          | 4 -> [ make_icon Energizing4 ]
-          | _ -> []
-        in
-        let yellow_wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Enduring)) in
-        let yellow_remainder =
-          match Int.( % ) x 5 with
-          | 1 -> [ make_icon Enduring1 ]
-          | 2 -> [ make_icon Enduring2 ]
-          | 3 -> [ make_icon Enduring3 ]
-          | 4 -> [ make_icon Enduring4 ]
-          | _ -> []
-        in
-        List.concat [ green_wheels; green_remainder; yellow_wheels; yellow_remainder ]
-        |> Node.span []
-        |> Option.return
-    in
+    let hearts = meal >>| Recipes.Cooking.Meal.hearts >>= render_hearts max_hearts in
+    let stamina = meal >>| Recipes.Cooking.Meal.stamina >>= render_stamina max_stamina in
 
     let effect, duration =
       let opt =
@@ -191,7 +169,7 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
           let _x = window##scrollTo 0 0 in
           update_data Model.Completed
           :: Recipes.Glossary.Map.fold_right best ~init:[] ~f:(fun ~key ~data acc ->
-                 update_backpack (Backpack.Action.Decrement_by (key, data)) :: acc)
+                 Card.trigger_action updates key (Card.Action.Decrement_by data) :: acc)
         in
         Event.Many evts
       in
@@ -200,9 +178,33 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
         [
           Node.button
             Attr.[ type_ "button"; on_click handler; classes [ "btn"; "btn-success"; "px-4" ] ]
-            [ Node.text "Cook" ];
-          Node.h6 Attr.[ class_ "fst-italic" ] [ Node.text "Removes ingredients from your inventory" ];
+            [ Node.text "Cook and Remove" ];
         ]
+    in
+
+    let recipe_rows =
+      Recipes.Glossary.Map.fold_right best ~init:[ [ cook_button ] ] ~f:(fun ~key ~data acc ->
+          List.init data ~f:(fun _ ->
+              Node.li
+                Attr.
+                  [
+                    classes
+                      [
+                        "list-group-item";
+                        "p-1";
+                        "d-flex";
+                        "align-items-center";
+                        "justify-content-between";
+                      ];
+                  ]
+                [
+                  Node.div [] [ Node.textf !"%{Recipes.Glossary}" key ];
+                  Node.create "img"
+                    Attr.[ style Css_gen.(height (`Em 2)); src (Recipes.Glossary.to_img_src key) ]
+                    [];
+                ])
+          :: acc)
+      |> List.concat
     in
 
     Node.div
@@ -210,7 +212,7 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
       [
         Node.div
           Attr.[ class_ "col"; style Css_gen.(min_width (`Percent (Percent.of_percentage 30.0))) ]
-          [ table; cook_button ];
+          [ table ];
         Node.div
           Attr.[ class_ "col-auto" ]
           [
@@ -222,7 +224,8 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
   in
   let seconds = Float.round_significant ~significant_digits:3 basic.duration in
   match basic with
-  | { count = 0; iterations = []; _ } -> Node.div [] []
+  | { count = 0; iterations = []; _ } ->
+    Node.div [] [ Node.text "Nothing to cook! Try a different bonus or ingredients." ]
   | { iterations = []; _ } ->
     Node.div []
       [
@@ -230,13 +233,18 @@ let render ~update_backpack ~update_data ~max_hearts ~max_stamina (basic : Recip
         Node.div
           Attr.[ classes [ "d-flex"; "align-items-center" ] ]
           [
-            Node.create "img" Attr.[ src (Utils.image_uri current_uri "dubious.png" |> Uri.to_string) ] [];
+            Node.create "img" Attr.[ src (force Recipes.Blob.dubious) ] [];
             Node.h6 [] [ Node.text "Nothing with the special effect you seek..." ];
           ];
       ]
   | { iterations; _ } ->
     let time_node =
-      Node.h6 [] [ Node.textf "Best of %d possible recipes. (%.3f seconds)" basic.count seconds ]
+      Node.h6 []
+        [
+          Node.textf "Best of %s possible recipes. (%.3f seconds)"
+            (Int.to_string_hum ~delimiter:',' basic.count)
+            seconds;
+        ]
     in
     Node.div [] (time_node :: List.map iterations ~f:render_iteration)
 
@@ -258,8 +266,9 @@ let button_choices =
       ]
 
 let render_buttons ~update selected_kind =
+  let handler _evt s = update (String.Map.find button_choices s) in
   Node.div
-    Attr.[ class_ "d-inline-block"; on_change (fun _evt s -> update (String.Map.find button_choices s)) ]
+    Attr.[ class_ "my-2"; on_change handler ]
     (String.Map.fold_right button_choices ~init:[] ~f:(fun ~key:label ~data:kind acc ->
          let id_ = sprintf "kind-choice-%s" label in
          let attrs =
@@ -281,15 +290,27 @@ let render_buttons ~update selected_kind =
          in
          node :: acc))
 
-let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind () =
+let button_label = "Calculate"
+
+let component ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
+  let%pattern_bind _, update_kitchen = component in
+  let%sub max_hearts =
+    Stepper.component 27 ~max_value:30 ~update_kitchen Model.New ~render:(fun x ->
+        Recipes.Cooking.Hearts.Restores x |> render_hearts 0 |> Option.value ~default:Node.none)
+  in
+  let%sub max_stamina =
+    Stepper.component 15 ~max_value:20 ~update_kitchen New ~render:(fun x ->
+        Recipes.Cooking.Stamina.Restores x |> render_stamina 0 |> Option.value ~default:Node.none)
+  in
   let%sub meals = Bonsai.state [%here] (module Bool) ~default_model:true in
   let%sub elixirs = Bonsai.state [%here] (module Bool) ~default_model:true in
   let%sub kind = Bonsai.state_opt [%here] (module Recipes.Ingredient.Effect.Kind) ?default_model:kind in
   return
   @@ let%map data, update_data = component
-     and backpack_is_empty = backpack_is_empty
-     and update_backpack = update_backpack
+     and max_hearts, max_hearts_node = max_hearts
+     and max_stamina, max_stamina_node = max_stamina
+     and updates = updates
      and meals, update_meals = meals
      and elixirs, update_elixirs = elixirs
      and kind, update_kind = kind in
@@ -302,24 +323,10 @@ let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind
        | false, true -> Elixirs
      in
      let kitchen_node =
-       let instructions =
-         let not_loaded =
-           match data with
-           | New
-            |Ready [] ->
-             false
-           | _ -> true
-         in
-         [
-           "Pick a bonus: Hearty, Tough, etc.", Option.is_some kind;
-           "Add ingredients to your inventory.", not backpack_is_empty;
-           "Click on Best Recipe!", not_loaded;
-         ]
-       in
        match data, kind with
        | Ready (_ :: _ as data), Some kind ->
          let optimized = Recipes.Optimize.Basic.run ~max_hearts ~max_stamina ~kind ~category data in
-         render ~update_backpack ~update_data ~max_hearts ~max_stamina optimized
+         render ~updates ~update_data ~max_hearts ~max_stamina optimized
        | Completed, _ ->
          Node.div []
            [
@@ -328,18 +335,19 @@ let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind
                  Node.text "All done!";
                  Icon.svg Check_all ~width:1.5 ~height:1.5 ~container:Span Attr.[ class_ "text-success" ];
                ];
-             Node.div [] [ Node.text "Click on Best Recipe to continue with your remaining ingredients." ];
+             Node.div []
+               [
+                 Node.textf "Click on the %s button to continue with your remaining ingredients."
+                   button_label;
+               ];
            ]
-       | _ ->
-         let nodes =
-           List.mapi instructions ~f:(fun i (s, ok) ->
-               let svg =
-                 let icon, cl = if ok then Icon.Check_all, "text-success" else Icon.X, "text-danger" in
-                 Icon.svg icon ~width:1.5 ~height:1.5 ~container:Span Attr.[ class_ cl ]
-               in
-               Node.li Attr.[ class_ "list-group-item" ] [ Node.textf "%d. %s" (i + 1) s; svg ])
-         in
-         Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ] nodes
+       | Loading, _ ->
+         Node.div
+           Attr.[ classes [ "spinner-border"; "text-info"; "m-3" ]; create "role" "status" ]
+           [ Node.span Attr.[ class_ "visually-hidden" ] [ Node.text "Loading..." ] ]
+       | Ready _, _
+        |New, _ ->
+         Node.none
      in
      let buttons =
        let update x = Event.Many [ update_kind x; update_data New ] in
@@ -352,4 +360,12 @@ let component ~backpack_is_empty ~update_backpack ~max_hearts ~max_stamina ?kind
        Utils.render_switch ~update:update_elixirs ~disabled:(not meals) ~id:"elixirs-switch" "Elixirs"
          elixirs
      in
-     `Kitchen kitchen_node, `Kind buttons, `Meals meals_switch, `Elixirs elixirs_switch, update_data
+     ( data,
+       kind,
+       `Kitchen kitchen_node,
+       `Kind buttons,
+       `Meals meals_switch,
+       `Elixirs elixirs_switch,
+       `Max_hearts max_hearts_node,
+       `Max_stamina max_stamina_node,
+       update_data )

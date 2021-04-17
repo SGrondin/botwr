@@ -27,8 +27,10 @@ module Stamina = struct
 
   let score ~max_stamina = function
   | Nothing -> 0
-  | Restores x -> min x max_stamina * factor
-  | Full_plus_bonus x -> (max_stamina + x) * factor
+  | Restores x -> min x max_stamina * factor * 2
+  | Full_plus_bonus x ->
+    let total = max_stamina + x in
+    ((min total 20 * factor) - max (total - 20) 0) * 2
 end
 
 module Effect = struct

@@ -151,11 +151,26 @@ module Effect = struct
         | Sneaky
         | Spicy
         | Tough
-      [@@deriving sexp, compare, equal, hash]
+      [@@deriving sexp, compare, equal, hash, enumerate]
     end
 
     module Map = Map.Make (Self)
     include Self
+
+    let to_string = function
+    | Nothing -> "None"
+    | Neutral -> "None"
+    | Hearty -> "Hearty"
+    | Energizing -> "Energizing"
+    | Enduring -> "Enduring"
+    | Spicy -> "Spicy"
+    | Chilly -> "Chilly"
+    | Electro -> "Electro"
+    | Fireproof -> "Fireproof"
+    | Hasty -> "Hasty"
+    | Sneaky -> "Sneaky"
+    | Mighty -> "Mighty"
+    | Tough -> "Tough"
   end
 end
 
