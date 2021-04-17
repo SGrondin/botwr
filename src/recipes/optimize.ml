@@ -31,9 +31,16 @@ let diff_time r =
   r := t1;
   Int64.((t1 - t0) // 1_000_000_000L)
 
+type folder = {
+  first: int * Recipe.t list;
+  second: int * Recipe.t list;
+  third: int * Recipe.t list;
+}
+
 let combine ~max_hearts ~max_stamina list =
   let cache = Recipe.Table.create () in
-  let f (((best_score, all_best) as best), i) (recipe : Recipe.t) =
+  let f (({ first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc), i)
+     (recipe : Recipe.t) =
     let score =
       Recipe.Table.find_or_add cache recipe ~default:(fun () ->
           match cook ~max_hearts ~max_stamina recipe with
@@ -44,12 +51,24 @@ let combine ~max_hearts ~max_stamina list =
            |Failed _ ->
             -1_000_000)
     in
-    match score with
-    | _ when score > best_score -> (score, [ recipe ]), i + 1
-    | _ when score = best_score -> (best_score, recipe :: all_best), i + 1
-    | _ -> best, i + 1
+    let updated =
+      if score < score3
+      then acc
+      else if score = score3
+      then { acc with third = score, recipe :: ll3 }
+      else if score < score2
+      then { acc with third = score, [ recipe ] }
+      else if score = score2
+      then { acc with second = score, recipe :: ll2 }
+      else if score < score1
+      then { acc with second = score, [ recipe ]; third = acc.second }
+      else if score = score1
+      then { acc with first = score, recipe :: ll1 }
+      else { first = score, [ recipe ]; second = acc.first; third = acc.second }
+    in
+    updated, i + 1
   in
-  generate_all ~init:((0, []), 0) ~f 5 list
+  generate_all ~init:({ first = 0, []; second = 0, []; third = 0, [] }, 0) ~f 5 list
 
 let rarity_score grouped recipe =
   Glossary.Map.fold recipe ~init:0.0 ~f:(fun ~key ~data acc ->
@@ -75,41 +94,49 @@ let top_most_common ?(n = 3) grouped recipes =
 
 type iteration = {
   rarity: float;
-  best: Recipe.t;
+  score: int;
+  recipe: Recipe.t;
 }
 [@@deriving sexp]
 
 type t = {
   iterations: iteration list;
-  score: int;
   count: int;
   duration: float;
 }
 [@@deriving sexp]
 
-let to_string ~max_hearts ~max_stamina { iterations; score; count; duration } =
+let to_string ~max_hearts ~max_stamina { iterations; count; duration } =
   let buf = Buffer.create 128 in
   bprintf buf "(%ds)" (Float.to_int duration);
-  List.iter iterations ~f:(fun { rarity; best } ->
+  List.iter iterations ~f:(fun { rarity; score; recipe } ->
       bprintf buf
         !"\n%d pts (%d, %f) -- %{Recipe} -- %{sexp: Cooking.t}"
-        score count rarity best
-        (cook ~max_hearts ~max_stamina best));
+        score count rarity recipe
+        (cook ~max_hearts ~max_stamina recipe));
   Buffer.contents buf
+
+let top_sort grouped ll =
+  let rec loop from (ll, count) =
+    match from with
+    | [] -> List.rev ll |> List.concat
+    | (score, recipes) :: rest ->
+      let next =
+        List.dedup_and_sort recipes ~compare:[%compare: Recipe.t]
+        |> top_most_common ~n:(3 - count) grouped
+        |> List.map ~f:(fun (rarity, recipe) -> { rarity; score; recipe })
+      in
+      let len = count + List.length next in
+      if len >= 3 then List.rev (next :: ll) |> List.concat else loop rest (next :: ll, len)
+  in
+  loop ll ([], 0)
 
 let run ~max_hearts ~max_stamina ~kind ~category items =
   let r = time () in
   let grouped = group items in
-  let output = filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina in
-  match output with
-  | ((0 as score), _), count ->
-    let duration = diff_time r in
-    { iterations = []; score; count; duration }
-  | (score, ties), count ->
-    let iterations =
-      List.dedup_and_sort ties ~compare:[%compare: Recipe.t]
-      |> top_most_common grouped
-      |> List.map ~f:(fun (rarity, best) -> { rarity; best })
-    in
-    let duration = diff_time r in
-    { iterations; score; count; duration }
+  let { first; second; third }, count =
+    filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina
+  in
+  let iterations = top_sort grouped [ first; second; third ] in
+  let duration = diff_time r in
+  { iterations; count; duration }

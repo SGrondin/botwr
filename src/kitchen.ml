@@ -65,23 +65,23 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = fu
 let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.t) =
   let open Option.Monad_infix in
   let open Recipes.Optimize in
-  let score_icon, score_text =
-    let icon : Icon.t =
-      match basic.score with
-      | x when x < 25 -> Reception_0
-      | x when x < 50 -> Reception_1
-      | x when x < 100 -> Reception_2
-      | x when x < 200 -> Reception_3
-      | _ -> Reception_4
-    in
-    icon, sprintf "%d points" basic.score
-  in
   let is_single_recipe =
     match basic.iterations with
     | [ _ ] -> true
     | _ -> false
   in
-  let render_iteration { rarity; best } =
+  let render_iteration { rarity; score; recipe } =
+    let score_icon, score_text =
+      let icon : Icon.t =
+        match score with
+        | x when x < 25 -> Reception_0
+        | x when x < 50 -> Reception_1
+        | x when x < 100 -> Reception_2
+        | x when x < 200 -> Reception_3
+        | _ -> Reception_4
+      in
+      icon, sprintf "%d points" score
+    in
     let make_duration sec =
       let minutes = Int.( /% ) sec 60 in
       let remainder = Int.( % ) sec 60 in
@@ -91,7 +91,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       | x, y -> Node.textf "%d minutes and %d seconds" x y
     in
     let icon_text icon text = Node.span [] [ icon >>| make_icon |> or_none; Node.text text ] in
-    let cooked = Recipes.Cooking.cook ~max_hearts ~max_stamina best in
+    let cooked = Recipes.Cooking.cook ~max_hearts ~max_stamina recipe in
 
     let rarity_icon, rarity_text =
       let open Float in
@@ -168,7 +168,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         let evts =
           let _x = window##scrollTo 0 0 in
           update_data Model.Completed
-          :: Recipes.Glossary.Map.fold_right best ~init:[] ~f:(fun ~key ~data acc ->
+          :: Recipes.Glossary.Map.fold_right recipe ~init:[] ~f:(fun ~key ~data acc ->
                  Card.trigger_action updates key (Card.Action.Decrement_by data) :: acc)
         in
         Event.Many evts
@@ -183,7 +183,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
     in
 
     let recipe_rows =
-      Recipes.Glossary.Map.fold_right best ~init:[ [ cook_button ] ] ~f:(fun ~key ~data acc ->
+      Recipes.Glossary.Map.fold_right recipe ~init:[ [ cook_button ] ] ~f:(fun ~key ~data acc ->
           List.init data ~f:(fun _ ->
               Node.li
                 Attr.
