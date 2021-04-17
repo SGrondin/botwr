@@ -62,9 +62,9 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = fu
   |> wrap_icon_list
   |> Option.return
 
-let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.Basic.t) =
+let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.t) =
   let open Option.Monad_infix in
-  let open Recipes.Optimize.Basic in
+  let open Recipes.Optimize in
   let score_icon, score_text =
     let icon : Icon.t =
       match basic.score with
@@ -325,7 +325,7 @@ let component ~updates ?kind () =
      let kitchen_node =
        match data, kind with
        | Ready (_ :: _ as data), Some kind ->
-         let optimized = Recipes.Optimize.Basic.run ~max_hearts ~max_stamina ~kind ~category data in
+         let optimized = Recipes.Optimize.run ~max_hearts ~max_stamina ~kind ~category data in
          render ~updates ~update_data ~max_hearts ~max_stamina optimized
        | Completed, _ ->
          Node.div []

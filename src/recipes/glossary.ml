@@ -53,6 +53,12 @@ let effect_critter ?(hearts = 0) dur variant ((potency, _, _, _, _) as scaling) 
 
 let make_monster dur = Ingredient.{ hearts = 0; effect = Neutral (always dur); category = Monster }
 
+let cached_monster_horn = make_monster (1, 10)
+
+let cached_monster_fang = make_monster (1, 50)
+
+let cached_monster_guts = make_monster (3, 10)
+
 include Items
 
 let has_effect = function
@@ -145,9 +151,9 @@ let has_effect = function
  |Ironshell_crab
  |Armored_porgy ->
   true
-| Monster_horn
- |Monster_fang
- |Monster_guts ->
+| Monster_horn _
+ |Monster_fang _
+ |Monster_guts _ ->
   false
 
 let do_to_ingredient = function
@@ -238,13 +244,17 @@ let do_to_ingredient = function
 | Armored_carp -> make_tough 2 (1, 1, 2, 3, 3)
 | Ironshell_crab -> make_tough 2 (1, 1, 2, 3, 3)
 | Armored_porgy -> make_tough 2 (1, 2, 3, 3, 3)
-| Monster_horn -> make_monster (1, 10)
-| Monster_fang -> make_monster (1, 50)
-| Monster_guts -> make_monster (3, 10)
+| Monster_horn _ -> cached_monster_horn
+| Monster_fang _ -> cached_monster_fang
+| Monster_guts _ -> cached_monster_guts
 
 let mapped = Array.of_list_map all ~f:do_to_ingredient
 
-let to_ingredient x = mapped.(Variants.to_rank x)
+let to_ingredient = function
+| Monster_horn _ -> cached_monster_horn
+| Monster_fang _ -> cached_monster_fang
+| Monster_guts _ -> cached_monster_guts
+| x -> mapped.(Variants.to_rank x)
 
 let to_kind = Fn.compose Ingredient.to_kind to_ingredient
 
@@ -357,8 +367,43 @@ let to_string = function
 | Armored_carp -> "Armored Carp"
 | Ironshell_crab -> "Ironshell Crab"
 | Armored_porgy -> "Armored Porgy"
-| Monster_horn -> "Monster Horn"
-| Monster_fang -> "Monster Fang"
-| Monster_guts -> "Monster Guts"
+| Monster_horn Bokoblin_horn -> "Bokoblin Horn"
+| Monster_horn Moblin_horn -> "Moblin Horn"
+| Monster_horn Lizalfos_horn -> "Lizalfos Horn"
+| Monster_horn Lynel_horn -> "Lynel Horn"
+| Monster_horn Hinox_toenail -> "Hinox Toenail"
+| Monster_horn Keese_wing -> "Keese Wing"
+| Monster_horn Chuchu_jelly -> "Chuchu Jelly"
+| Monster_horn Octorok_tentacle -> "Octorok Tentacle"
+| Monster_horn Octo_balloon -> "Octo Balloon"
+| Monster_horn Ancient_screw -> "Ancient Screw"
+| Monster_horn Ancient_spring -> "Ancient Spring"
+| Monster_fang Bokoblin_fang -> "Bokoblin Fang"
+| Monster_fang Moblin_fang -> "Moblin Fang"
+| Monster_fang Lizalfos_talon -> "Lizalfos Talon"
+| Monster_fang Lynel_hoof -> "Lynel Hoof"
+| Monster_fang Hinox_tooth -> "Hinox Tooth"
+| Monster_fang Molduga_fin -> "Molduga Fin"
+| Monster_fang White_chuchu_jelly -> "White Chuchu Jelly"
+| Monster_fang Red_chuchu_jelly -> "Red Chuchu Jelly"
+| Monster_fang Yellow_chuchu_jelly -> "Yellow Chuchu Jelly"
+| Monster_fang Octorok_eyeball -> "Octorok Eyeball"
+| Monster_fang Ice_keese_wing -> "Ice Keese Wing"
+| Monster_fang Fire_keese_wing -> "Fire Keese Wing"
+| Monster_fang Electric_keese_wing -> "Electric Keese Wing"
+| Monster_fang Ancient_gear -> "Ancient Gear"
+| Monster_fang Ancient_shaft -> "Ancient Shaft"
+| Monster_guts Bokoblin_guts -> "Bokoblin Guts"
+| Monster_guts Moblin_guts -> "Moblin Guts"
+| Monster_guts Lizalfos_tail -> "Lizalfos Tail"
+| Monster_guts Lynel_guts -> "Lynel Guts"
+| Monster_guts Hinox_guts -> "Hinox Guts"
+| Monster_guts Molduga_guts -> "Molduga Guts"
+| Monster_guts Keese_eyeball -> "Keese Eyeball"
+| Monster_guts Icy_lizalfos_tail -> "Icy Lizalfos Tail"
+| Monster_guts Red_lizalfos_tail -> "Red Lizalfos Tail"
+| Monster_guts Yellow_lizalfos_tail -> "Yellow Lizalfos Tail"
+| Monster_guts Ancient_core -> "Ancient Core"
+| Monster_guts Giant_ancient_core -> "Giant Ancient Core"
 
 let to_img_src x = Map.find_exn Blob.blobs x

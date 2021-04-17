@@ -58,7 +58,7 @@ let%expect_test "List of ingredients" =
     (Food
      ((hearts (Restores 5)) (stamina Nothing)
       (effect (Chilly ((potency 2) (duration 750)))) (num_ingredients 5))) |}];
-  test [ Monster_fang; Bladed_rhino_beetle; Bladed_rhino_beetle; Bladed_rhino_beetle ];
+  test [ Monster_fang Moblin_fang; Bladed_rhino_beetle; Bladed_rhino_beetle; Bladed_rhino_beetle ];
   [%expect
     {|
     (Elixir
@@ -102,7 +102,7 @@ let%expect_test "Combinations" =
   let test r ll =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
-    Combinations.Basic.generate ~init ~f r ll
+    Combinations.generate ~init ~f r ll
     |> Combinations.Recipe.Set.to_list
     |> Combinations.Recipe.to_string_many
     |> print_endline
@@ -202,7 +202,7 @@ let%expect_test "All basic combinations" =
   let test r ll =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
-    Combinations.Basic.generate_all ~init ~f r ll
+    Combinations.generate_all ~init ~f r ll
     |> Combinations.Recipe.Set.to_list
     |> Combinations.Recipe.to_string_many
     |> print_endline
@@ -210,7 +210,7 @@ let%expect_test "All basic combinations" =
   let count r ll =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
-    Combinations.Basic.generate_all ~init ~f r ll
+    Combinations.generate_all ~init ~f r ll
     |> Combinations.Recipe.Set.length
     |> Int.to_string
     |> print_endline

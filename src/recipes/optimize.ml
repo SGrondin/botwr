@@ -31,131 +31,85 @@ let diff_time r =
   r := t1;
   Int64.((t1 - t0) // 1_000_000_000L)
 
-module Basic = struct
-  let combine ~max_hearts ~max_stamina list =
-    let cache = Recipe.Table.create () in
-    let f (((best_score, all_best) as best), i) (recipe : Recipe.t) =
-      let score =
-        Recipe.Table.find_or_add cache recipe ~default:(fun () ->
-            match cook ~max_hearts ~max_stamina recipe with
-            | Food meal
-             |Elixir meal ->
-              Meal.score ~max_hearts ~max_stamina meal
-            | Dubious
-             |Failed _ ->
-              -1_000_000)
-      in
-      match score with
-      | _ when score > best_score -> (score, [ recipe ]), i + 1
-      | _ when score = best_score -> (best_score, recipe :: all_best), i + 1
-      | _ -> best, i + 1
+let combine ~max_hearts ~max_stamina list =
+  let cache = Recipe.Table.create () in
+  let f (((best_score, all_best) as best), i) (recipe : Recipe.t) =
+    let score =
+      Recipe.Table.find_or_add cache recipe ~default:(fun () ->
+          match cook ~max_hearts ~max_stamina recipe with
+          | Food meal
+           |Elixir meal ->
+            Meal.score ~max_hearts ~max_stamina meal
+          | Dubious
+           |Failed _ ->
+            -1_000_000)
     in
-    Basic.generate_all ~init:((0, []), 0) ~f 5 list
+    match score with
+    | _ when score > best_score -> (score, [ recipe ]), i + 1
+    | _ when score = best_score -> (best_score, recipe :: all_best), i + 1
+    | _ -> best, i + 1
+  in
+  generate_all ~init:((0, []), 0) ~f 5 list
 
-  let rarity_score grouped recipe =
-    Glossary.Map.fold recipe ~init:0.0 ~f:(fun ~key ~data acc ->
-        let remaining = Glossary.Table.find grouped key |> Option.value_exn ~here:[%here] in
-        let removing = data // remaining in
-        Float.(removing + acc))
+let rarity_score grouped recipe =
+  Glossary.Map.fold recipe ~init:0.0 ~f:(fun ~key ~data acc ->
+      let remaining = Glossary.Table.find grouped key |> Option.value_exn ~here:[%here] in
+      let removing = data // remaining in
+      Float.(removing + acc))
 
-  let break_tie grouped recipes =
-    List.fold recipes ~init:(Float.max_value, Glossary.Map.empty)
-      ~f:(fun ((smallest_impact, _) as smallest) recipe ->
-        let impact = rarity_score grouped recipe in
-        if Float.(impact < smallest_impact) then impact, recipe else smallest)
+let break_tie grouped recipes =
+  List.fold recipes ~init:(Float.max_value, Glossary.Map.empty)
+    ~f:(fun ((smallest_impact, _) as smallest) recipe ->
+      let impact = rarity_score grouped recipe in
+      if Float.(impact < smallest_impact) then impact, recipe else smallest)
 
-  let top_most_common ?(n = 3) grouped recipes =
-    let sorted =
-      List.fold recipes ~init:Float.Map.empty ~f:(fun acc recipe ->
-          Float.Map.add_multi acc ~key:(rarity_score grouped recipe) ~data:recipe)
-    in
-    Float.Map.to_sequence sorted ~order:`Increasing_key
-    |> Sequence.concat_map ~f:(fun (x, ll) -> List.map ll ~f:(Tuple2.create x) |> Sequence.of_list)
-    |> Fn.flip Sequence.take n
-    |> Sequence.to_list
+let top_most_common ?(n = 3) grouped recipes =
+  let sorted =
+    List.fold recipes ~init:Float.Map.empty ~f:(fun acc recipe ->
+        Float.Map.add_multi acc ~key:(rarity_score grouped recipe) ~data:recipe)
+  in
+  Float.Map.to_sequence sorted ~order:`Increasing_key
+  |> Sequence.concat_map ~f:(fun (x, ll) -> List.map ll ~f:(Tuple2.create x) |> Sequence.of_list)
+  |> Fn.flip Sequence.take n
+  |> Sequence.to_list
 
-  type iteration = {
-    rarity: float;
-    best: Recipe.t;
-  }
-  [@@deriving sexp]
+type iteration = {
+  rarity: float;
+  best: Recipe.t;
+}
+[@@deriving sexp]
 
-  type t = {
-    iterations: iteration list;
-    score: int;
-    count: int;
-    duration: float;
-  }
-  [@@deriving sexp]
+type t = {
+  iterations: iteration list;
+  score: int;
+  count: int;
+  duration: float;
+}
+[@@deriving sexp]
 
-  let to_string ~max_hearts ~max_stamina { iterations; score; count; duration } =
-    let buf = Buffer.create 128 in
-    bprintf buf "(%ds)" (Float.to_int duration);
-    List.iter iterations ~f:(fun { rarity; best } ->
-        bprintf buf
-          !"\n%d pts (%d, %f) -- %{Recipe} -- %{sexp: Cooking.t}"
-          score count rarity best
-          (cook ~max_hearts ~max_stamina best));
-    Buffer.contents buf
+let to_string ~max_hearts ~max_stamina { iterations; score; count; duration } =
+  let buf = Buffer.create 128 in
+  bprintf buf "(%ds)" (Float.to_int duration);
+  List.iter iterations ~f:(fun { rarity; best } ->
+      bprintf buf
+        !"\n%d pts (%d, %f) -- %{Recipe} -- %{sexp: Cooking.t}"
+        score count rarity best
+        (cook ~max_hearts ~max_stamina best));
+  Buffer.contents buf
 
-  let run ~max_hearts ~max_stamina ~kind ~category items =
-    let r = time () in
-    let grouped = group items in
-    let output = filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina in
-    match output with
-    | ((0 as score), _), count ->
-      let duration = diff_time r in
-      { iterations = []; score; count; duration }
-    | (score, ties), count ->
-      let iterations =
-        List.dedup_and_sort ties ~compare:[%compare: Recipe.t]
-        |> top_most_common grouped
-        |> List.map ~f:(fun (rarity, best) -> { rarity; best })
-      in
-      let duration = diff_time r in
-      { iterations; score; count; duration }
-end
-
-module Advanced = struct
-  let combine ~max_hearts ~max_stamina list =
-    let cache = Int.Table.create () in
-    let f (((best_score, _) as best), i) (recipes : Advanced.Recipes.t) =
-      let score =
-        Advanced.Recipes.Map.fold ~init:0 recipes ~f:(fun ~key ~data:{ recipe; num } acc ->
-            let score =
-              Int.Table.find_or_add cache key ~default:(fun () ->
-                  match cook ~max_hearts ~max_stamina recipe with
-                  | Food meal
-                   |Elixir meal ->
-                    Meal.score ~max_hearts ~max_stamina meal
-                  | Dubious
-                   |Failed _ ->
-                    -1_000_000)
-            in
-            (score * num) + acc)
-      in
-      if score > best_score then (score, recipes), i + 1 else best, i + 1
-    in
-    Advanced.generate ~init:((0, Advanced.Recipes.Map.empty), 0) ~f 5 list
-
-  type t = {
-    score: int;
-    count: int;
-    best: Advanced.Recipes.book Advanced.Recipes.Map.t;
-    duration: float;
-  }
-  [@@deriving sexp]
-
-  let to_string { score; count; best; duration } =
-    sprintf
-      !"Best of %d with %d points (%ds) :\n%{Combinations.Advanced.Recipes}"
-      count score (Float.to_int duration) best
-
-  let run ~max_hearts ~max_stamina ~kind ~category items =
-    let r = time () in
-    let (score, best), count =
-      group items |> filter ~kind ~category |> combine ~max_hearts ~max_stamina
+let run ~max_hearts ~max_stamina ~kind ~category items =
+  let r = time () in
+  let grouped = group items in
+  let output = filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina in
+  match output with
+  | ((0 as score), _), count ->
+    let duration = diff_time r in
+    { iterations = []; score; count; duration }
+  | (score, ties), count ->
+    let iterations =
+      List.dedup_and_sort ties ~compare:[%compare: Recipe.t]
+      |> top_most_common grouped
+      |> List.map ~f:(fun (rarity, best) -> { rarity; best })
     in
     let duration = diff_time r in
-    { score; count; best; duration }
-end
+    { iterations; score; count; duration }

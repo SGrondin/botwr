@@ -1,6 +1,53 @@
 open! Core_kernel
 
 module Self = struct
+  type monster_horn =
+    | Bokoblin_horn
+    | Moblin_horn
+    | Lizalfos_horn
+    | Lynel_horn
+    | Hinox_toenail
+    | Keese_wing
+    | Chuchu_jelly
+    | Octorok_tentacle
+    | Octo_balloon
+    | Ancient_screw
+    | Ancient_spring
+  [@@deriving sexp, compare, equal, hash, variants, enumerate]
+
+  type monster_fang =
+    | Bokoblin_fang
+    | Moblin_fang
+    | Lizalfos_talon
+    | Lynel_hoof
+    | Hinox_tooth
+    | Molduga_fin
+    | White_chuchu_jelly
+    | Red_chuchu_jelly
+    | Yellow_chuchu_jelly
+    | Octorok_eyeball
+    | Ice_keese_wing
+    | Fire_keese_wing
+    | Electric_keese_wing
+    | Ancient_gear
+    | Ancient_shaft
+  [@@deriving sexp, compare, equal, hash, variants, enumerate]
+
+  type monster_guts =
+    | Bokoblin_guts
+    | Moblin_guts
+    | Lizalfos_tail
+    | Lynel_guts
+    | Hinox_guts
+    | Molduga_guts
+    | Keese_eyeball
+    | Icy_lizalfos_tail
+    | Red_lizalfos_tail
+    | Yellow_lizalfos_tail
+    | Ancient_core
+    | Giant_ancient_core
+  [@@deriving sexp, compare, equal, hash, variants, enumerate]
+
   type t =
     | Palm_fruit
     | Apple
@@ -89,47 +136,9 @@ module Self = struct
     | Armored_carp
     | Ironshell_crab
     | Armored_porgy
-    | Monster_horn
-    | Monster_fang
-    | Monster_guts
-  (* | Bokoblin_horn
-     | Moblin_horn
-     | Lizalfos_horn
-     | Lynel_horn
-     | Hinox_toenail
-     | Keese_wing
-     | Chuchu_jelly
-     | Octorok_tentacle
-     | Octo_balloon
-     | Ancient_screw
-     | Ancient_spring *)
-  (* | Bokoblin_fang
-     | Moblin_fang
-     | Lizalfos_talon
-     | Lynel_hoof
-     | Hinox_tooth
-     | Molduga_fin
-     | White_chuchu_jelly
-     | Red_chuchu_jelly
-     | Yellow_chuchu_jelly
-     | Octorok_eyeball
-     | Ice_keese_wing
-     | Fire_keese_wing
-     | Electric_keese_wing
-     | Ancient_gear
-     | Ancient_shaft *)
-  (* | Bokoblin_guts
-     | Moblin_guts
-     | Lizalfos_tail
-     | Lynel_guts
-     | Hinox_guts
-     | Molduga_guts
-     | Keese_eyeball
-     | Icy_lizalfos_tail
-     | Red_lizalfos_tail
-     | Yellow_lizalfos_tail
-     | Ancient_core
-     | Giant_ancient_core *)
+    | Monster_horn           of monster_horn
+    | Monster_fang           of monster_fang
+    | Monster_guts           of monster_guts
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 end
 
