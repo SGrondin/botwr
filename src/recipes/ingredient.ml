@@ -151,7 +151,7 @@ module Effect = struct
         | Sneaky
         | Spicy
         | Tough
-      [@@deriving sexp, compare, equal, hash, enumerate]
+      [@@deriving sexp, compare, equal, hash]
     end
 
     module Map = Map.Make (Self)

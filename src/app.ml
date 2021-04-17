@@ -27,7 +27,7 @@ let render_help (data : Kitchen.Model.t) kind total ~kind_buttons ~max_hearts_no
       "Set your maximum stamina containers.", None, max_stamina_node;
       "Pick a bonus.", Some (Option.is_some kind), kind_buttons;
       "Add ingredients to your inventory.", Some (total <> 0), Node.none;
-      sprintf "Click on %s!" Kitchen.button_label, Some (not is_loaded), Node.none;
+      sprintf "Click %s!" Kitchen.button_label, Some (not is_loaded), Node.none;
     ]
   in
   List.mapi instructions ~f:(fun i (s, ok, node) ->

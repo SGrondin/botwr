@@ -14,7 +14,90 @@ type item_folder = {
   ingredients: (Glossary.t * int) list;
 }
 
-let category ~inventory ~selected ~update_selected ~show_all kind items =
+module Group = struct
+  module Self = struct
+    type t =
+      | Nothing
+      | Chilly
+      | Electro
+      | Enduring
+      | Energizing
+      | Fireproof
+      | Hasty
+      | Hearty
+      | Mighty
+      | Sneaky
+      | Spicy
+      | Tough
+      | Monster_parts
+    [@@deriving sexp, compare, enumerate]
+  end
+
+  module Map = Map.Make (Self)
+  include Self
+
+  let of_glossary : Glossary.t -> t = function
+  | Monster_horn _
+   |Monster_fang _
+   |Monster_guts _ ->
+    Monster_parts
+  | x -> (
+    match Glossary.to_kind x with
+    | Nothing
+     |Neutral ->
+      Nothing
+    | Chilly -> Chilly
+    | Electro -> Electro
+    | Enduring -> Enduring
+    | Energizing -> Energizing
+    | Fireproof -> Fireproof
+    | Hasty -> Hasty
+    | Hearty -> Hearty
+    | Mighty -> Mighty
+    | Sneaky -> Sneaky
+    | Spicy -> Spicy
+    | Tough -> Tough
+  )
+
+  let to_string = function
+  | Nothing -> "None"
+  | Chilly -> "Chilly"
+  | Electro -> "Electro"
+  | Enduring -> "Enduring"
+  | Energizing -> "Energizing"
+  | Fireproof -> "Fireproof"
+  | Hasty -> "Hasty"
+  | Hearty -> "Hearty"
+  | Mighty -> "Mighty"
+  | Sneaky -> "Sneaky"
+  | Spicy -> "Spicy"
+  | Tough -> "Tough"
+  | Monster_parts -> "Monster Parts"
+
+  let to_img_node ?width:(w = 2.0) ?height:(h = 2.0) group =
+    let kind : (Recipes.Ingredient.Effect.Kind.t, string) Either.t =
+      match group with
+      | Nothing -> First Nothing
+      | Chilly -> First Chilly
+      | Electro -> First Electro
+      | Enduring -> First Enduring
+      | Energizing -> First Energizing
+      | Fireproof -> First Fireproof
+      | Hasty -> First Hasty
+      | Hearty -> First Hearty
+      | Mighty -> First Mighty
+      | Sneaky -> First Sneaky
+      | Spicy -> First Spicy
+      | Tough -> First Tough
+      | Monster_parts -> Second Glossary.(to_img_src (Monster_guts Bokoblin_guts))
+    in
+    Either.value_map kind
+      ~first:(fun kind -> Icon.svg (Icon.of_kind kind) ~width:w ~height:h ~container:Span [])
+      ~second:(fun img ->
+        Node.create "img" Attr.[ src img; style Css_gen.(width (`Rem w) @> height (`Rem h)) ] [])
+end
+
+let group ~inventory ~selected ~update_selected ~show_all group items =
   let%sub mapped =
     Bonsai.assoc
       (module String)
@@ -22,7 +105,7 @@ let category ~inventory ~selected ~update_selected ~show_all kind items =
       ~f:(fun _name data -> Card.component ~inventory ~selected ~update_selected data)
   in
   return
-  @@ let%map kind = kind
+  @@ let%map group = group
      and mapped = mapped
      and show_all = show_all in
      let folded =
@@ -41,16 +124,12 @@ let category ~inventory ~selected ~update_selected ~show_all kind items =
      match folded with
      | { total = 0; _ } when not show_all -> folded, Node.none
      | { nodes; _ } ->
-       let title_ = Ingredient.Effect.Kind.to_string kind in
+       let title_ = Group.to_string group in
        let node =
          Node.div
            Attr.[ class_ "mb-4" ]
            [
-             Node.h4
-               Attr.[ class_ "ms-3"; id title_ ]
-               [
-                 Node.text title_; Icon.svg (Icon.of_kind kind) ~width:2.0 ~height:2.0 ~container:Span [];
-               ];
+             Node.h4 Attr.[ class_ "ms-3"; id title_ ] [ Node.text title_; Group.to_img_node group ];
              Node.div Attr.[ classes [ "row"; "row-cols-auto" ] ] nodes;
              Node.a
                Attr.[ href "#top"; no_decoration ]
@@ -64,13 +143,8 @@ let category ~inventory ~selected ~update_selected ~show_all kind items =
 
 let jump_to_node =
   let links =
-    List.filter_map Ingredient.Effect.Kind.all ~f:(function
-      | Nothing -> None
-      | k ->
-        Node.a
-          Attr.[ href (sprintf "#%s" (Ingredient.Effect.Kind.to_string k)); no_decoration ]
-          [ Icon.svg (Icon.of_kind k) ~width:2.0 ~height:2.0 ~container:Span Attr.[ class_ "ps-2" ] ]
-        |> Option.return)
+    List.map Group.all ~f:(fun k ->
+        Node.a Attr.[ href (sprintf "#%s" (Group.to_string k)); no_decoration ] [ Group.to_img_node k ])
   in
   let message = Node.text "Jump to... " in
   Node.div Attr.[ class_ "my-3" ] (message :: links)
@@ -83,7 +157,7 @@ type state = {
   ingredients: (Glossary.t * int) list;
 }
 
-type category_folder = {
+type group_folder = {
   nodes: Node.t list;
   total: int;
   updates: (Card.Action.t -> Ui_event.t) Glossary.Map.t;
@@ -91,9 +165,8 @@ type category_folder = {
 }
 
 let default_model =
-  let module KM = Ingredient.Effect.Kind.Map in
-  List.fold Glossary.all ~init:KM.empty ~f:(fun acc x ->
-      KM.update acc (Glossary.to_kind x) ~f:(fun existing ->
+  List.fold Glossary.all ~init:Group.Map.empty ~f:(fun acc x ->
+      Group.Map.update acc (Group.of_glossary x) ~f:(fun existing ->
           let key = Glossary.to_string x in
           match existing with
           | None -> String.Map.singleton key x
@@ -107,9 +180,9 @@ let component ~inventory () =
   let%pattern_bind selected, update_selected = selected in
   let%sub backpack =
     Bonsai.assoc
-      (module Ingredient.Effect.Kind.Map.Key)
+      (module Group.Map.Key)
       default_model
-      ~f:(fun key data -> category ~inventory ~selected ~update_selected ~show_all key data)
+      ~f:(fun key data -> group ~inventory ~selected ~update_selected ~show_all key data)
   in
   return
   @@ let%map backpack = backpack
@@ -118,7 +191,7 @@ let component ~inventory () =
      and selected = selected
      and update_selected = update_selected in
      let { nodes; ingredients; total; updates } =
-       Ingredient.Effect.Kind.Map.fold_right backpack
+       Group.Map.fold_right backpack
          ~init:{ nodes = []; total = 0; updates = Glossary.Map.empty; ingredients = [] }
          ~f:(fun ~key:_ ~data acc ->
            match data with
