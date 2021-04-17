@@ -192,7 +192,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
           Attr.
             [
               class_ "col";
-              style Css_gen.(width (`Percent (Percent.of_percentage 30.0)) @> min_width (`Em 20));
+              style Css_gen.(min_width (`Percent (Percent.of_percentage 30.0)) @> width (`Em 25));
             ]
           [ table ];
         Node.div
