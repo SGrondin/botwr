@@ -30,6 +30,8 @@ let v_center content = [ Node.div Attr.[ class_ "v-center" ] content ]
 
 let unselectable = Css_gen.(user_select `None)
 
+let unclickable = Css_gen.(create ~field:"pointer-events" ~value:"none")
+
 let pointer = Css_gen.(create ~field:"cursor" ~value:"pointer")
 
 let add_if cond x ll = if cond then x :: ll else ll

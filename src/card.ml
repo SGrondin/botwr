@@ -67,7 +67,7 @@ let input_node ~update_selected ~update_state =
   Node.input
     Attr.
       [
-        type_ "text";
+        type_ "tel";
         on_keydown handler;
         class_ "form-control";
         id quantity_node_id;
@@ -127,7 +127,7 @@ let component ~inventory ~selected ~update_selected item =
          let quantity =
            match is_selected with
            | true -> input_node ~update_state ~update_selected
-           | false -> Node.div changes_quantity [ Node.textf !"x%d" state ]
+           | false -> Node.div Attr.[ style unselectable ] [ Node.textf !"x%d" state ]
          in
          Node.div
            Attr.[ classes [ "d-flex"; "flex-column"; "justify-content-between"; "align-items-center" ] ]

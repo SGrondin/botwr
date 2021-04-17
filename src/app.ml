@@ -113,7 +113,7 @@ let application =
        Attr.[ class_ "m-2" ]
        [
          kitchen_node;
-         Node.h3 Attr.[ class_ "mt-4" ] [ Node.text "Ingredients" ];
+         Node.h3 Attr.[ class_ "mt-4"; style unselectable ] [ Node.text "Ingredients" ];
          Node.div Attr.[ class_ "my-3" ] [ show_all_node ];
          jump_to_node;
          items_node;

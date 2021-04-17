@@ -65,23 +65,7 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = fu
 let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.t) =
   let open Option.Monad_infix in
   let open Recipes.Optimize in
-  let is_single_recipe =
-    match basic.iterations with
-    | [ _ ] -> true
-    | _ -> false
-  in
-  let render_iteration { rarity; score; recipe } =
-    let score_icon, score_text =
-      let icon : Icon.t =
-        match score with
-        | x when x < 25 -> Reception_0
-        | x when x < 50 -> Reception_1
-        | x when x < 100 -> Reception_2
-        | x when x < 200 -> Reception_3
-        | _ -> Reception_4
-      in
-      icon, sprintf "%d points" score
-    in
+  let render_iteration { rarity; score = _; recipe } =
     let make_duration sec =
       let minutes = Int.( /% ) sec 60 in
       let remainder = Int.( % ) sec 60 in
@@ -134,18 +118,8 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         opt >>| fun (_, _, { duration; _ }) -> make_duration duration )
     in
 
-    let value_nodes =
-      ( if is_single_recipe
-      then []
-      else [ Node.span Attr.[ class_ "px-2" ] []; icon_text (Some rarity_icon) rarity_text ]
-      )
-      |> List.cons (icon_text (Some score_icon) score_text)
-      |> Node.span []
-    in
-
-    let make_row x y =
-      Node.tr [] [ Node.td Attr.[ style Css_gen.(width (`Em 5)) ] [ Node.text x ]; Node.td [] [ y ] ]
-    in
+    let col_width x = Attr.[ style Css_gen.(width (`Em x)) ] in
+    let make_row x y = Node.tr [] [ Node.td (col_width 6) [ Node.text x ]; Node.td [] [ y ] ] in
 
     let table =
       Node.table
@@ -153,8 +127,12 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         [
           Node.tbody []
             [
-              make_row "Value" value_nodes;
-              make_row "Type" (icon_text meal_icon meal_type);
+              Node.tr []
+                [
+                  Node.td (col_width 6)
+                    [ Node.span [] [ Node.text meal_type; meal_icon >>| make_icon |> or_none ] ];
+                  Node.td [] [ icon_text (Some rarity_icon) rarity_text ];
+                ];
               hearts >>| make_row "Hearts" |> or_none;
               stamina >>| make_row "Stamina" |> or_none;
               effect >>| make_row "Effect" |> or_none;
@@ -178,7 +156,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         [
           Node.button
             Attr.[ type_ "button"; on_click handler; classes [ "btn"; "btn-success"; "px-4" ] ]
-            [ Node.text "Cook and Remove" ];
+            [ Node.text "I cooked it" ];
         ]
     in
 
@@ -211,7 +189,11 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       Attr.[ classes [ "border"; "border-1"; "row"; "row-cols-auto" ] ]
       [
         Node.div
-          Attr.[ class_ "col"; style Css_gen.(min_width (`Percent (Percent.of_percentage 30.0))) ]
+          Attr.
+            [
+              class_ "col";
+              style Css_gen.(width (`Percent (Percent.of_percentage 30.0)) @> min_width (`Em 20));
+            ]
           [ table ];
         Node.div
           Attr.[ class_ "col-auto" ]
@@ -290,7 +272,7 @@ let render_buttons ~update selected_kind =
          in
          node :: acc))
 
-let button_label = "Calculate"
+let button_label = "Cook"
 
 let component ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
@@ -354,11 +336,26 @@ let component ~updates ?kind () =
        render_buttons ~update kind
      in
      let meals_switch =
-       Utils.render_switch ~update:update_meals ~disabled:(not elixirs) ~id:"meals-switch" "Meals" meals
+       let handler _evt =
+         let events = [ update_meals (not meals); update_data New ] in
+         match meals, elixirs with
+         | false, true
+          |true, true ->
+           Event.Many events
+         | _ -> Event.Many (update_elixirs (not elixirs) :: events)
+       in
+       Utils.render_switch ~handler ~id:"meals-switch" "Meals" meals
      in
      let elixirs_switch =
-       Utils.render_switch ~update:update_elixirs ~disabled:(not meals) ~id:"elixirs-switch" "Elixirs"
-         elixirs
+       let handler _evt =
+         let events = [ update_elixirs (not elixirs); update_data New ] in
+         match elixirs, meals with
+         | false, true
+          |true, true ->
+           Event.Many events
+         | _ -> Event.Many (update_meals (not meals) :: events)
+       in
+       Utils.render_switch ~handler ~id:"elixirs-switch" "Elixirs" elixirs
      in
      ( data,
        kind,

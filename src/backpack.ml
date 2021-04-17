@@ -224,7 +224,7 @@ let component ~inventory () =
        Node.div Attr.[ on_click handler ] nodes
      in
      let show_all_node =
-       Utils.render_switch ~update:update_show_all ~disabled:false ~id:"show-all-checkbox" "Show All"
-         show_all
+       let handler _rvt = update_show_all (not show_all) in
+       Utils.render_switch ~handler ~id:"show-all-checkbox" "Show All" show_all
      in
      { total; items_node; show_all_node; jump_to_node; ingredients }, updates
