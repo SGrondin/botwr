@@ -7,7 +7,7 @@ open Bootstrap.Basic
 
 let inventory = Recipes.Glossary.Map.empty
 
-let _inventory =
+let inventory =
   let open Recipes.Glossary in
   [ Endura_carrot, 2; Endura_shroom, 2 ] |> Map.of_alist_exn
 
@@ -48,14 +48,14 @@ let application =
   return
   @@ let%map Backpack.{ total; items_node; show_all_node; jump_to_node; ingredients } = backpack
      and ( data,
-           kind,
+           update_kitchen,
+           calculate,
            `Kitchen kitchen,
-           `Kind kind_buttons,
+           `Kind (kind, kind_buttons),
            `Meals meals_switch,
            `Elixirs elixirs_switch,
            `Max_hearts max_hearts_node,
-           `Max_stamina max_stamina_node,
-           update_kitchen ) =
+           `Max_stamina max_stamina_node ) =
        kitchen
      in
      let kitchen_node =
@@ -67,7 +67,12 @@ let application =
                class_ "d-none";
                id id_;
                type_ "button";
-               on_click (fun _evt -> update_kitchen (Ready ingredients));
+               on_click (fun _evt ->
+                   match kind with
+                   | Some kind ->
+                     let optimized = calculate kind ingredients in
+                     update_kitchen (Ready optimized)
+                   | None -> update_kitchen New);
              ]
            []
        in
@@ -87,8 +92,10 @@ let application =
                        match data with
                        | Ready _
                         |Completed
-                        |New ->
+                        |New
+                         when Option.is_some kind ->
                          Js_of_ocaml_lwt.Lwt_js_events.async (fun () ->
+                             let%lwt () = Js_of_ocaml_lwt.Lwt_js.sleep 0.1 in
                              Js_of_ocaml.Dom_html.getElementById_opt id_
                              |> Option.iter ~f:(fun el -> el##click);
                              Lwt.return_unit);

@@ -9,7 +9,7 @@ module Model = struct
   type t =
     | New
     | Loading
-    | Ready     of (Recipes.Glossary.t * int) list
+    | Ready     of Recipes.Optimize.t
     | Completed
   [@@deriving sexp, equal]
 end
@@ -306,9 +306,7 @@ let component ~updates ?kind () =
      in
      let kitchen_node =
        match data, kind with
-       | Ready (_ :: _ as data), Some kind ->
-         let optimized = Recipes.Optimize.run ~max_hearts ~max_stamina ~kind ~category data in
-         render ~updates ~update_data ~max_hearts ~max_stamina optimized
+       | Ready optimized, Some kind -> render ~updates ~update_data ~max_hearts ~max_stamina optimized
        | Completed, _ ->
          Node.div []
            [
@@ -357,12 +355,15 @@ let component ~updates ?kind () =
        in
        Utils.render_switch ~handler ~id:"elixirs-switch" "Elixirs" elixirs
      in
+     let calculate kind ingredients =
+       Recipes.Optimize.run ~max_hearts ~max_stamina ~kind ~category ingredients
+     in
      ( data,
-       kind,
+       update_data,
+       calculate,
        `Kitchen kitchen_node,
-       `Kind buttons,
+       `Kind (kind, buttons),
        `Meals meals_switch,
        `Elixirs elixirs_switch,
        `Max_hearts max_hearts_node,
-       `Max_stamina max_stamina_node,
-       update_data )
+       `Max_stamina max_stamina_node )

@@ -97,14 +97,14 @@ type iteration = {
   score: int;
   recipe: Recipe.t;
 }
-[@@deriving sexp]
+[@@deriving sexp, equal]
 
 type t = {
   iterations: iteration list;
   count: int;
   duration: float;
 }
-[@@deriving sexp]
+[@@deriving sexp, equal]
 
 let to_string ~max_hearts ~max_stamina { iterations; count; duration } =
   let buf = Buffer.create 128 in
