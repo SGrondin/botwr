@@ -49,29 +49,29 @@ module Self = struct
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type t =
-    | Palm_fruit
     | Apple
     | Wildberry
     | Hylian_shroom
+    | Palm_fruit
     | Hyrule_herb
     | Hyrule_bass
     | Sanke_carp
-    | Raw_gourmet_meat
-    | Raw_whole_bird
-    | Raw_prime_meat
-    | Raw_bird_thigh
     | Raw_meat
     | Raw_bird_drumstick
-    | Bird_egg
-    | Fresh_milk
-    | Acorn
+    | Raw_bird_thigh
+    | Raw_prime_meat
+    | Raw_gourmet_meat
+    | Raw_whole_bird
     | Chickaloo_tree_nut
+    | Acorn
+    | Rock_salt
     | Hylian_rice
     | Tabantha_wheat
+    | Bird_egg
     | Cane_sugar
     | Goat_butter
+    | Fresh_milk
     | Goron_spice
-    | Rock_salt
     | Hearty_truffle
     | Hearty_bass
     | Hearty_radish

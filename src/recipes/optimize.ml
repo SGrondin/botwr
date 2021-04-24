@@ -7,18 +7,64 @@ let group items =
   table
 
 let filter ~kind ~(category : Glossary.Category.t) grouped =
-  Glossary.Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
-      match Glossary.kind_and_category key, category with
-      | (Neutral, _), Any
-       |(Neutral, Meals), Meals
-       |(Neutral, Elixirs), Elixirs ->
-        Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
-      | (x, _), Any
-       |(x, Meals), Meals
-       |(x, Elixirs), Elixirs
-        when [%equal: Ingredient.Effect.Kind.t] x kind ->
-        Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
-      | _ -> acc)
+  let open Glossary in
+  let neutrals = Queue.create () in
+  let monsters = Queue.create () in
+  let all =
+    Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
+        let ingredient = to_ingredient key in
+        match Ingredient.to_kind ingredient, ingredient.category, category with
+        | Nothing, Food, Meals
+         |Nothing, Food, Any
+         |Nothing, Spice, Meals
+         |Nothing, Spice, Any
+         |Neutral, Food, Meals
+         |Neutral, Food, Any
+         |Neutral, Spice, Meals
+         |Neutral, Spice, Any ->
+          Fn.apply_n_times ~n:(min data 4)
+            (fun () -> Queue.enqueue neutrals (Variants.to_rank key, key))
+            ();
+          acc
+        | _, Monster, Elixirs
+         |_, Monster, Any ->
+          Fn.apply_n_times ~n:(min data 4)
+            (fun () -> Queue.enqueue monsters (Variants.to_rank key, key))
+            ();
+          acc
+        | x, _, Any
+         |x, Food, Meals
+         |x, Spice, Meals
+         |x, Critter, Elixirs
+         |x, Elixir, Elixirs
+          when [%equal: Ingredient.Effect.Kind.t] x kind ->
+          Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
+        | _ -> acc)
+  in
+  let top queue init =
+    let arr = Queue.to_array queue in
+    let compare =
+      match kind with
+      | Nothing
+       |Neutral
+       |Enduring
+       |Energizing
+       |Hearty ->
+        (fun (x, _) (y, _) -> [%compare: int] x y)
+      | Chilly
+       |Electro
+       |Fireproof
+       |Hasty
+       |Mighty
+       |Sneaky
+       |Spicy
+       |Tough ->
+        (fun (x, _) (y, _) -> [%compare: int] y x)
+    in
+    Array.sort arr ~compare;
+    Array.slice arr 0 (min 4 (Array.length arr)) |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
+  in
+  all |> top neutrals |> top monsters
 
 open Combinations
 open Cooking

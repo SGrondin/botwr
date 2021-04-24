@@ -223,7 +223,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
     let time_node =
       Node.h6 []
         [
-          Node.textf "Best of %s possible recipes. (%.3f seconds)"
+          Node.textf "Best of %s recipes. (%.3f seconds)"
             (Int.to_string_hum ~delimiter:',' basic.count)
             seconds;
         ]
@@ -278,7 +278,7 @@ let component ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
-    Stepper.component 27 ~max_value:30 ~update_kitchen Model.New ~render:(fun x ->
+    Stepper.component 28 ~max_value:30 ~update_kitchen Model.New ~render:(fun x ->
         Recipes.Cooking.Hearts.Restores x |> render_hearts 0 |> Option.value ~default:Node.none)
   in
   let%sub max_stamina =
@@ -305,9 +305,9 @@ let component ~updates ?kind () =
        | false, true -> Elixirs
      in
      let kitchen_node =
-       match data, kind with
-       | Ready optimized, Some kind -> render ~updates ~update_data ~max_hearts ~max_stamina optimized
-       | Completed, _ ->
+       match data with
+       | Ready optimized -> render ~updates ~update_data ~max_hearts ~max_stamina optimized
+       | Completed ->
          Node.div []
            [
              Node.div []
@@ -321,13 +321,11 @@ let component ~updates ?kind () =
                    button_label;
                ];
            ]
-       | Loading, _ ->
+       | Loading ->
          Node.div
            Attr.[ classes [ "spinner-border"; "text-info"; "m-3" ]; create "role" "status" ]
            [ Node.span Attr.[ class_ "visually-hidden" ] [ Node.text "Loading..." ] ]
-       | Ready _, _
-        |New, _ ->
-         Node.none
+       | New -> Node.none
      in
      let buttons =
        let update x = Event.Many [ update_kind x; update_data New ] in

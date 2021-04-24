@@ -1,5 +1,82 @@
 open! Core_kernel
 
+let%expect_test "Filter" =
+  let data1 =
+    Items.Table.of_alist_exn
+      [
+        Electric_darner, 9;
+        Electric_safflina, 7;
+        Thunderwing_butterfly, 8;
+        Bird_egg, 6;
+        Fresh_milk, 2;
+        Goron_spice, 1;
+        Raw_meat, 3;
+        Hearty_bass, 2;
+        Hearty_durian, 7;
+        Hearty_lizard, 7;
+        Hearty_salmon, 9;
+        Big_hearty_radish, 8;
+        Big_hearty_truffle, 8;
+        Monster_guts Hinox_guts, 1;
+        Monster_horn Keese_wing, 3;
+        Monster_horn Lizalfos_horn, 3;
+        Monster_guts Moblin_guts, 1;
+        Monster_fang Bokoblin_fang, 1;
+        Monster_fang Ancient_gear, 5;
+      ]
+  in
+  let test kind category grouped =
+    Optimize.filter ~kind ~category grouped |> sprintf !"%{sexp: Glossary.t list}" |> print_endline
+  in
+  test Electro Elixirs data1;
+  [%expect
+    {|
+    ((Monster_guts Moblin_guts) (Monster_guts Hinox_guts)
+     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Electric_darner
+     Electric_darner Electric_darner Electric_darner Electric_darner
+     Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
+     Thunderwing_butterfly Thunderwing_butterfly) |}];
+  test Electro Meals data1;
+  [%expect
+    {|
+    (Goron_spice Fresh_milk Fresh_milk Bird_egg Electric_safflina
+     Electric_safflina Electric_safflina Electric_safflina Electric_safflina) |}];
+  test Electro Any data1;
+  [%expect
+    {|
+    ((Monster_guts Moblin_guts) (Monster_guts Hinox_guts)
+     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Goron_spice
+     Fresh_milk Fresh_milk Bird_egg Electric_darner Electric_darner
+     Electric_darner Electric_darner Electric_darner Thunderwing_butterfly
+     Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
+     Thunderwing_butterfly Electric_safflina Electric_safflina Electric_safflina
+     Electric_safflina Electric_safflina) |}];
+  test Hearty Meals data1;
+  [%expect
+    {|
+    (Raw_meat Raw_meat Raw_meat Bird_egg Big_hearty_truffle Big_hearty_truffle
+     Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Hearty_bass
+     Hearty_bass Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon
+     Hearty_salmon Big_hearty_radish Big_hearty_radish Big_hearty_radish
+     Big_hearty_radish Big_hearty_radish Hearty_durian Hearty_durian
+     Hearty_durian Hearty_durian Hearty_durian) |}];
+  test Hearty Elixirs data1;
+  [%expect
+    {|
+    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Hearty_lizard
+     Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard) |}];
+  test Hearty Any data1;
+  [%expect {|
+    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Raw_meat Raw_meat
+     Raw_meat Bird_egg Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
+     Big_hearty_truffle Big_hearty_truffle Hearty_bass Hearty_bass Hearty_salmon
+     Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon Big_hearty_radish
+     Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
+     Hearty_durian Hearty_durian Hearty_durian Hearty_durian Hearty_durian
+     Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard) |}]
+
 let%expect_test "Cooking by category, basic" =
   let max_hearts = 20 in
   let max_stamina = 15 in
@@ -9,7 +86,7 @@ let%expect_test "Cooking by category, basic" =
   let data2 =
     Glossary.
       [
-        Apple, 2;
+        Apple, 5;
         Goat_butter, 7;
         Tabantha_wheat, 2;
         Stamella_shroom, 24;
@@ -29,27 +106,27 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    123 pts (1585, 2.500000) -- Armored_carp, Ironshell_crab, Ironshroom x3 -- (Food
+    123 pts (637, 2.500000) -- Armored_carp, Ironshell_crab, Ironshroom x3 -- (Food
      ((hearts (Restores 7)) (stamina Nothing)
       (effect (Tough ((potency 4) (duration 250)))) (num_ingredients 5)))
-    85 pts (1585, 2.000000) -- Ironshell_crab x2, Ironshroom x3 -- (Food
+    85 pts (637, 2.000000) -- Ironshell_crab x2, Ironshroom x3 -- (Food
      ((hearts (Restores 7)) (stamina Nothing)
       (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5)))
-    85 pts (1585, 2.666667) -- Armored_carp, Ironshell_crab x2, Ironshroom x2 -- (Food
+    85 pts (637, 2.666667) -- Armored_carp, Ironshell_crab x2, Ironshroom x2 -- (Food
      ((hearts (Restores 8)) (stamina Nothing)
       (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5))) |}];
   test ~kind:Energizing ~category:Meals data2;
   [%expect
     {|
     (0s)
-    23 pts (12615, 0.208333) -- Stamella_shroom x5 -- (Food
+    23 pts (381, 0.208333) -- Stamella_shroom x5 -- (Food
      ((hearts (Restores 5)) (stamina (Restores 7)) (effect Nothing)
       (num_ingredients 5)))
-    16 pts (12615, 0.166667) -- Stamella_shroom x4 -- (Food
+    16 pts (381, 0.166667) -- Stamella_shroom x4 -- (Food
      ((hearts (Restores 4)) (stamina (Restores 5)) (effect Nothing)
       (num_ingredients 4)))
-    15 pts (12615, 0.309524) -- Goat_butter, Stamella_shroom x4 -- (Food
-     ((hearts (Restores 4)) (stamina (Restores 5)) (effect Nothing)
+    15 pts (381, 0.366667) -- Apple, Stamella_shroom x4 -- (Food
+     ((hearts (Restores 5)) (stamina (Restores 5)) (effect Nothing)
       (num_ingredients 5))) |}];
   test ~kind:Hearty ~category:Meals data3;
   [%expect
@@ -94,7 +171,8 @@ let%expect_test "test name" =
         ] );
       3, [ Glossary.Map.of_alist_exn [ Ironshroom, 1 ] ];
     ];
-  [%expect {|
+  [%expect
+    {|
     (((rarity 0.25) (score 50) (recipe ((Stamella_shroom 1))))
      ((rarity 0.5) (score 10) (recipe ((Armored_carp 1))))
      ((rarity 1) (score 10) (recipe ((Ironshroom 1))))) |}]

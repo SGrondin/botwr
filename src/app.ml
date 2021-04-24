@@ -7,7 +7,7 @@ open Bootstrap.Basic
 
 let inventory = Recipes.Glossary.Map.empty
 
-let inventory =
+let _inventory =
   let open Recipes.Glossary in
   [ Endura_carrot, 2; Endura_shroom, 2 ] |> Map.of_alist_exn
 
