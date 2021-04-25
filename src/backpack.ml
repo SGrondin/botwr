@@ -154,6 +154,7 @@ type state = {
   items_node: Node.t;
   show_all_node: Node.t;
   jump_to_node: Node.t;
+  clear_all_node: Node.t;
   ingredients: (Glossary.t * int) list;
 }
 
@@ -184,12 +185,29 @@ let component ~inventory () =
       default_model
       ~f:(fun key data -> group ~inventory ~selected ~update_selected ~show_all key data)
   in
+  let backpack_changed =
+    let ingredients =
+      backpack >>| fun backpack ->
+      Group.Map.fold backpack ~init:[] ~f:(fun ~key:_ ~data:({ ingredients; _ }, _) acc ->
+          List.fold ingredients ~init:acc ~f:(fun acc -> function
+            | _, 0 -> acc
+            | x -> x :: acc))
+    in
+    Bonsai.Value.cutoff ~equal:[%equal: (Glossary.t * int) list] ingredients >>| fun items ->
+    Js_of_ocaml_lwt.Lwt_js_events.async (fun () ->
+        let _res =
+          Local_storage.set_item ~key:"inventory"
+            ~data:(sprintf !"%{sexp: (Glossary.t * int) list}" items)
+        in
+        Lwt.return_unit)
+  in
   return
   @@ let%map backpack = backpack
      and show_all = show_all
      and update_show_all = update_show_all
      and selected = selected
-     and update_selected = update_selected in
+     and update_selected = update_selected
+     and () = backpack_changed in
      let { nodes; ingredients; total; updates } =
        Group.Map.fold_right backpack
          ~init:{ nodes = []; total = 0; updates = Glossary.Map.empty; ingredients = [] }
@@ -224,7 +242,21 @@ let component ~inventory () =
        Node.div Attr.[ on_click handler ] nodes
      in
      let show_all_node =
-       let handler _rvt = update_show_all (not show_all) in
+       let handler _evt = update_show_all (not show_all) in
        Utils.render_switch ~handler ~id:"show-all-checkbox" "Show All" show_all
      in
-     { total; items_node; show_all_node; jump_to_node; ingredients }, updates
+     let clear_all_node =
+       let handler _evt =
+         let events =
+           Glossary.Map.fold updates ~init:[] ~f:(fun ~key:_ ~data acc -> data Remove :: acc)
+         in
+         Event.Many events
+       in
+       Node.div []
+         [
+           Node.button
+             Attr.[ type_ "button"; classes [ "btn"; "btn-outline-danger"; "btn-sm" ]; on_click handler ]
+             [ Node.text "Clear all " ];
+         ]
+     in
+     { total; items_node; show_all_node; jump_to_node; clear_all_node; ingredients }, updates

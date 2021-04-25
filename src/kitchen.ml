@@ -278,11 +278,11 @@ let component ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
-    Stepper.component 28 ~max_value:30 ~update_kitchen Model.New ~render:(fun x ->
+    Stepper.component "max_hearts" 28 ~max_value:30 ~update_kitchen New ~render:(fun x ->
         Recipes.Cooking.Hearts.Restores x |> render_hearts 0 |> Option.value ~default:Node.none)
   in
   let%sub max_stamina =
-    Stepper.component 15 ~max_value:20 ~update_kitchen New ~render:(fun x ->
+    Stepper.component "max_stamina" 15 ~max_value:15 ~update_kitchen New ~render:(fun x ->
         Recipes.Cooking.Stamina.Restores x |> render_stamina 0 |> Option.value ~default:Node.none)
   in
   let%sub meals = Bonsai.state [%here] (module Bool) ~default_model:true in

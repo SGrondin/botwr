@@ -12,11 +12,19 @@ module Action = struct
   [@@deriving sexp]
 end
 
-let component default_model ~render ~max_value ~update_kitchen status =
-  let apply_action ~inject:_ ~schedule_event:_ model : Action.t -> int = function
-    | Increment -> min (model + 1) max_value
-    | Decrement -> max (model - 1) 1
+let initial name = Local_storage.parse_item name [%of_sexp: int]
+
+let component name default ~render ~max_value ~update_kitchen status =
+  let apply_action ~inject:_ ~schedule_event:_ model (action : Action.t) =
+    let updated =
+      match action with
+      | Increment -> min (model + 1) max_value
+      | Decrement -> max (model - 1) 1
+    in
+    let _res = Local_storage.set_item ~key:name ~data:(sprintf !"%{sexp: int}" updated) in
+    updated
   in
+  let default_model = initial name |> Option.value ~default in
   let%sub state =
     Bonsai.state_machine0 [%here] (module Int) (module Action) ~default_model ~apply_action
   in

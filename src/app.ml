@@ -5,13 +5,13 @@ open! Vdom
 open Bootstrap
 open Bootstrap.Basic
 
-let inventory = Recipes.Glossary.Map.empty
+let inventory =
+  Local_storage.parse_item "inventory" [%of_sexp: (Recipes.Glossary.t * int) list]
+  |> Option.bind ~f:(fun ll -> Recipes.Glossary.Map.of_alist_or_error ll |> Or_error.ok)
+  |> Option.value ~default:Recipes.Glossary.Map.empty
 
-let _inventory =
-  let open Recipes.Glossary in
-  [ Endura_carrot, 2; Endura_shroom, 2 ] |> Map.of_alist_exn
-
-let render_help (data : Kitchen.Model.t) kind total ~kind_buttons ~max_hearts_node ~max_stamina_node =
+let render_help (data : Kitchen.Model.t) kind total ~kind_buttons ~max_hearts_node ~max_stamina_node
+   ~clear_all_node =
   let is_loaded =
     match data with
     | New
@@ -26,7 +26,7 @@ let render_help (data : Kitchen.Model.t) kind total ~kind_buttons ~max_hearts_no
       "Set your maximum hearts containers.", None, max_hearts_node;
       "Set your maximum stamina containers.", None, max_stamina_node;
       "Pick a bonus.", Some (Option.is_some kind), kind_buttons;
-      "Add ingredients to your inventory.", Some (total <> 0), Node.none;
+      "Add ingredients to your inventory.", Some (total <> 0), clear_all_node;
       sprintf "Click %s!" Kitchen.button_label, Some (not is_loaded), Node.none;
     ]
   in
@@ -46,7 +46,8 @@ let application =
   let%pattern_bind backpack, updates = backpack in
   let%sub kitchen = Kitchen.component ~updates () in
   return
-  @@ let%map Backpack.{ total; items_node; show_all_node; jump_to_node; ingredients } = backpack
+  @@ let%map Backpack.{ total; items_node; show_all_node; jump_to_node; clear_all_node; ingredients } =
+       backpack
      and ( data,
            update_kitchen,
            calculate,
@@ -105,7 +106,9 @@ let application =
                [ Node.text Kitchen.button_label ];
            ]
        in
-       let help_node = render_help data kind total ~kind_buttons ~max_hearts_node ~max_stamina_node in
+       let help_node =
+         render_help data kind total ~kind_buttons ~max_hearts_node ~max_stamina_node ~clear_all_node
+       in
        Node.div []
          [
            Node.h3 Attr.[ id "top" ] [ Node.text "BOTW Cooking Optimizer" ];

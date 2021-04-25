@@ -15,6 +15,9 @@ let get_item key =
   let%map item = ls##getItem (Js.string key) |> Js.Opt.to_option in
   Js.to_string item
 
+let parse_item name of_sexp =
+  get_item name |> Option.bind ~f:(fun s -> Option.try_with (fun () -> Sexp.of_string_conv_exn s of_sexp))
+
 let or_failed = Result.of_option ~error:"Could not access Local Storage"
 
 let set_item ~key ~data =
