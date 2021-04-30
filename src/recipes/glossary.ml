@@ -265,20 +265,6 @@ module Category = struct
     | Any
 end
 
-let to_category : Ingredient.t -> Category.t = function
-| { category = Food; _ }
- |{ category = Spice; _ } ->
-  Meals
-| { category = Critter; _ }
- |{ category = Monster; _ }
- |{ category = Elixir; _ } ->
-  Elixirs
-| { category = Dubious; _ } -> Any
-
-let kind_and_category x =
-  let ingredient = to_ingredient x in
-  Ingredient.to_kind ingredient, to_category ingredient
-
 let to_string = function
 | Palm_fruit -> "Palm Fruit"
 | Apple -> "Apple"
