@@ -31,36 +31,40 @@ let component name default ~render ~max_value ~update_kitchen status =
   return
   @@ let%map state, update = state
      and update_kitchen = update_kitchen in
+     let down_node =
+       Attr.
+         [
+           style Css_gen.(pointer @> create ~field:"transform" ~value:"rotate(90deg)");
+           on_click (fun _ev -> Event.Many [ update_kitchen status; update Action.Decrement ]);
+         ]
+       |> add_if (state = 1) (Attr.class_ "text-secondary")
+       |> Icon.svg ~bold:true ~width:1.6 ~height:1.6 Down
+     in
+     let up_node =
+       Attr.
+         [
+           style Css_gen.(pointer @> create ~field:"transform" ~value:"rotate(90deg)");
+           on_click (fun _ev -> Event.Many [ update_kitchen status; update Action.Increment ]);
+         ]
+       |> add_if (state = max_value) (Attr.class_ "text-secondary")
+       |> Icon.svg ~bold:true ~width:1.6 ~height:1.6 Up
+     in
+     let number_node =
+       Node.div
+         Attr.
+           [
+             classes [ "d-flex"; "justify-content-center" ];
+             style Css_gen.(pointer @> unselectable @> width (`Em 2));
+           ]
+         [ Node.textf "%d" state ]
+     in
      let node =
        Node.div
          Attr.[ classes [ "d-flex"; "align-items-center"; "my-2" ] ]
          [
            Node.div
              Attr.[ classes [ "d-inline-flex"; "justify-content-between"; "align-items-center" ] ]
-             [
-               (* Down *)
-               Attr.
-                 [
-                   style Css_gen.(pointer @> create ~field:"transform" ~value:"rotate(90deg)");
-                   on_click (fun _ev -> Event.Many [ update_kitchen status; update Action.Decrement ]);
-                 ]
-               |> Icon.svg ~bold:true ~width:1.6 ~height:1.6 Down;
-               (* Number *)
-               Node.div
-                 Attr.
-                   [
-                     classes [ "d-flex"; "justify-content-center" ];
-                     style Css_gen.(pointer @> unselectable @> width (`Em 2));
-                   ]
-                 [ Node.textf "%d" state ];
-               (* Up *)
-               Attr.
-                 [
-                   style Css_gen.(pointer @> create ~field:"transform" ~value:"rotate(90deg)");
-                   on_click (fun _ev -> Event.Many [ update_kitchen status; update Action.Increment ]);
-                 ]
-               |> Icon.svg ~bold:true ~width:1.6 ~height:1.6 Up;
-             ];
+             [ down_node; number_node; up_node ];
            render state;
          ]
      in
