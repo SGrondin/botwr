@@ -6,9 +6,25 @@ open Bootstrap
 open Bootstrap.Basic
 
 let inventory =
-  Local_storage.parse_item "inventory" [%of_sexp: (Recipes.Glossary.t * int) list]
-  |> Option.bind ~f:(fun ll -> Recipes.Glossary.Map.of_alist_or_error ll |> Or_error.ok)
-  |> Option.value ~default:Recipes.Glossary.Map.empty
+  let from_uri =
+    let open Js_of_ocaml in
+    Url.Current.as_string
+    |> Uri.of_string
+    |> Uri.fragment
+    |> Option.bind ~f:(fun s ->
+           match Share.decompress s with
+           | Ok x ->
+             Url.Current.set_fragment "";
+             Some x
+           | Error err ->
+             print_endline (sprintf !"%{Error.to_string_hum}" err);
+             None)
+  in
+  let from_storage =
+    Local_storage.parse_item "inventory" [%of_sexp: (Recipes.Glossary.t * int) list]
+    |> Option.bind ~f:(fun ll -> Recipes.Glossary.Map.of_alist_or_error ll |> Or_error.ok)
+  in
+  Option.first_some from_uri from_storage |> Option.value ~default:Recipes.Glossary.Map.empty
 
 let application =
   print_endline "Made by SGrondin for his one true love ❤️";
@@ -16,16 +32,25 @@ let application =
   let%sub backpack = Backpack.component ~inventory:(Bonsai.Value.return inventory) () in
   let%pattern_bind backpack, updates = backpack in
   let%sub kitchen = Kitchen.component ~updates () in
+  let%sub share = Share.component (backpack >>| fun { ingredients; _ } -> ingredients) in
   return
   @@ let%map Backpack.{ total; items_node; show_all_node; jump_to_node; clear_all_node; ingredients } =
        backpack
-     and kitchen = kitchen in
+     and kitchen = kitchen
+     and share = share in
      let kitchen_node = Header.render ~clear_all_node ~total ingredients kitchen in
+
      Node.div
        Attr.[ class_ "m-2" ]
        [
          kitchen_node;
-         Node.h3 Attr.[ class_ "mt-4"; style unselectable ] [ Node.text "Ingredients" ];
+         Node.span []
+           [
+             Node.h3
+               Attr.[ classes [ "mt-4"; "d-inline-block" ]; style unselectable ]
+               [ Node.text "Ingredients" ];
+             share;
+           ];
          Node.div Attr.[ class_ "my-3" ] [ show_all_node ];
          jump_to_node;
          items_node;

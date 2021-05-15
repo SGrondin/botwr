@@ -32,11 +32,12 @@ let current_value ~model ~input =
 
 let apply_action ~inject:_ ~schedule_event:_ input model : Action.t -> Model.t =
   let v = current_value ~model ~input in
+  let set x = Some (min (max x 0) 999) in
   function
-  | Increment -> Some (v + 1)
-  | Decrement -> Some (max (v - 1) 0)
-  | Decrement_by x -> Some (max (v - x) 0)
-  | Set x -> Some (max x 0)
+  | Increment -> set (v + 1)
+  | Decrement -> set (v - 1)
+  | Decrement_by x -> set (v - x)
+  | Set x -> set x
   | Remove -> Some 0
 
 let quantity_node_id = "quantity-input"

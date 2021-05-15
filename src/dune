@@ -4,6 +4,7 @@
     recipes
     bootstrap
 
+    uri
     core_kernel
     re
     bonsai.web

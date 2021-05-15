@@ -248,13 +248,13 @@ let do_to_ingredient = function
 | Monster_fang _ -> cached_monster_fang
 | Monster_guts _ -> cached_monster_guts
 
-let mapped = Array.of_list_map all ~f:do_to_ingredient
-
-let to_ingredient = function
-| Monster_horn _ -> cached_monster_horn
-| Monster_fang _ -> cached_monster_fang
-| Monster_guts _ -> cached_monster_guts
-| x -> mapped.(Variants.to_rank x)
+let to_ingredient =
+  let mapped = Array.of_list_map all ~f:do_to_ingredient in
+  function
+  | Monster_horn _ -> cached_monster_horn
+  | Monster_fang _ -> cached_monster_fang
+  | Monster_guts _ -> cached_monster_guts
+  | x -> mapped.(Variants.to_rank x)
 
 let to_kind = Fn.compose Ingredient.to_kind to_ingredient
 
