@@ -11,6 +11,7 @@ let inventory =
     Url.Current.as_string
     |> Uri.of_string
     |> Uri.fragment
+    |> Option.filter ~f:(Fn.compose not String.is_empty)
     |> Option.bind ~f:(fun s ->
            match Share.decompress s with
            | Ok x ->
