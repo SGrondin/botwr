@@ -43,14 +43,14 @@ module Effect = struct
     let merge ~count { duration; potency = _; scaling } =
       {
         duration = Duration.merge ~count duration;
-        potency = scale ~count scaling;
+        potency = min 3 (scale ~count scaling);
         scaling = 0, 0, 0, 0, 0;
       }
 
     let combine left right =
       {
         duration = Duration.combine left.duration right.duration;
-        potency = left.potency + right.potency;
+        potency = min 3 (left.potency + right.potency);
         scaling = 0, 0, 0, 0, 0;
       }
   end
