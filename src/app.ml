@@ -10,10 +10,10 @@ let inventory =
     let open Js_of_ocaml in
     Url.Current.as_string
     |> Uri.of_string
-    |> Fn.flip Uri.get_query_param "inventory"
-    |> Option.filter ~f:(Fn.compose not String.is_empty)
+    |> Uri.fragment
+    |> Option.find_map ~f:(String.chop_prefix ~prefix:Share.prefix)
     |> Option.bind ~f:(fun s ->
-           match Share.decompress s with
+           match Recipes.Compression.decompress s with
            | Ok x ->
              Url.Current.set_fragment "";
              Some x

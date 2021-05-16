@@ -20,18 +20,22 @@ let wrap_icon_list nodes = Node.div Attr.[ style Css_gen.(max_width (`Em 30) @> 
 
 let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> Node.t option = function
 | Nothing -> None
-| Restores x -> List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list |> Option.return
+| Restores x ->
+  let actual = min x max_hearts in
+  List.init actual ~f:(const (make_icon Heart)) |> wrap_icon_list |> Option.return
 | Full_plus_bonus x ->
-  List.init max_hearts ~f:(const (make_icon Heart)) @ List.init x ~f:(const (make_icon Hearty))
+  let actual = min x (30 - max_hearts) in
+  List.init max_hearts ~f:(const (make_icon Heart)) @ List.init actual ~f:(const (make_icon Hearty))
   |> wrap_icon_list
   |> Option.return
 
 let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = function
 | Nothing -> None
 | Restores x ->
-  let wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Energizing)) in
+  let actual = min x max_stamina in
+  let wheels = Int.( /% ) actual 5 |> List.init ~f:(const (make_icon Energizing)) in
   let remainder =
-    match Int.( % ) x 5 with
+    match Int.( % ) actual 5 with
     | 1 -> [ make_icon Energizing1 ]
     | 2 -> [ make_icon Energizing2 ]
     | 3 -> [ make_icon Energizing3 ]
@@ -49,9 +53,10 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = fu
     | 4 -> [ make_icon Energizing4 ]
     | _ -> []
   in
-  let yellow_wheels = Int.( /% ) x 5 |> List.init ~f:(const (make_icon Enduring)) in
+  let actual = min x (20 - max_stamina) in
+  let yellow_wheels = Int.( /% ) actual 5 |> List.init ~f:(const (make_icon Enduring)) in
   let yellow_remainder =
-    match Int.( % ) x 5 with
+    match Int.( % ) actual 5 with
     | 1 -> [ make_icon Enduring1 ]
     | 2 -> [ make_icon Enduring2 ]
     | 3 -> [ make_icon Enduring3 ]
@@ -279,11 +284,11 @@ let component ~updates ?kind () =
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
     Stepper.component "max_hearts" 28 ~max_value:30 ~update_kitchen New ~render:(fun x ->
-        Recipes.Cooking.Hearts.Restores x |> render_hearts 0 |> Option.value ~default:Node.none)
+        Recipes.Cooking.Hearts.Restores x |> render_hearts 30 |> Option.value ~default:Node.none)
   in
   let%sub max_stamina =
     Stepper.component "max_stamina" 15 ~max_value:15 ~update_kitchen New ~render:(fun x ->
-        Recipes.Cooking.Stamina.Restores x |> render_stamina 0 |> Option.value ~default:Node.none)
+        Recipes.Cooking.Stamina.Restores x |> render_stamina 20 |> Option.value ~default:Node.none)
   in
   let%sub meals = Bonsai.state [%here] (module Bool) ~default_model:true in
   let%sub elixirs = Bonsai.state [%here] (module Bool) ~default_model:true in

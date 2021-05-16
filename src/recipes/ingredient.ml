@@ -50,7 +50,7 @@ module Effect = struct
     let combine left right =
       {
         duration = Duration.combine left.duration right.duration;
-        potency = min 3 (left.potency + right.potency);
+        potency = left.potency + right.potency;
         scaling = 0, 0, 0, 0, 0;
       }
   end

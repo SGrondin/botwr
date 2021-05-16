@@ -1,6 +1,6 @@
 open! Core_kernel
 
-let factor = 2
+let ( << ), ( >> ) = ( lsl ), ( lsr )
 
 module Hearts = struct
   type t =
@@ -14,8 +14,10 @@ module Hearts = struct
    |Restores _ ->
     0
   | Full_plus_bonus x ->
-    let total = max_hearts + x in
-    (min total 30 * factor) - max (total - 30) 0
+    let theoretical_gain = max_hearts + x in
+    let actual_gain = min theoretical_gain 30 in
+    let wasted = theoretical_gain - actual_gain in
+    (actual_gain << 1) - wasted
 end
 
 module Stamina = struct
@@ -27,10 +29,15 @@ module Stamina = struct
 
   let score ~max_stamina = function
   | Nothing -> 0
-  | Restores x -> min x max_stamina * factor * 2
+  | Restores theoretical_gain ->
+    let actual_gain = min theoretical_gain max_stamina in
+    let wasted = theoretical_gain - actual_gain in
+    (actual_gain << 1) - wasted
   | Full_plus_bonus x ->
-    let total = max_stamina + x in
-    (min total 20 * factor) - max (total - 20) 0
+    let theoretical_gain = max_stamina + x in
+    let actual_gain = min theoretical_gain 20 in
+    let wasted = theoretical_gain - actual_gain in
+    (actual_gain << 1) - wasted
 end
 
 module Effect = struct
@@ -62,7 +69,9 @@ module Effect = struct
    |Sneaky { potency; duration }
    |Mighty { potency; duration }
    |Tough { potency; duration } ->
-    (potency * (duration / 20) * factor) + (potency * potency * factor)
+    let actual = min potency 3 in
+    let wasted = potency - actual in
+    (actual * (duration >> 3)) - (wasted << 4)
 end
 
 module Meal = struct

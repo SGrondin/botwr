@@ -67,7 +67,8 @@ let%expect_test "Filter" =
      (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Hearty_lizard
      Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard) |}];
   test Hearty Any data1;
-  [%expect {|
+  [%expect
+    {|
     ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
      (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Raw_meat Raw_meat
      Raw_meat Bird_egg Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
@@ -82,6 +83,18 @@ let%expect_test "Cooking by category, basic" =
   let max_stamina = 15 in
   let data1 =
     Glossary.[ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 2; Ironshroom, 3; Armored_carp, 1 ]
+  in
+  let data1b =
+    Glossary.
+      [
+        Mighty_bananas, 9;
+        Mighty_carp, 9;
+        Mighty_porgy, 9;
+        Mighty_thistle, 9;
+        Bladed_rhino_beetle, 9;
+        Razorclaw_crab, 9;
+        Razorshroom, 9;
+      ]
   in
   let data2 =
     Glossary.
@@ -106,28 +119,40 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    85 pts (637, 2.000000) -- Ironshell_crab x2, Ironshroom x3 -- (Food
+    88 pts (637, 2.000000) -- Ironshell_crab x2, Ironshroom x3 -- (Food
      ((hearts (Restores 7)) (stamina Nothing)
       (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5)))
-    85 pts (637, 2.500000) -- Armored_carp, Ironshell_crab, Ironshroom x3 -- (Food
-     ((hearts (Restores 7)) (stamina Nothing)
-      (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5)))
-    85 pts (637, 2.666667) -- Armored_carp, Ironshell_crab x2, Ironshroom x2 -- (Food
+    88 pts (637, 2.666667) -- Armored_carp, Ironshell_crab x2, Ironshroom x2 -- (Food
      ((hearts (Restores 8)) (stamina Nothing)
-      (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5))) |}];
+      (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5)))
+    79 pts (637, 1.642857) -- Ironshell_crab, Ironshroom x3, Palm_fruit -- (Food
+     ((hearts (Restores 7)) (stamina Nothing)
+      (effect (Tough ((potency 3) (duration 230)))) (num_ingredients 5))) |}];
   test ~kind:Energizing ~category:Meals data2;
   [%expect
     {|
     (0s)
-    23 pts (381, 0.208333) -- Stamella_shroom x5 -- (Food
+    9 pts (381, 0.208333) -- Stamella_shroom x5 -- (Food
      ((hearts (Restores 5)) (stamina (Restores 7)) (effect Nothing)
       (num_ingredients 5)))
-    16 pts (381, 0.166667) -- Stamella_shroom x4 -- (Food
+    6 pts (381, 0.166667) -- Stamella_shroom x4 -- (Food
      ((hearts (Restores 4)) (stamina (Restores 5)) (effect Nothing)
       (num_ingredients 4)))
-    15 pts (381, 0.366667) -- Apple, Stamella_shroom x4 -- (Food
-     ((hearts (Restores 5)) (stamina (Restores 5)) (effect Nothing)
-      (num_ingredients 5))) |}];
+    5 pts (381, 0.125000) -- Stamella_shroom x3 -- (Food
+     ((hearts (Restores 3)) (stamina (Restores 4)) (effect Nothing)
+      (num_ingredients 3))) |}];
+  test ~kind:Mighty ~category:Meals data1b;
+  [%expect {|
+    (0s)
+    88 pts (174436, 0.555556) -- Mighty_porgy x5 -- (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Mighty ((potency 3) (duration 250)))) (num_ingredients 5)))
+    88 pts (174436, 0.555556) -- Razorclaw_crab x5 -- (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Mighty ((potency 3) (duration 250)))) (num_ingredients 5)))
+    88 pts (174436, 0.555556) -- Mighty_carp x5 -- (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Mighty ((potency 3) (duration 250)))) (num_ingredients 5))) |}];
   test ~kind:Hearty ~category:Meals data3;
   [%expect
     {|
@@ -145,17 +170,17 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    57 pts (637, 0.600000) -- Staminoka_bass x3 -- (Food
+    27 pts (637, 0.600000) -- Staminoka_bass x3 -- (Food
      ((hearts (Restores 6)) (stamina (Restores 15)) (effect Nothing)
       (num_ingredients 3)))
-    56 pts (637, 0.800000) -- Staminoka_bass x4 -- (Food
+    26 pts (637, 0.800000) -- Staminoka_bass x4 -- (Food
      ((hearts (Restores 8)) (stamina (Restores 15)) (effect Nothing)
       (num_ingredients 4)))
-    56 pts (637, 0.800000) -- Stamella_shroom, Staminoka_bass x3 -- (Food
+    26 pts (637, 0.800000) -- Stamella_shroom, Staminoka_bass x3 -- (Food
      ((hearts (Restores 7)) (stamina (Restores 15)) (effect Nothing)
       (num_ingredients 4))) |}]
 
-let%expect_test "test name" =
+let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in
   let test ll =
     ll |> Optimize.top_sort grouped |> sprintf !"%{sexp: Optimize.iteration list}" |> print_endline
