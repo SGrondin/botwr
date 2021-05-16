@@ -18,18 +18,21 @@ let make_icon icon = Icon.svg icon ~width:1.5 ~height:1.5 ~container:Span []
 
 let wrap_icon_list nodes = Node.div Attr.[ style Css_gen.(max_width (`Em 30) @> unselectable) ] nodes
 
-let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> Node.t option = function
+let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) option = function
 | Nothing -> None
 | Restores x ->
   let actual = min x max_hearts in
-  List.init actual ~f:(const (make_icon Heart)) |> wrap_icon_list |> Option.return
+  let node = List.init actual ~f:(const (make_icon Heart)) |> wrap_icon_list in
+  Some (sprintf "Hearts (%d)" actual, node)
 | Full_plus_bonus x ->
   let actual = min x (30 - max_hearts) in
-  List.init max_hearts ~f:(const (make_icon Heart)) @ List.init actual ~f:(const (make_icon Hearty))
-  |> wrap_icon_list
-  |> Option.return
+  let node =
+    List.init max_hearts ~f:(const (make_icon Heart)) @ List.init actual ~f:(const (make_icon Hearty))
+    |> wrap_icon_list
+  in
+  Some (sprintf "Hearts (%d + %d)" max_hearts actual, node)
 
-let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = function
+let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) option = function
 | Nothing -> None
 | Restores x ->
   let actual = min x max_stamina in
@@ -42,7 +45,8 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = fu
     | 4 -> [ make_icon Energizing4 ]
     | _ -> []
   in
-  wheels @ remainder |> wrap_icon_list |> Option.return
+  let node = wheels @ remainder |> wrap_icon_list in
+  Some ("Stamina", node)
 | Full_plus_bonus x ->
   let green_wheels = Int.( /% ) max_stamina 5 |> List.init ~f:(const (make_icon Energizing)) in
   let green_remainder =
@@ -63,9 +67,10 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> Node.t option = fu
     | 4 -> [ make_icon Enduring4 ]
     | _ -> []
   in
-  List.concat [ green_wheels; green_remainder; yellow_wheels; yellow_remainder ]
-  |> wrap_icon_list
-  |> Option.return
+  let node =
+    List.concat [ green_wheels; green_remainder; yellow_wheels; yellow_remainder ] |> wrap_icon_list
+  in
+  Some ("Stamina", node)
 
 let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.t) =
   let open Option.Monad_infix in
@@ -138,8 +143,8 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
                     [ Node.span [] [ Node.text meal_type; meal_icon >>| make_icon |> or_none ] ];
                   Node.td [] [ icon_text (Some rarity_icon) rarity_text ];
                 ];
-              hearts >>| make_row "Hearts" |> or_none;
-              stamina >>| make_row "Stamina" |> or_none;
+              hearts >>| Tuple2.uncurry make_row |> or_none;
+              stamina >>| Tuple2.uncurry make_row |> or_none;
               effect >>| make_row "Effect" |> or_none;
               duration >>| make_row "Duration" |> or_none;
             ];
@@ -284,11 +289,15 @@ let component ~updates ?kind () =
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
     Stepper.component "max_hearts" 28 ~max_value:30 ~update_kitchen New ~render:(fun x ->
-        Recipes.Cooking.Hearts.Restores x |> render_hearts 30 |> Option.value ~default:Node.none)
+        Recipes.Cooking.Hearts.Restores x
+        |> render_hearts 30
+        |> Option.value_map ~f:snd ~default:Node.none)
   in
   let%sub max_stamina =
     Stepper.component "max_stamina" 15 ~max_value:15 ~update_kitchen New ~render:(fun x ->
-        Recipes.Cooking.Stamina.Restores x |> render_stamina 20 |> Option.value ~default:Node.none)
+        Recipes.Cooking.Stamina.Restores x
+        |> render_stamina 15
+        |> Option.value_map ~f:snd ~default:Node.none)
   in
   let%sub meals = Bonsai.state [%here] (module Bool) ~default_model:true in
   let%sub elixirs = Bonsai.state [%here] (module Bool) ~default_model:true in
