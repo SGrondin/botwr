@@ -9,6 +9,7 @@ let no_decoration = Attr.style Css_gen.(text_decoration ~line:[ `None ] ())
 
 type item_folder = {
   nodes: Node.t list;
+  keyed_nodes: (int * Node.t) list;
   total: int;
   updates: (Glossary.t * (Card.Action.t -> Ui_event.t)) list;
   ingredients: (Glossary.t * int) list;
@@ -60,7 +61,7 @@ module Group = struct
   )
 
   let to_string = function
-  | Nothing -> "None"
+  | Nothing -> "No Effect"
   | Chilly -> "Chilly"
   | Electro -> "Electro"
   | Enduring -> "Enduring"
@@ -97,7 +98,7 @@ module Group = struct
         Node.create "img" Attr.[ src img; style Css_gen.(width (`Rem w) @> height (`Rem h)) ] [])
 end
 
-let group ~inventory ~selected ~update_selected ~show_all group items =
+let group ~inventory ~selected ~update_selected ~show_all items =
   let%sub mapped =
     Bonsai.assoc
       (module String)
@@ -105,41 +106,33 @@ let group ~inventory ~selected ~update_selected ~show_all group items =
       ~f:(fun _name data -> Card.component ~inventory ~selected ~update_selected data)
   in
   return
-  @@ let%map group = group
-     and mapped = mapped
+  @@ let%map mapped = mapped
      and show_all = show_all in
-     let folded =
-       String.Map.fold_right mapped ~init:{ nodes = []; total = 0; updates = []; ingredients = [] }
-         ~f:(fun ~key:_ ~data ({ nodes; total; updates; ingredients } as acc) ->
-           match data with
-           | (0, _, _), _ when not show_all -> acc
-           | (x, update, item), node ->
-             {
-               nodes = node :: nodes;
-               total = total + x;
-               updates = (item, update) :: updates;
-               ingredients = (item, x) :: ingredients;
-             })
-     in
-     match folded with
-     | { total = 0; _ } when not show_all -> folded, Node.none
-     | { nodes; _ } ->
-       let title_ = Group.to_string group in
-       let node =
-         Node.div
-           Attr.[ class_ "mb-4" ]
-           [
-             Node.h4 Attr.[ class_ "ms-3"; id title_ ] [ Node.text title_; Group.to_img_node group ];
-             Node.div Attr.[ classes [ "row"; "row-cols-auto" ] ] nodes;
-             Node.a
-               Attr.[ href "#top"; no_decoration ]
-               [
-                 Icon.svg Arrow_up ~width:1.5 ~height:1.5 ~container:Span [];
-                 Node.text "Scroll to the top";
-               ];
-           ]
-       in
-       folded, node
+     String.Map.fold_right mapped
+       ~init:{ nodes = []; keyed_nodes = []; total = 0; updates = []; ingredients = [] }
+       ~f:(fun ~key:_ ~data ({ nodes; keyed_nodes; total; updates; ingredients } as acc) ->
+         match data with
+         | (0, _, _), _ when not show_all -> acc
+         | (x, update, item), node ->
+           {
+             nodes = node :: nodes;
+             keyed_nodes = (Glossary.(Map.find_exn ordered item), node) :: keyed_nodes;
+             total = total + x;
+             updates = (item, update) :: updates;
+             ingredients = (item, x) :: ingredients;
+           })
+
+let render_group group nodes =
+  let title_ = Group.to_string group in
+  Node.div
+    Attr.[ class_ "mb-4" ]
+    [
+      Node.h4 Attr.[ class_ "ms-3"; id title_ ] [ Node.text title_; Group.to_img_node group ];
+      Node.div Attr.[ classes [ "row"; "row-cols-auto" ] ] nodes;
+      Node.a
+        Attr.[ href "#top"; no_decoration ]
+        [ Icon.svg Arrow_up ~width:1.5 ~height:1.5 ~container:Span []; Node.text "Scroll to the top" ];
+    ]
 
 let jump_to_node =
   let links =
@@ -153,6 +146,7 @@ type state = {
   total: int;
   items_node: Node.t;
   show_all_node: Node.t;
+  by_effect_node: Node.t;
   jump_to_node: Node.t;
   clear_all_node: Node.t;
   ingredients: (Glossary.t * int) list;
@@ -160,6 +154,7 @@ type state = {
 
 type group_folder = {
   nodes: Node.t list;
+  keyed_nodes: (int * Node.t) list;
   total: int;
   updates: (Card.Action.t -> Ui_event.t) Glossary.Map.t;
   ingredients: (Glossary.t * int) list;
@@ -171,24 +166,25 @@ let default_model =
           let key = Glossary.to_string x in
           match existing with
           | None -> String.Map.singleton key x
-          | Some acc -> String.Map.set acc ~key ~data:x))
+          | Some acc -> String.Map.add_exn acc ~key ~data:x))
   |> Bonsai.Value.return
 
 let component ~inventory () =
   let%sub show_all = Bonsai.state [%here] (module Bool) ~default_model:true in
   let%pattern_bind show_all, update_show_all = show_all in
+  let%sub by_effect = Bonsai.state [%here] (module Bool) ~default_model:false in
   let%sub selected = Bonsai.state_opt [%here] (module Glossary) in
   let%pattern_bind selected, update_selected = selected in
   let%sub backpack =
     Bonsai.assoc
       (module Group.Map.Key)
       default_model
-      ~f:(fun key data -> group ~inventory ~selected ~update_selected ~show_all key data)
+      ~f:(fun _key data -> group ~inventory ~selected ~update_selected ~show_all data)
   in
   let backpack_changed =
     let ingredients =
       backpack >>| fun backpack ->
-      Group.Map.fold backpack ~init:[] ~f:(fun ~key:_ ~data:({ ingredients; _ }, _) acc ->
+      Group.Map.fold backpack ~init:[] ~f:(fun ~key:_ ~data:{ ingredients; _ } acc ->
           List.fold ingredients ~init:acc ~f:(fun acc -> function
             | _, 0 -> acc
             | x -> x :: acc))
@@ -205,18 +201,26 @@ let component ~inventory () =
   @@ let%map backpack = backpack
      and show_all = show_all
      and update_show_all = update_show_all
+     and by_effect, update_by_effect = by_effect
      and selected = selected
      and update_selected = update_selected
      and () = backpack_changed in
-     let { nodes; ingredients; total; updates } =
+     let { nodes; keyed_nodes; ingredients; total; updates } =
        Group.Map.fold_right backpack
-         ~init:{ nodes = []; total = 0; updates = Glossary.Map.empty; ingredients = [] }
-         ~f:(fun ~key:_ ~data acc ->
+         ~init:{ nodes = []; keyed_nodes = []; total = 0; updates = Glossary.Map.empty; ingredients = [] }
+         ~f:(fun ~key ~data acc ->
            match data with
-           | { total = 0; _ }, _ when not show_all -> acc
-           | { updates; total; ingredients; _ }, node ->
+           | { total = 0; _ } when not show_all -> acc
+           | { updates; total; ingredients; nodes; keyed_nodes } ->
+             let nodes, keyed_nodes =
+               match by_effect with
+               | true -> render_group key nodes :: acc.nodes, acc.keyed_nodes
+               | false ->
+                 acc.nodes, List.fold keyed_nodes ~init:acc.keyed_nodes ~f:(fun acc x -> x :: acc)
+             in
              {
-               nodes = node :: acc.nodes;
+               nodes;
+               keyed_nodes;
                total = total + acc.total;
                updates =
                  List.fold updates ~init:acc.updates ~f:(fun acc (key, data) ->
@@ -239,11 +243,20 @@ let component ~inventory () =
          | Some "has-handler" -> Event.Many evts
          | _ -> Event.Many (update_selected None :: evts)
        in
-       Node.div Attr.[ on_click handler ] nodes
+       match by_effect with
+       | true -> Node.div Attr.[ on_click handler ] nodes
+       | false ->
+         Int.Map.of_alist_exn keyed_nodes
+         |> Int.Map.data
+         |> Node.div Attr.[ on_click handler; classes [ "row"; "row-cols-auto" ] ]
      in
      let show_all_node =
        let handler _evt = update_show_all (not show_all) in
        Utils.render_switch ~handler ~id:"show-all-checkbox" "Show All" show_all
+     in
+     let by_effect_node =
+       let handler _evt = update_by_effect (not by_effect) in
+       Utils.render_switch ~handler ~id:"by-effect-checkbox" "Group by Effect" by_effect
      in
      let clear_all_node =
        let handler _evt =
@@ -259,4 +272,5 @@ let component ~inventory () =
              [ Node.text "Clear all " ];
          ]
      in
-     { total; items_node; show_all_node; jump_to_node; clear_all_node; ingredients }, updates
+     ( { total; items_node; show_all_node; by_effect_node; jump_to_node; clear_all_node; ingredients },
+       updates )

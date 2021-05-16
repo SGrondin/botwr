@@ -144,4 +144,4 @@ let blobs =
         (* | Monster_extract -> {|53|} *)
         (* | Star_fragment -> {|54|} *)
       in
-      Map.set acc ~key ~data:(compute blob))
+      Map.add_exn acc ~key ~data:(compute blob))

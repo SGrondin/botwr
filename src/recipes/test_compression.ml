@@ -24,4 +24,4 @@ let%expect_test "Decompress" =
   test "AoMQgQ";
   [%expect {| (Ok ((Hylian_shroom 3) (Cane_sugar 1))) |}];
   test "AsSwEMPp";
-  [%expect {| (Ok ((Hylian_shroom 1200) (Cane_sugar 1001))) |}]
+  [%expect {| (Ok ((Hylian_shroom 999) (Cane_sugar 999))) |}]

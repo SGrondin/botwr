@@ -6,7 +6,8 @@ type data =
   | Item of int
 [@@deriving sexp]
 
-let all = lazy (List.foldi Glossary.all ~init:Map.empty ~f:(fun data acc key -> Map.set acc ~key ~data))
+let all =
+  lazy (List.foldi Glossary.all ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
 
 let increase = function
 | None -> Some 1
@@ -71,12 +72,12 @@ let decompress b64 =
           (* 2 bytes *)
           let left = c &&& 63 << 8 in
           let right = buffer.[pos + 1] |> Char.to_int in
-          let data = left ||| right in
+          let data = min (left ||| right) 999 in
           let key = Map.nth_exn all id |> fst in
           loop (pos + 2) (id + 1) (Map.add_exn acc ~key ~data)
         | c ->
           (* 1 byte *)
-          let data = c &&& 63 in
+          let data = min (c &&& 63) 999 in
           let key = Map.nth_exn all id |> fst in
           loop (pos + 1) (id + 1) (Map.add_exn acc ~key ~data)
       )

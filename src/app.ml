@@ -35,7 +35,16 @@ let application =
   let%sub kitchen = Kitchen.component ~updates () in
   let%sub share = Share.component (backpack >>| fun { ingredients; _ } -> ingredients) in
   return
-  @@ let%map Backpack.{ total; items_node; show_all_node; jump_to_node; clear_all_node; ingredients } =
+  @@ let%map Backpack.
+               {
+                 total;
+                 items_node;
+                 show_all_node;
+                 by_effect_node;
+                 jump_to_node;
+                 clear_all_node;
+                 ingredients;
+               } =
        backpack
      and kitchen = kitchen
      and share = share in
@@ -52,7 +61,7 @@ let application =
                [ Node.text "Ingredients" ];
              share;
            ];
-         Node.div Attr.[ class_ "my-3" ] [ show_all_node ];
+         Node.div Attr.[ class_ "my-3" ] [ show_all_node; by_effect_node ];
          jump_to_node;
          items_node;
          Node.div []
