@@ -43,7 +43,7 @@ module Effect = struct
     let merge ~count { duration; potency = _; scaling } =
       {
         duration = Duration.merge ~count duration;
-        potency = min 3 (scale ~count scaling);
+        potency = scale ~count scaling;
         scaling = 0, 0, 0, 0, 0;
       }
 

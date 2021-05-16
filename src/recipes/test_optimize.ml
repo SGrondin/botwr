@@ -106,10 +106,10 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    123 pts (637, 2.500000) -- Armored_carp, Ironshell_crab, Ironshroom x3 -- (Food
-     ((hearts (Restores 7)) (stamina Nothing)
-      (effect (Tough ((potency 4) (duration 250)))) (num_ingredients 5)))
     85 pts (637, 2.000000) -- Ironshell_crab x2, Ironshroom x3 -- (Food
+     ((hearts (Restores 7)) (stamina Nothing)
+      (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5)))
+    85 pts (637, 2.500000) -- Armored_carp, Ironshell_crab, Ironshroom x3 -- (Food
      ((hearts (Restores 7)) (stamina Nothing)
       (effect (Tough ((potency 3) (duration 250)))) (num_ingredients 5)))
     85 pts (637, 2.666667) -- Armored_carp, Ironshell_crab x2, Ironshroom x2 -- (Food

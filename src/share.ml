@@ -57,7 +57,7 @@ let compress (list : ingredients) =
   (* let debug =
        Buffer.contents buf |> String.concat_map ~sep:"," ~f:(fun c -> Char.to_int c |> Int.to_string)
      in *)
-  Buffer.contents buf |> Base64.encode_string
+  Buffer.contents buf |> Base64.encode_string ~pad:false
 
 let decompress b64 =
   let process buffer len =
@@ -86,7 +86,7 @@ let decompress b64 =
     in
     loop 0 0 Map.empty
   in
-  match Base64.decode b64 with
+  match Base64.decode ~pad:false b64 with
   | Ok s -> Or_error.try_with (fun () -> process s (String.length s))
   | Error (`Msg s) -> Or_error.error_string s
 
@@ -101,7 +101,7 @@ let component (ingredients : (Recipes.Glossary.t * int) list Bonsai.Value.t) =
        let url =
          Url.Current.as_string
          |> Uri.of_string
-         |> Fn.flip Uri.with_fragment (Some compressed)
+         |> Fn.flip Uri.with_query [ "inventory", [ compressed ] ]
          |> Uri.to_string
        in
        let promise = window##.navigator##.clipboard##writeText url in
