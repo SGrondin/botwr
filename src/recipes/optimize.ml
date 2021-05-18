@@ -9,7 +9,9 @@ let group items =
 let filter ~kind ~(category : Glossary.Category.t) grouped =
   let open Glossary in
   let neutrals = Queue.create () in
+  let neutrals_wasteful = Queue.create () in
   let monsters = Queue.create () in
+  let add_to ~n q x = Fn.apply_n_times ~n (fun () -> Queue.enqueue q x) () in
   let all =
     Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
         let ingredient = to_ingredient key in
@@ -22,9 +24,16 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
          |Neutral, Food, Any
          |Neutral, Spice, Meals
          |Neutral, Spice, Any ->
-          Fn.apply_n_times ~n:(min data 4)
-            (fun () -> Queue.enqueue neutrals (Variants.to_rank key, key))
-            ();
+          let () =
+            match ingredient with
+            | { effect = Neutral (Diminishing _); _ } ->
+              (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
+              let n = min data 1 in
+              add_to ~n neutrals (Variants.to_rank key, key);
+              add_to ~n:(4 - n) neutrals_wasteful (Variants.to_rank key, key);
+              ()
+            | _ -> add_to ~n:(min data 4) neutrals (Variants.to_rank key, key)
+          in
           acc
         | _, Monster, Elixirs
          |_, Monster, Any ->
@@ -41,30 +50,36 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
         | _ -> acc)
   in
-  let top queue init =
-    let arr = Queue.to_array queue in
-    let compare =
-      match kind with
-      | Nothing
-       |Neutral
-       |Enduring
-       |Energizing
-       |Hearty ->
-        (fun (x, _) (y, _) -> [%compare: int] x y)
-      | Chilly
-       |Electro
-       |Fireproof
-       |Hasty
-       |Mighty
-       |Sneaky
-       |Spicy
-       |Tough ->
-        (fun (x, _) (y, _) -> [%compare: int] y x)
-    in
-    Array.sort arr ~compare;
-    Array.slice arr 0 (min 4 (Array.length arr)) |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
+  let top ?(up_to = 4) queue init =
+    let up_to = max 0 up_to in
+    if up_to <= 0
+    then init
+    else (
+      let arr = Queue.to_array queue in
+      let compare =
+        match kind with
+        | Nothing
+         |Neutral
+         |Enduring
+         |Energizing
+         |Hearty ->
+          (fun (x, _) (y, _) -> [%compare: int] x y)
+        | Chilly
+         |Electro
+         |Fireproof
+         |Hasty
+         |Mighty
+         |Sneaky
+         |Spicy
+         |Tough ->
+          (fun (x, _) (y, _) -> [%compare: int] y x)
+      in
+      Array.sort arr ~compare;
+      Array.slice arr 0 (min up_to (Array.length arr))
+      |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
+    )
   in
-  all |> top neutrals |> top monsters
+  all |> top neutrals |> top neutrals_wasteful ~up_to:(4 - Queue.length neutrals) |> top monsters
 
 open Combinations
 open Cooking
@@ -122,23 +137,30 @@ let rarity_score grouped recipe =
       let removing = data // remaining in
       Float.(removing + acc))
 
-let break_tie grouped recipes =
-  List.fold recipes ~init:(Float.max_value, Glossary.Map.empty)
-    ~f:(fun ((smallest_impact, _) as smallest) recipe ->
-      let impact = rarity_score grouped recipe in
-      if Float.(impact < smallest_impact) then impact, recipe else smallest)
+let break_ties ~max_hearts ~max_stamina grouped recipe =
+  let rarity = rarity_score grouped recipe in
+  let hearts =
+    match cook ~max_hearts ~max_stamina recipe with
+    | Food { hearts = Restores x; _ }
+     |Elixir { hearts = Restores x; _ } ->
+      x
+    | _ -> 0
+  in
+  rarity, Float.(of_int hearts - rarity)
 
-let top_most_common ?(n = 3) grouped recipes =
+let top_most_common ?(n = 3) ~max_hearts ~max_stamina grouped recipes =
   let sorted =
     List.fold recipes ~init:Float.Map.empty ~f:(fun acc recipe ->
-        Float.Map.add_multi acc ~key:(rarity_score grouped recipe) ~data:recipe)
+        let rarity, tiebreaker = break_ties ~max_hearts ~max_stamina grouped recipe in
+        Float.Map.add_multi acc ~key:tiebreaker ~data:(recipe, rarity))
   in
-  Float.Map.to_sequence sorted ~order:`Increasing_key
+  Float.Map.to_sequence sorted ~order:`Decreasing_key
   |> Sequence.concat_map ~f:(fun (x, ll) -> List.map ll ~f:(Tuple2.create x) |> Sequence.of_list)
   |> Fn.flip Sequence.take n
   |> Sequence.to_list
 
 type iteration = {
+  tiebreaker: float;
   rarity: float;
   score: int;
   recipe: Recipe.t;
@@ -155,22 +177,22 @@ type t = {
 let to_string ~max_hearts ~max_stamina { iterations; count; duration } =
   let buf = Buffer.create 128 in
   bprintf buf "(%ds)" (Float.to_int duration);
-  List.iter iterations ~f:(fun { rarity; score; recipe } ->
+  List.iter iterations ~f:(fun { rarity = _; tiebreaker; score; recipe } ->
       bprintf buf
-        !"\n%d pts (%d, %f) -- %{Recipe} -- %{sexp: Cooking.t}"
-        score count rarity recipe
+        !"\n%d pts (%d, %f)\n%{Recipe}\n%{sexp: Cooking.t}"
+        score count tiebreaker recipe
         (cook ~max_hearts ~max_stamina recipe));
   Buffer.contents buf
 
-let top_sort grouped ll =
+let top_sort ~max_hearts ~max_stamina grouped ll =
   let rec loop from (ll, count) =
     match from with
     | [] -> List.rev ll |> List.concat
     | (score, recipes) :: rest ->
       let next =
         List.dedup_and_sort recipes ~compare:[%compare: Recipe.t]
-        |> top_most_common ~n:(3 - count) grouped
-        |> List.map ~f:(fun (rarity, recipe) -> { rarity; score; recipe })
+        |> top_most_common ~n:(3 - count) ~max_hearts ~max_stamina grouped
+        |> List.map ~f:(fun (tiebreaker, (recipe, rarity)) -> { tiebreaker; rarity; score; recipe })
       in
       let len = count + List.length next in
       if len >= 3 then List.rev (next :: ll) |> List.concat else loop rest (next :: ll, len)
@@ -183,6 +205,6 @@ let run ~max_hearts ~max_stamina ~kind ~category items =
   let { first; second; third }, count =
     filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina
   in
-  let iterations = top_sort grouped [ first; second; third ] in
+  let iterations = top_sort ~max_hearts ~max_stamina grouped [ first; second; third ] in
   let duration = diff_time r in
   { iterations; count; duration }

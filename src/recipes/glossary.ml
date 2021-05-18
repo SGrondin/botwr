@@ -20,11 +20,11 @@ let make_effect variant dur hearts ((potency, _, _, _, _) as scaling) =
       category = Food;
     }
 
-let make_energizing hearts ((bonus, _, _, _, _) as scaling) =
-  Ingredient.{ hearts; effect = Energizing { bonus; scaling }; category = Food }
+let make_energizing hearts scaling =
+  Ingredient.{ hearts; effect = Energizing (Scaling scaling); category = Food }
 
-let make_enduring hearts ((bonus, _, _, _, _) as scaling) =
-  Ingredient.{ hearts; effect = Enduring { bonus; scaling }; category = Food }
+let make_enduring hearts scaling =
+  Ingredient.{ hearts; effect = Enduring (Scaling scaling); category = Food }
 
 let make_spicy = make_effect Ingredient.Effect.spicy (2, 30)
 
@@ -40,8 +40,8 @@ let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
 
 let make_tough = make_effect Ingredient.Effect.tough (0, 50)
 
-let bonus_critter ?(hearts = 0) variant ((bonus, _, _, _, _) as scaling) =
-  Ingredient.{ hearts; effect = variant Effect.Bonus.{ bonus; scaling }; category = Critter }
+let bonus_critter ?(hearts = 0) variant scaling =
+  Ingredient.{ hearts; effect = variant Effect.Bonus.(Scaling scaling); category = Critter }
 
 let effect_critter ?(hearts = 0) dur variant ((potency, _, _, _, _) as scaling) =
   Ingredient.
@@ -61,194 +61,99 @@ let cached_monster_guts = make_monster (3, 10)
 
 include Items
 
-let has_effect = function
-| Palm_fruit
- |Apple
- |Wildberry
- |Hylian_shroom
- |Hyrule_herb
- |Hyrule_bass
- |Sanke_carp
- |Raw_gourmet_meat
- |Raw_whole_bird
- |Raw_prime_meat
- |Raw_bird_thigh
- |Raw_meat
- |Raw_bird_drumstick
- |Bird_egg
- |Fresh_milk
- |Acorn
- |Chickaloo_tree_nut
- |Hylian_rice
- |Tabantha_wheat
- |Cane_sugar
- |Goat_butter
- |Goron_spice
- |Rock_salt ->
-  false
-| Hearty_truffle
- |Hearty_bass
- |Hearty_radish
- |Hearty_blueshell_snail
- |Hearty_durian
- |Big_hearty_truffle
- |Hearty_salmon
- |Hearty_lizard
- |Big_hearty_radish
- |Stamella_shroom
- |Restless_cricket
- |Courser_bee_honey
- |Bright_eyed_crab
- |Staminoka_bass
- |Energetic_rhino_beetle
- |Endura_shroom
- |Tireless_frog
- |Endura_carrot
- |Spicy_pepper
- |Warm_safflina
- |Summerwing_butterfly
- |Sunshroom
- |Warm_darner
- |Sizzlefin_trout
- |Hydromelon
- |Cool_safflina
- |Winterwing_butterfly
- |Chillshroom
- |Cold_darner
- |Chillfin_trout
- |Voltfruit
- |Electric_safflina
- |Thunderwing_butterfly
- |Zapshroom
- |Electric_darner
- |Voltfin_trout
- |Fireproof_lizard
- |Smotherwing_butterfly
- |Rushroom
- |Swift_carrot
- |Hightail_lizard
- |Fleet_lotus_seeds
- |Swift_violet
- |Hot_footed_frog
- |Blue_nightshade
- |Sneaky_river_snail
- |Sunset_firefly
- |Silent_shroom
- |Stealthfin_trout
- |Silent_princess
- |Mighty_thistle
- |Bladed_rhino_beetle
- |Mighty_bananas
- |Razorshroom
- |Mighty_carp
- |Razorclaw_crab
- |Mighty_porgy
- |Armoranth
- |Rugged_rhino_beetle
- |Fortified_pumpkin
- |Ironshroom
- |Armored_carp
- |Ironshell_crab
- |Armored_porgy ->
-  true
-| Monster_horn _
- |Monster_fang _
- |Monster_guts _ ->
-  false
-
-let do_to_ingredient = function
-| Palm_fruit -> make_food 2 30
-| Apple -> make_food 1 30
-| Wildberry -> make_food 1 30
-| Hylian_shroom -> make_food 1 30
-| Hyrule_herb -> make_food 2 30
-| Hyrule_bass -> make_food 2 30
-| Sanke_carp -> make_food 2 30
-| Raw_gourmet_meat -> make_food 6 30
-| Raw_whole_bird -> make_food 6 30
-| Raw_prime_meat -> make_food 3 30
-| Raw_bird_thigh -> make_food 3 30
-| Raw_meat -> make_food 2 30
-| Raw_bird_drumstick -> make_food 2 30
-| Bird_egg -> make_ingredient 2 60 30
-| Fresh_milk -> make_ingredient 1 80 30
-| Acorn -> make_ingredient 1 50 30
-| Chickaloo_tree_nut -> make_ingredient 1 40 30
-| Hylian_rice -> make_spice 2 60 30
-| Tabantha_wheat -> make_spice 2 60 30
-| Cane_sugar -> make_spice 0 80 30
-| Goat_butter -> make_spice 0 80 30
-| Goron_spice -> make_spice 0 90 30
-| Rock_salt -> make_spice 0 60 30
-| Hearty_truffle -> make_hearty 4 1
-| Hearty_bass -> make_hearty 4 2
-| Hearty_radish -> make_hearty 5 3
-| Hearty_blueshell_snail -> make_hearty 6 3
-| Hearty_durian -> make_hearty 6 4
-| Big_hearty_truffle -> make_hearty 6 4
-| Hearty_salmon -> make_hearty 8 4
-| Hearty_lizard -> Ingredient.{ hearts = 8; effect = Hearty 4; category = Critter }
-| Big_hearty_radish -> make_hearty 8 5
-| Stamella_shroom -> make_energizing 1 (1, 2, 4, 5, 7)
-| Restless_cricket -> bonus_critter Ingredient.Effect.energizing (1, 2, 4, 5, 5)
-| Courser_bee_honey -> make_energizing 4 (2, 5, 8, 11, 14)
-| Bright_eyed_crab -> make_energizing 2 (2, 5, 8, 11, 14)
-| Staminoka_bass -> make_energizing 2 (5, 11, 15, 15, 15)
-| Energetic_rhino_beetle -> bonus_critter Ingredient.Effect.energizing (8, 15, 15, 15, 15)
-| Endura_shroom -> make_enduring 2 (1, 1, 1, 2, 2)
-| Tireless_frog -> bonus_critter ~hearts:4 Ingredient.Effect.enduring (1, 2, 3, 4, 4)
-| Endura_carrot -> make_enduring 4 (2, 4, 6, 8, 10)
-| Spicy_pepper -> make_spicy 1 (1, 1, 1, 1, 1)
-| Warm_safflina -> make_spicy 0 (1, 1, 1, 1, 1)
-| Summerwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.spicy (1, 1, 1, 1, 1)
-| Sunshroom -> make_spicy 1 (1, 1, 2, 2, 2)
-| Warm_darner -> effect_critter (2, 30) Ingredient.Effect.spicy (1, 1, 2, 2, 2)
-| Sizzlefin_trout -> make_spicy 2 (1, 2, 2, 2, 2)
-| Hydromelon -> make_chilly 1 (1, 1, 1, 1, 1)
-| Cool_safflina -> make_chilly 0 (1, 1, 1, 1, 1)
-| Winterwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.chilly (1, 1, 1, 1, 1)
-| Chillshroom -> make_chilly 1 (1, 1, 2, 2, 2)
-| Cold_darner -> effect_critter (2, 30) Ingredient.Effect.chilly (1, 1, 2, 2, 2)
-| Chillfin_trout -> make_chilly 2 (1, 2, 2, 2, 2)
-| Voltfruit -> make_electro 1 (1, 1, 1, 2, 2)
-| Electric_safflina -> make_electro 0 (1, 1, 1, 2, 2)
-| Thunderwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.electro (1, 1, 1, 2, 2)
-| Zapshroom -> make_electro 1 (1, 2, 3, 3, 3)
-| Electric_darner -> effect_critter (2, 30) Ingredient.Effect.electro (1, 2, 3, 3, 3)
-| Voltfin_trout -> make_electro 2 (1, 3, 3, 3, 3)
-| Fireproof_lizard -> effect_critter (2, 30) Ingredient.Effect.fireproof (1, 1, 1, 1, 1)
-| Smotherwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.fireproof (1, 1, 1, 2, 2)
-| Rushroom -> make_hasty 1 (1, 1, 1, 1, 2)
-| Swift_carrot -> make_hasty 1 (1, 1, 1, 1, 2)
-| Hightail_lizard -> effect_critter (1, 0) Ingredient.Effect.hasty (1, 1, 1, 1, 1)
-| Fleet_lotus_seeds -> make_hasty 1 (1, 1, 2, 3, 3)
-| Swift_violet -> make_hasty 0 (1, 1, 2, 3, 3)
-| Hot_footed_frog -> effect_critter (1, 0) Ingredient.Effect.hasty (1, 1, 2, 3, 3)
-| Blue_nightshade -> make_sneaky 0 (1, 1, 1, 1, 1)
-| Sneaky_river_snail -> make_sneaky 2 (1, 1, 1, 1, 1)
-| Sunset_firefly -> effect_critter (2, 0) Ingredient.Effect.sneaky (1, 1, 1, 1, 1)
-| Silent_shroom -> make_sneaky 1 (1, 1, 2, 2, 3)
-| Stealthfin_trout -> make_sneaky 2 (1, 1, 2, 2, 3)
-| Silent_princess -> make_sneaky 2 (1, 2, 3, 3, 3)
-| Mighty_thistle -> make_mighty 0 (1, 1, 1, 1, 2)
-| Bladed_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.mighty (1, 1, 1, 1, 1)
-| Mighty_bananas -> make_mighty 1 (1, 1, 2, 3, 3)
-| Razorshroom -> make_mighty 1 (1, 1, 2, 3, 3)
-| Mighty_carp -> make_mighty 2 (1, 1, 2, 3, 3)
-| Razorclaw_crab -> make_mighty 2 (1, 1, 2, 3, 3)
-| Mighty_porgy -> make_mighty 2 (1, 2, 3, 3, 3)
-| Armoranth -> make_tough 0 (1, 1, 1, 1, 2)
-| Rugged_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.tough (1, 1, 1, 1, 1)
-| Fortified_pumpkin -> make_tough 1 (1, 1, 2, 3, 3)
-| Ironshroom -> make_tough 1 (1, 1, 2, 3, 3)
-| Armored_carp -> make_tough 2 (1, 1, 2, 3, 3)
-| Ironshell_crab -> make_tough 2 (1, 1, 2, 3, 3)
-| Armored_porgy -> make_tough 2 (1, 2, 3, 3, 3)
-| Monster_horn _ -> cached_monster_horn
-| Monster_fang _ -> cached_monster_fang
-| Monster_guts _ -> cached_monster_guts
-
 let to_ingredient =
+  let do_to_ingredient = function
+    | Palm_fruit -> make_food 2 30
+    | Apple -> make_food 1 30
+    | Wildberry -> make_food 1 30
+    | Hylian_shroom -> make_food 1 30
+    | Hyrule_herb -> make_food 2 30
+    | Hyrule_bass -> make_food 2 30
+    | Sanke_carp -> make_food 2 30
+    | Raw_gourmet_meat -> make_food 6 30
+    | Raw_whole_bird -> make_food 6 30
+    | Raw_prime_meat -> make_food 3 30
+    | Raw_bird_thigh -> make_food 3 30
+    | Raw_meat -> make_food 2 30
+    | Raw_bird_drumstick -> make_food 2 30
+    | Bird_egg -> make_ingredient 2 90 30
+    | Fresh_milk -> make_ingredient 1 80 30
+    | Acorn -> make_ingredient 1 50 30
+    | Chickaloo_tree_nut -> make_ingredient 1 40 30
+    | Hylian_rice -> make_spice 2 60 30
+    | Tabantha_wheat -> make_spice 2 60 30
+    | Cane_sugar -> make_spice 0 80 30
+    | Goat_butter -> make_spice 0 80 30
+    | Goron_spice -> make_spice 0 90 30
+    | Rock_salt -> make_spice 0 60 30
+    | Hearty_truffle -> make_hearty 4 1
+    | Hearty_bass -> make_hearty 4 2
+    | Hearty_radish -> make_hearty 5 3
+    | Hearty_blueshell_snail -> make_hearty 6 3
+    | Hearty_durian -> make_hearty 6 4
+    | Big_hearty_truffle -> make_hearty 6 4
+    | Hearty_salmon -> make_hearty 8 4
+    | Hearty_lizard -> Ingredient.{ hearts = 8; effect = Hearty 4; category = Critter }
+    | Big_hearty_radish -> make_hearty 8 5
+    | Stamella_shroom -> make_energizing 1 (1, 2, 4, 5, 7)
+    | Restless_cricket -> bonus_critter Ingredient.Effect.energizing (1, 2, 4, 5, 5)
+    | Courser_bee_honey -> make_energizing 4 (2, 5, 8, 11, 14)
+    | Bright_eyed_crab -> make_energizing 2 (2, 5, 8, 11, 14)
+    | Staminoka_bass -> make_energizing 2 (5, 11, 15, 15, 15)
+    | Energetic_rhino_beetle -> bonus_critter Ingredient.Effect.energizing (8, 15, 15, 15, 15)
+    | Endura_shroom -> make_enduring 2 (1, 1, 1, 2, 2)
+    | Tireless_frog -> bonus_critter ~hearts:4 Ingredient.Effect.enduring (1, 2, 3, 4, 4)
+    | Endura_carrot -> make_enduring 4 (2, 4, 6, 8, 10)
+    | Spicy_pepper -> make_spicy 1 (1, 1, 1, 1, 1)
+    | Warm_safflina -> make_spicy 0 (1, 1, 1, 1, 1)
+    | Summerwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.spicy (1, 1, 1, 1, 1)
+    | Sunshroom -> make_spicy 1 (1, 1, 2, 2, 2)
+    | Warm_darner -> effect_critter (2, 30) Ingredient.Effect.spicy (1, 1, 2, 2, 2)
+    | Sizzlefin_trout -> make_spicy 2 (1, 2, 2, 2, 2)
+    | Hydromelon -> make_chilly 1 (1, 1, 1, 1, 1)
+    | Cool_safflina -> make_chilly 0 (1, 1, 1, 1, 1)
+    | Winterwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.chilly (1, 1, 1, 1, 1)
+    | Chillshroom -> make_chilly 1 (1, 1, 2, 2, 2)
+    | Cold_darner -> effect_critter (2, 30) Ingredient.Effect.chilly (1, 1, 2, 2, 2)
+    | Chillfin_trout -> make_chilly 2 (1, 2, 2, 2, 2)
+    | Voltfruit -> make_electro 1 (1, 1, 1, 2, 2)
+    | Electric_safflina -> make_electro 0 (1, 1, 1, 2, 2)
+    | Thunderwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.electro (1, 1, 1, 2, 2)
+    | Zapshroom -> make_electro 1 (1, 2, 3, 3, 3)
+    | Electric_darner -> effect_critter (2, 30) Ingredient.Effect.electro (1, 2, 3, 3, 3)
+    | Voltfin_trout -> make_electro 2 (1, 3, 3, 3, 3)
+    | Fireproof_lizard -> effect_critter (2, 30) Ingredient.Effect.fireproof (1, 1, 1, 1, 1)
+    | Smotherwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.fireproof (1, 1, 1, 2, 2)
+    | Rushroom -> make_hasty 1 (1, 1, 1, 1, 2)
+    | Swift_carrot -> make_hasty 1 (1, 1, 1, 1, 2)
+    | Hightail_lizard -> effect_critter (1, 0) Ingredient.Effect.hasty (1, 1, 1, 1, 1)
+    | Fleet_lotus_seeds -> make_hasty 1 (1, 1, 2, 3, 3)
+    | Swift_violet -> make_hasty 0 (1, 1, 2, 3, 3)
+    | Hot_footed_frog -> effect_critter (1, 0) Ingredient.Effect.hasty (1, 1, 2, 3, 3)
+    | Blue_nightshade -> make_sneaky 0 (1, 1, 1, 1, 1)
+    | Sneaky_river_snail -> make_sneaky 2 (1, 1, 1, 1, 1)
+    | Sunset_firefly -> effect_critter (2, 0) Ingredient.Effect.sneaky (1, 1, 1, 1, 1)
+    | Silent_shroom -> make_sneaky 1 (1, 1, 2, 2, 3)
+    | Stealthfin_trout -> make_sneaky 2 (1, 1, 2, 2, 3)
+    | Silent_princess -> make_sneaky 2 (1, 2, 3, 3, 3)
+    | Mighty_thistle -> make_mighty 0 (1, 1, 1, 1, 2)
+    | Bladed_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.mighty (1, 1, 1, 1, 1)
+    | Mighty_bananas -> make_mighty 1 (1, 1, 2, 3, 3)
+    | Razorshroom -> make_mighty 1 (1, 1, 2, 3, 3)
+    | Mighty_carp -> make_mighty 2 (1, 1, 2, 3, 3)
+    | Razorclaw_crab -> make_mighty 2 (1, 1, 2, 3, 3)
+    | Mighty_porgy -> make_mighty 2 (1, 2, 3, 3, 3)
+    | Armoranth -> make_tough 0 (1, 1, 1, 1, 2)
+    | Rugged_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.tough (1, 1, 1, 1, 1)
+    | Fortified_pumpkin -> make_tough 1 (1, 1, 2, 3, 3)
+    | Ironshroom -> make_tough 1 (1, 1, 2, 3, 3)
+    | Armored_carp -> make_tough 2 (1, 1, 2, 3, 3)
+    | Ironshell_crab -> make_tough 2 (1, 1, 2, 3, 3)
+    | Armored_porgy -> make_tough 2 (1, 2, 3, 3, 3)
+    | Monster_horn _ -> cached_monster_horn
+    | Monster_fang _ -> cached_monster_fang
+    | Monster_guts _ -> cached_monster_guts
+  in
   let mapped = Array.of_list_map all ~f:do_to_ingredient in
   function
   | Monster_horn _ -> cached_monster_horn

@@ -19,31 +19,31 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 2)) (stamina (Full_plus_bonus 1)) (effect Nothing)
-      (num_ingredients 1))) |}];
+      (num_ingredients 1) (num_effect_ingredients 1))) |}];
   test [ Endura_shroom; Endura_shroom ];
   [%expect
     {|
     (Food
      ((hearts (Restores 4)) (stamina (Full_plus_bonus 1)) (effect Nothing)
-      (num_ingredients 2))) |}];
+      (num_ingredients 2) (num_effect_ingredients 2))) |}];
   test [ Endura_shroom; Endura_shroom; Big_hearty_radish ];
   [%expect
     {|
     (Food
      ((hearts (Restores 12)) (stamina Nothing) (effect Nothing)
-      (num_ingredients 3))) |}];
+      (num_ingredients 3) (num_effect_ingredients 3))) |}];
   test [ Big_hearty_radish ];
   [%expect
     {|
     (Food
      ((hearts (Full_plus_bonus 5)) (stamina Nothing) (effect Nothing)
-      (num_ingredients 1))) |}];
+      (num_ingredients 1) (num_effect_ingredients 1))) |}];
   test [ Hylian_rice; Bird_egg; Raw_meat; Staminoka_bass ];
   [%expect
     {|
     (Food
      ((hearts (Restores 8)) (stamina (Restores 5)) (effect Nothing)
-      (num_ingredients 4))) |}];
+      (num_ingredients 4) (num_effect_ingredients 1))) |}];
   test [ Voltfruit; Electric_safflina; Electric_safflina; Thunderwing_butterfly ];
   [%expect {| Dubious |}];
   test [ Voltfruit; Electric_safflina; Electric_safflina ];
@@ -51,37 +51,46 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 1)) (stamina Nothing)
-      (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 3))) |}];
+      (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 3)
+      (num_effect_ingredients 3))) |}];
   test [ Chillshroom; Chillshroom; Hydromelon; Hydromelon; Hydromelon ];
   [%expect
     {|
     (Food
      ((hearts (Restores 5)) (stamina Nothing)
-      (effect (Chilly ((potency 2) (duration 750)))) (num_ingredients 5))) |}];
+      (effect (Chilly ((potency 2) (duration 750)))) (num_ingredients 5)
+      (num_effect_ingredients 5))) |}];
   test [ Monster_fang Moblin_fang; Bladed_rhino_beetle; Bladed_rhino_beetle; Bladed_rhino_beetle ];
   [%expect
     {|
     (Elixir
      ((hearts Nothing) (stamina Nothing)
-      (effect (Mighty ((potency 1) (duration 260)))) (num_ingredients 4))) |}];
+      (effect (Mighty ((potency 1) (duration 260)))) (num_ingredients 4)
+      (num_effect_ingredients 3))) |}];
   test [ Stamella_shroom; Stamella_shroom; Stamella_shroom ];
   [%expect
     {|
     (Food
      ((hearts (Restores 3)) (stamina (Restores 4)) (effect Nothing)
-      (num_ingredients 3))) |}];
+      (num_ingredients 3) (num_effect_ingredients 3))) |}];
   test [ Stamella_shroom; Goat_butter; Goat_butter; Goat_butter; Goat_butter ];
   [%expect
     {|
     (Food
      ((hearts (Restores 1)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 5))) |}];
+      (num_ingredients 5) (num_effect_ingredients 1))) |}];
+  test [ Goron_spice; Voltfin_trout; Voltfin_trout; Bird_egg; Bird_egg ];
+  [%expect {|
+    (Food
+     ((hearts (Restores 8)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
+      (num_effect_ingredients 2))) |}];
   test [ Apple; Raw_gourmet_meat; Raw_gourmet_meat; Raw_gourmet_meat; Stamella_shroom ];
   [%expect
     {|
     (Food
      ((hearts (Restores 20)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 5))) |}]
+      (num_ingredients 5) (num_effect_ingredients 1))) |}]
 
 let%expect_test "Hashing" =
   let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in

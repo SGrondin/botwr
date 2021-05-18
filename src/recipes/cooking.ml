@@ -17,7 +17,7 @@ module Hearts = struct
     let theoretical_gain = max_hearts + x in
     let actual_gain = min theoretical_gain 30 in
     let wasted = theoretical_gain - actual_gain in
-    (actual_gain << 1) - wasted
+    100 + (actual_gain << 1) - wasted
 end
 
 module Stamina = struct
@@ -27,17 +27,17 @@ module Stamina = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_stamina = function
+  let score ~max_stamina ~num_effect_ingredients = function
   | Nothing -> 0
   | Restores theoretical_gain ->
     let actual_gain = min theoretical_gain max_stamina in
     let wasted = theoretical_gain - actual_gain in
-    (actual_gain << 1) - wasted
+    100 + (actual_gain << 2) - wasted - (num_effect_ingredients << 1)
   | Full_plus_bonus x ->
     let theoretical_gain = max_stamina + x in
     let actual_gain = min theoretical_gain 20 in
     let wasted = theoretical_gain - actual_gain in
-    (actual_gain << 1) - wasted
+    100 + (actual_gain << 2) - wasted - (num_effect_ingredients << 1)
 end
 
 module Effect = struct
@@ -59,7 +59,7 @@ module Effect = struct
     | Tough     of bonus
   [@@deriving sexp, compare, equal]
 
-  let score = function
+  let score ~num_effect_ingredients = function
   | Nothing -> 0
   | Spicy { potency; duration }
    |Chilly { potency; duration }
@@ -71,7 +71,7 @@ module Effect = struct
    |Tough { potency; duration } ->
     let actual = min potency 3 in
     let wasted = potency - actual in
-    (actual * (duration >> 3)) - (wasted << 4)
+    100 + (actual << 5) + (duration >> 3) - (wasted << 4) - (num_effect_ingredients << 4)
 end
 
 module Meal = struct
@@ -80,14 +80,15 @@ module Meal = struct
     stamina: Stamina.t;
     effect: Effect.t;
     num_ingredients: int;
+    num_effect_ingredients: int;
   }
   [@@deriving sexp, compare, equal, fields]
 
   let score ~max_hearts ~max_stamina = function
-  | { hearts; stamina; effect; num_ingredients } ->
+  | { hearts; stamina; effect; num_ingredients; num_effect_ingredients } ->
     Hearts.score ~max_hearts hearts
-    + Stamina.score ~max_stamina stamina
-    + Effect.score effect
+    + Stamina.score ~max_stamina ~num_effect_ingredients stamina
+    + Effect.score ~num_effect_ingredients effect
     - num_ingredients
 end
 
@@ -99,9 +100,12 @@ type t =
 [@@deriving sexp, compare, equal]
 
 let cook ~max_hearts ~max_stamina map =
-  let ingredients, num_ingredients =
-    Glossary.Map.fold map ~init:([], 0) ~f:(fun ~key:g ~data:count (acc, i) ->
-        Ingredient.merge (Glossary.to_ingredient g) ~count :: acc, i + count)
+  let ingredients, num_ingredients, num_effect_ingredients =
+    Glossary.Map.fold map ~init:([], 0, 0) ~f:(fun ~key:g ~data:count (acc, num, num_effect) ->
+        let ingredient = Glossary.to_ingredient g in
+        ( Ingredient.merge ingredient ~count :: acc,
+          num + count,
+          if Ingredient.has_effect ingredient then num_effect + count else num_effect ))
   in
   match List.reduce ingredients ~f:Ingredient.combine with
   | None -> Failed "No ingredients"
@@ -119,8 +123,12 @@ let cook ~max_hearts ~max_stamina map =
     in
     let stamina =
       match res.effect with
-      | Energizing { bonus; _ } -> Stamina.Restores (min bonus max_stamina)
-      | Enduring { bonus; _ } -> Stamina.Full_plus_bonus bonus
+      | Energizing (One bonus)
+       |Energizing (Scaling (bonus, _, _, _, _)) ->
+        Stamina.Restores (min bonus max_stamina)
+      | Enduring (One bonus)
+       |Enduring (Scaling (bonus, _, _, _, _)) ->
+        Stamina.Full_plus_bonus bonus
       | _ -> Nothing
     in
     let convert_duration : Ingredient.Duration.t -> int = function
@@ -145,7 +153,7 @@ let cook ~max_hearts ~max_stamina map =
       | Tough { potency; duration; _ } -> Tough { potency; duration = convert_duration duration }
     in
     match res.category with
-    | Food -> Food { hearts; stamina; effect; num_ingredients }
-    | Elixir -> Elixir { hearts; stamina; effect; num_ingredients }
+    | Food -> Food { hearts; stamina; effect; num_ingredients; num_effect_ingredients }
+    | Elixir -> Elixir { hearts; stamina; effect; num_ingredients; num_effect_ingredients }
     | _ -> Dubious
   )

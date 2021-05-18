@@ -40,6 +40,7 @@ let application =
                  total;
                  items_node;
                  show_all_node;
+                 by_effect;
                  by_effect_node;
                  jump_to_node;
                  clear_all_node;
@@ -62,7 +63,7 @@ let application =
              share;
            ];
          Node.div Attr.[ class_ "my-3" ] [ show_all_node; by_effect_node ];
-         jump_to_node;
+         (if by_effect then jump_to_node else Node.none);
          items_node;
          Node.div []
            [

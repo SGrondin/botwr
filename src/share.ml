@@ -28,4 +28,6 @@ let component (ingredients : (Recipes.Glossary.t * int) list Bonsai.Value.t) =
      in
      if clicked
      then Node.h6 Attr.[ classes [ "d-inline-block"; "ms-2" ] ] [ Node.text "Copied!" ]
-     else Icon.svg Clipboard ~container:Span Attr.[ class_ "ms-2"; on_click handler; style pointer ]
+     else
+       Icon.svg Folder_symlink ~container:Span ~raw_extra_classes:[ "mb-1" ]
+         Attr.[ class_ "ms-2"; on_click handler; style pointer ]

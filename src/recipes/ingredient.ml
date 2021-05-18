@@ -56,15 +56,21 @@ module Effect = struct
   end
 
   module Bonus = struct
-    type t = {
-      bonus: int;
-      scaling: scaling;
-    }
+    type t =
+      | One     of int
+      | Scaling of scaling
     [@@deriving sexp, compare, equal, hash]
 
-    let merge ~count { bonus = _; scaling } = { bonus = scale ~count scaling; scaling = 0, 0, 0, 0, 0 }
+    let merge ~count = function
+    | One x -> One (x * count)
+    | Scaling scaling -> One (scale ~count scaling)
 
-    let combine left right = { bonus = left.bonus + right.bonus; scaling = 0, 0, 0, 0, 0 }
+    let first = function
+    | One x
+     |Scaling (x, _, _, _, _) ->
+      x
+
+    let combine left right = One (first left + first right)
   end
 
   type t =
@@ -231,6 +237,23 @@ let to_kind : t -> Effect.Kind.t = function
 | { effect = Sneaky _; _ } -> Sneaky
 | { effect = Mighty _; _ } -> Mighty
 | { effect = Tough _; _ } -> Tough
+
+let has_effect : t -> bool = function
+| { effect = Nothing; _ }
+ |{ effect = Neutral _; _ } ->
+  false
+| { effect = Hearty _; _ }
+ |{ effect = Energizing _; _ }
+ |{ effect = Enduring _; _ }
+ |{ effect = Spicy _; _ }
+ |{ effect = Chilly _; _ }
+ |{ effect = Electro _; _ }
+ |{ effect = Fireproof _; _ }
+ |{ effect = Hasty _; _ }
+ |{ effect = Sneaky _; _ }
+ |{ effect = Mighty _; _ }
+ |{ effect = Tough _; _ } ->
+  true
 
 let merge ({ hearts; effect; category } as ingredient) ~count =
   match count with

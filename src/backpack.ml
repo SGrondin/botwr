@@ -146,6 +146,7 @@ type state = {
   total: int;
   items_node: Node.t;
   show_all_node: Node.t;
+  by_effect: bool;
   by_effect_node: Node.t;
   jump_to_node: Node.t;
   clear_all_node: Node.t;
@@ -272,5 +273,16 @@ let component ~inventory () =
              [ Node.text "Clear all " ];
          ]
      in
-     ( { total; items_node; show_all_node; by_effect_node; jump_to_node; clear_all_node; ingredients },
-       updates )
+     let state =
+       {
+         total;
+         items_node;
+         show_all_node;
+         by_effect;
+         by_effect_node;
+         jump_to_node;
+         clear_all_node;
+         ingredients;
+       }
+     in
+     state, updates

@@ -48,6 +48,7 @@ module Self = struct
     | Giant_ancient_core
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
+  (* IMPORTANT: sorted by strength within their own category *)
   type t =
     | Apple
     | Wildberry
@@ -67,11 +68,11 @@ module Self = struct
     | Rock_salt
     | Hylian_rice
     | Tabantha_wheat
-    | Bird_egg
     | Cane_sugar
     | Goat_butter
     | Fresh_milk
     | Goron_spice
+    | Bird_egg
     | Hearty_truffle
     | Hearty_bass
     | Hearty_radish

@@ -72,6 +72,7 @@ let input_node ~update_selected ~update_state =
         on_keydown handler;
         class_ "form-control";
         id quantity_node_id;
+        create "maxlength" "3";
         style Css_gen.(width (`Em 4));
       ]
     []

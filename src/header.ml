@@ -99,8 +99,7 @@ let render ~clear_all_node ~total ingredients
     [
       Node.h3 Attr.[ id "top" ] [ Node.text "BOTW Cooking Optimizer" ];
       instructions_node;
-      Node.div
-        Attr.[ classes [ "d-flex"; "align-items-center" ] ]
-        [ button; meals_switch; elixirs_switch ];
+      Node.div Attr.[ class_ "ms-2" ] [ meals_switch; elixirs_switch ];
+      button;
       kitchen;
     ]

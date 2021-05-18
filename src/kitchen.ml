@@ -75,7 +75,7 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) 
 let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.t) =
   let open Option.Monad_infix in
   let open Recipes.Optimize in
-  let render_iteration { rarity; score = _; recipe } =
+  let render_iteration { rarity; score = _; tiebreaker = _; recipe } =
     let make_duration sec =
       let minutes = Int.( /% ) sec 60 in
       let remainder = Int.( % ) sec 60 in
@@ -123,9 +123,13 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         | Mighty x -> Some ("Mighty", Icon.Mighty, x)
         | Tough x -> Some ("Tough", Icon.Tough, x)
       in
-      ( ( opt >>| fun (s, icon, { potency; _ }) ->
-          Node.span [] (Node.textf "%s %d " s potency :: List.init potency ~f:(const (make_icon icon))) ),
-        opt >>| fun (_, _, { duration; _ }) -> make_duration duration )
+      let effect =
+        opt >>| fun (s, icon, { potency; _ }) ->
+        let actual = min potency 3 in
+        Node.span [] (Node.textf "%s %d " s actual :: List.init actual ~f:(const (make_icon icon)))
+      in
+      let duration = opt >>| fun (_, _, { duration; _ }) -> make_duration duration in
+      effect, duration
     in
 
     let col_width x = Attr.[ style Css_gen.(width (`Em x)) ] in
