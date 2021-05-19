@@ -80,7 +80,7 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 8)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
+      (effect (Electro ((potency 3) (duration 480)))) (num_ingredients 5)
       (num_effect_ingredients 2))) |}];
   test [ Apple; Raw_gourmet_meat; Raw_gourmet_meat; Raw_gourmet_meat; Stamella_shroom ];
   [%expect
@@ -93,7 +93,39 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 7)) (stamina (Restores 16)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 4))) |}]
+      (num_ingredients 4) (num_effect_ingredients 4))) |}];
+  test [ Fairy ];
+  [%expect {|
+    (Tonic
+     ((hearts (Restores 7)) (stamina Nothing) (effect Nothing)
+      (num_ingredients 1) (num_effect_ingredients 0))) |}];
+  test [ Fairy; Fairy ];
+  [%expect {|
+    (Tonic
+     ((hearts (Restores 17)) (stamina Nothing) (effect Nothing)
+      (num_ingredients 2) (num_effect_ingredients 0))) |}];
+  test [ Staminoka_bass; Summerwing_butterfly ];
+  [%expect {| Dubious |}];
+  test [ Staminoka_bass; Summerwing_butterfly; Fairy ];
+  [%expect {|
+    (Food
+     ((hearts (Restores 12)) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 2))) |}];
+  test [ Staminoka_bass; Restless_cricket; Fairy ];
+  [%expect {|
+    (Food
+     ((hearts (Restores 12)) (stamina (Restores 6)) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 2))) |}];
+  test [ Endura_carrot; Endura_carrot; Endura_carrot; Endura_carrot; Fairy ];
+  [%expect {|
+    (Food
+     ((hearts (Restores 26)) (stamina (Full_plus_bonus 8)) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 4))) |}];
+  test [ Staminoka_bass; Staminoka_bass; Staminoka_bass; Fairy ];
+  [%expect {|
+    (Food
+     ((hearts (Restores 16)) (stamina (Restores 15)) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 3))) |}]
 
 let%expect_test "Hashing" =
   let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in

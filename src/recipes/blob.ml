@@ -102,6 +102,7 @@ let blobs =
         | Armored_carp -> [%blob "images/76.png"]
         | Ironshell_crab -> [%blob "images/83.png"]
         | Armored_porgy -> [%blob "images/79.png"]
+        | Fairy -> [%blob "images/85.png"]
         | Monster_horn Bokoblin_horn -> [%blob "images/111.png"]
         | Monster_horn Moblin_horn -> [%blob "images/114.png"]
         | Monster_horn Lizalfos_horn -> [%blob "images/117.png"]
@@ -140,7 +141,6 @@ let blobs =
         | Monster_guts Yellow_lizalfos_tail -> [%blob "images/122.png"]
         | Monster_guts Ancient_core -> [%blob "images/147.png"]
         | Monster_guts Giant_ancient_core -> [%blob "images/148.png"]
-        (* | Fairy -> {|85|} *)
         (* | Monster_extract -> {|53|} *)
         (* | Star_fragment -> {|54|} *)
       in

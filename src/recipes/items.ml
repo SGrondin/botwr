@@ -48,6 +48,21 @@ module Self = struct
     | Giant_ancient_core
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
+  type dragon_parts =
+    | Dinraal_scale
+    | Naydra_scale
+    | Farosh_scale
+    | Dinraal_claw
+    | Naydra_claw
+    | Farosh_claw
+    | Dinraal_fang
+    | Naydra_fang
+    | Farosh_fang
+    | Dinraal_horn
+    | Naydra_horn
+    | Farosh_horn
+  [@@deriving sexp, compare, equal, hash, variants, enumerate]
+
   (* IMPORTANT: sorted by strength within their own category *)
   type t =
     | Apple
@@ -68,11 +83,11 @@ module Self = struct
     | Rock_salt
     | Hylian_rice
     | Tabantha_wheat
+    | Bird_egg
     | Cane_sugar
     | Goat_butter
     | Fresh_milk
     | Goron_spice
-    | Bird_egg
     | Hearty_truffle
     | Hearty_bass
     | Hearty_radish
@@ -137,6 +152,7 @@ module Self = struct
     | Armored_carp
     | Ironshell_crab
     | Armored_porgy
+    | Fairy
     | Monster_horn           of monster_horn
     | Monster_fang           of monster_fang
     | Monster_guts           of monster_guts

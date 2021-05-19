@@ -57,20 +57,20 @@ module Effect = struct
 
   module Bonus = struct
     type t =
-      | One     of int
+      | Flat    of int
       | Scaling of scaling
     [@@deriving sexp, compare, equal, hash]
 
     let merge ~count = function
-    | One x -> One (x * count)
-    | Scaling scaling -> One (scale ~count scaling)
+    | Flat x -> Flat (x * count)
+    | Scaling scaling -> Flat (scale ~count scaling)
 
     let first = function
-    | One x
+    | Flat x
      |Scaling (x, _, _, _, _) ->
       x
 
-    let combine left right = One (first left + first right)
+    let combine left right = Flat (first left + first right)
   end
 
   type t =
@@ -162,21 +162,6 @@ module Effect = struct
 
     module Map = Map.Make (Self)
     include Self
-
-    let to_string = function
-    | Nothing -> "None"
-    | Neutral -> "None"
-    | Hearty -> "Hearty"
-    | Energizing -> "Energizing"
-    | Enduring -> "Enduring"
-    | Spicy -> "Spicy"
-    | Chilly -> "Chilly"
-    | Electro -> "Electro"
-    | Fireproof -> "Fireproof"
-    | Hasty -> "Hasty"
-    | Sneaky -> "Sneaky"
-    | Mighty -> "Mighty"
-    | Tough -> "Tough"
   end
 end
 
@@ -187,16 +172,26 @@ module Category = struct
     | Critter
     | Monster
     | Elixir
+    | Tonic_food
+    | Tonic
     | Dubious
   [@@deriving sexp, compare, equal, hash]
 
   let combine left right =
     match left, right with
+    | Tonic, Food
+     |Food, Tonic
+     |Tonic_food, _
+     |_, Tonic_food ->
+      Tonic_food
     | Food, Food -> Food
     | Spice, Spice -> Spice
     | Food, Spice
      |Spice, Food ->
       Food
+    | Tonic, _
+     |_, Tonic ->
+      Tonic
     | Food, _
      |_, Food
      |Spice, _

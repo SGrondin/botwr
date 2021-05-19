@@ -76,7 +76,7 @@ let to_ingredient =
     | Raw_bird_thigh -> make_food 3 30
     | Raw_meat -> make_food 2 30
     | Raw_bird_drumstick -> make_food 2 30
-    | Bird_egg -> make_ingredient 2 90 30
+    | Bird_egg -> make_ingredient 2 60 30
     | Fresh_milk -> make_ingredient 1 80 30
     | Acorn -> make_ingredient 1 50 30
     | Chickaloo_tree_nut -> make_ingredient 1 40 30
@@ -150,6 +150,7 @@ let to_ingredient =
     | Armored_carp -> make_tough 2 (1, 1, 2, 3, 3)
     | Ironshell_crab -> make_tough 2 (1, 1, 2, 3, 3)
     | Armored_porgy -> make_tough 2 (1, 2, 3, 3, 3)
+    | Fairy -> { hearts = 10; effect = Neutral (Always 30); category = Tonic }
     | Monster_horn _ -> cached_monster_horn
     | Monster_fang _ -> cached_monster_fang
     | Monster_guts _ -> cached_monster_guts
@@ -258,6 +259,7 @@ let to_string = function
 | Armored_carp -> "Armored Carp"
 | Ironshell_crab -> "Ironshell Crab"
 | Armored_porgy -> "Armored Porgy"
+| Fairy -> "Fairy"
 | Monster_horn Bokoblin_horn -> "Bokoblin Horn"
 | Monster_horn Moblin_horn -> "Moblin Horn"
 | Monster_horn Lizalfos_horn -> "Lizalfos Horn"
@@ -369,6 +371,7 @@ let ordered =
     Razorclaw_crab;
     Ironshell_crab;
     Bright_eyed_crab;
+    Fairy;
     Winterwing_butterfly;
     Summerwing_butterfly;
     Thunderwing_butterfly;

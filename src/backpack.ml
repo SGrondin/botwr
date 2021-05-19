@@ -31,6 +31,7 @@ module Group = struct
       | Spicy
       | Tough
       | Monster_parts
+      | Special
     [@@deriving sexp, compare, enumerate]
   end
 
@@ -42,6 +43,7 @@ module Group = struct
    |Monster_fang _
    |Monster_guts _ ->
     Monster_parts
+  | Fairy -> Special
   | x -> (
     match Glossary.to_kind x with
     | Nothing
@@ -74,6 +76,7 @@ module Group = struct
   | Spicy -> "Spicy"
   | Tough -> "Tough"
   | Monster_parts -> "Monster Parts"
+  | Special -> "Special"
 
   let to_img_node ?width:(w = 2.0) ?height:(h = 2.0) group =
     let kind : (Recipes.Ingredient.Effect.Kind.t, string) Either.t =
@@ -91,6 +94,7 @@ module Group = struct
       | Spicy -> First Spicy
       | Tough -> First Tough
       | Monster_parts -> Second Glossary.(to_img_src (Monster_guts Bokoblin_guts))
+      | Special -> Second Glossary.(to_img_src Fairy)
     in
     Either.value_map kind
       ~first:(fun kind -> Icon.svg (Icon.of_kind kind) ~width:w ~height:h ~container:Span [])

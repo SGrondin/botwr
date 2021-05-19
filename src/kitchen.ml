@@ -101,6 +101,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       match cooked with
       | Food m -> "Meal", Some Icon.Meal, Some m
       | Elixir m -> "Elixir", Some Icon.Elixir, Some m
+      | Tonic m -> "Fairy Tonic", Some Icon.Elixir, Some m
       | Dubious -> "Dubious food", None, None
       | Failed msg ->
         print_endline msg;

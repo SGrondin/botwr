@@ -34,7 +34,7 @@ module Stamina = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_stamina ~algo ~num_effect_ingredients = function
+  let score ~max_stamina ~num_effect_ingredients = function
   | Nothing -> 0
   | Restores theoretical_gain ->
     let actual_gain = min theoretical_gain max_stamina in
@@ -100,7 +100,7 @@ module Meal = struct
   let score ~max_hearts ~max_stamina ~algo = function
   | { hearts; stamina; effect; num_ingredients; num_effect_ingredients } ->
     Hearts.score ~max_hearts hearts
-    + Stamina.score ~max_stamina ~algo ~num_effect_ingredients stamina
+    + Stamina.score ~max_stamina ~num_effect_ingredients stamina
     + Effect.score ~num_effect_ingredients ~algo effect
     - num_ingredients
 end
@@ -108,6 +108,7 @@ end
 type t =
   | Food    of Meal.t
   | Elixir  of Meal.t
+  | Tonic   of Meal.t
   | Dubious
   | Failed  of string
 [@@deriving sexp, compare, equal]
@@ -129,17 +130,18 @@ let cook map =
     Dubious
   | Some res -> (
     let hearts =
-      match res.effect, res.hearts with
-      | Hearty x, _ -> Hearts.Full_plus_bonus x
-      | _, 0 -> Nothing
-      | _, x -> Restores x
+      match res with
+      | { effect = Hearty x; _ } -> Hearts.Full_plus_bonus x
+      | { hearts = 0; _ } -> Nothing
+      | { category = Tonic; hearts; _ } -> Restores (max 0 (hearts - 3))
+      | { hearts; _ } -> Restores hearts
     in
     let stamina =
       match res.effect with
-      | Energizing (One bonus)
+      | Energizing (Flat bonus)
        |Energizing (Scaling (bonus, _, _, _, _)) ->
         Stamina.Restores bonus
-      | Enduring (One bonus)
+      | Enduring (Flat bonus)
        |Enduring (Scaling (bonus, _, _, _, _)) ->
         Stamina.Full_plus_bonus bonus
       | _ -> Nothing
@@ -165,8 +167,16 @@ let cook map =
       | Mighty { potency; duration; _ } -> Mighty { potency; duration = convert_duration duration }
       | Tough { potency; duration; _ } -> Tough { potency; duration = convert_duration duration }
     in
+    let meal : Meal.t = { hearts; stamina; effect; num_ingredients; num_effect_ingredients } in
     match res.category with
-    | Food -> Food { hearts; stamina; effect; num_ingredients; num_effect_ingredients }
-    | Elixir -> Elixir { hearts; stamina; effect; num_ingredients; num_effect_ingredients }
-    | _ -> Dubious
+    | Food
+     |Tonic_food ->
+      Food meal
+    | Elixir -> Elixir meal
+    | Tonic -> Tonic meal
+    | Spice
+     |Critter
+     |Monster
+     |Dubious ->
+      Dubious
   )

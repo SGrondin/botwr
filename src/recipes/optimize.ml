@@ -23,7 +23,8 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
          |Neutral, Food, Meals
          |Neutral, Food, Any
          |Neutral, Spice, Meals
-         |Neutral, Spice, Any ->
+         |Neutral, Spice, Any
+          when not ([%equal: Ingredient.Effect.Kind.t] kind Hearty) ->
           let () =
             match ingredient with
             | { effect = Neutral (Diminishing _); _ } ->
@@ -48,6 +49,7 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
          |x, Elixir, Elixirs
           when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
+        | _, Tonic, _ -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc)
   in
   let top ?(up_to = 4) queue init =
@@ -106,7 +108,8 @@ let combine ~max_hearts ~max_stamina ~algo list =
       Recipe.Table.find_or_add cache recipe ~default:(fun () ->
           match cook recipe with
           | Food meal
-           |Elixir meal ->
+           |Elixir meal
+           |Tonic meal ->
             Meal.score ~max_hearts ~max_stamina ~algo meal
           | Dubious
            |Failed _ ->

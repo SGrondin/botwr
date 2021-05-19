@@ -17,6 +17,9 @@ let%expect_test "Filter" =
         Hearty_salmon, 9;
         Big_hearty_radish, 8;
         Big_hearty_truffle, 8;
+        Endura_carrot, 7;
+        Endura_shroom, 7;
+        Tireless_frog, 7;
         Monster_guts Hinox_guts, 1;
         Monster_horn Keese_wing, 3;
         Monster_horn Lizalfos_horn, 3;
@@ -32,51 +35,68 @@ let%expect_test "Filter" =
   [%expect
     {|
     ((Monster_guts Moblin_guts) (Monster_guts Hinox_guts)
-     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Electric_darner
+     (Monster_fang Ancient_gear) (Monster_fang Ancient_gear) Electric_darner
      Electric_darner Electric_darner Electric_darner Electric_darner
      Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
      Thunderwing_butterfly Thunderwing_butterfly) |}];
   test Electro Meals data1;
   [%expect
     {|
-    (Bird_egg Goron_spice Fresh_milk Raw_meat Electric_safflina Electric_safflina
+    (Goron_spice Fresh_milk Bird_egg Raw_meat Electric_safflina Electric_safflina
      Electric_safflina Electric_safflina Electric_safflina) |}];
   test Electro Any data1;
   [%expect
     {|
     ((Monster_guts Moblin_guts) (Monster_guts Hinox_guts)
-     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Bird_egg
-     Goron_spice Fresh_milk Raw_meat Electric_darner Electric_darner
-     Electric_darner Electric_darner Electric_darner Thunderwing_butterfly
+     (Monster_fang Ancient_gear) (Monster_fang Ancient_gear) Goron_spice
+     Fresh_milk Bird_egg Raw_meat Electric_darner Electric_darner Electric_darner
+     Electric_darner Electric_darner Thunderwing_butterfly Thunderwing_butterfly
      Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
-     Thunderwing_butterfly Electric_safflina Electric_safflina Electric_safflina
-     Electric_safflina Electric_safflina) |}];
+     Electric_safflina Electric_safflina Electric_safflina Electric_safflina
+     Electric_safflina) |}];
   test Hearty Meals data1;
   [%expect
     {|
-    (Raw_meat Raw_meat Raw_meat Fresh_milk Big_hearty_truffle Big_hearty_truffle
-     Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Hearty_bass
-     Hearty_bass Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon
-     Hearty_salmon Big_hearty_radish Big_hearty_radish Big_hearty_radish
-     Big_hearty_radish Big_hearty_radish Hearty_durian Hearty_durian
-     Hearty_durian Hearty_durian Hearty_durian) |}];
+    (Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
+     Big_hearty_truffle Hearty_bass Hearty_bass Hearty_salmon Hearty_salmon
+     Hearty_salmon Hearty_salmon Hearty_salmon Big_hearty_radish
+     Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
+     Hearty_durian Hearty_durian Hearty_durian Hearty_durian Hearty_durian) |}];
   test Hearty Elixirs data1;
   [%expect
     {|
-    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Hearty_lizard
+    ((Monster_horn Keese_wing) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Lizalfos_horn) Hearty_lizard
      Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard) |}];
   test Hearty Any data1;
   [%expect
     {|
-    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Raw_meat Raw_meat
-     Raw_meat Fresh_milk Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
-     Big_hearty_truffle Big_hearty_truffle Hearty_bass Hearty_bass Hearty_salmon
-     Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon Big_hearty_radish
-     Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
-     Hearty_durian Hearty_durian Hearty_durian Hearty_durian Hearty_durian
-     Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard) |}]
+    ((Monster_horn Keese_wing) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Lizalfos_horn) Big_hearty_truffle
+     Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
+     Hearty_bass Hearty_bass Hearty_salmon Hearty_salmon Hearty_salmon
+     Hearty_salmon Hearty_salmon Big_hearty_radish Big_hearty_radish
+     Big_hearty_radish Big_hearty_radish Big_hearty_radish Hearty_durian
+     Hearty_durian Hearty_durian Hearty_durian Hearty_durian Hearty_lizard
+     Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard) |}];
+  test Enduring Meals data1;
+  [%expect {|
+    (Raw_meat Raw_meat Raw_meat Bird_egg Endura_shroom Endura_shroom
+     Endura_shroom Endura_shroom Endura_shroom Endura_carrot Endura_carrot
+     Endura_carrot Endura_carrot Endura_carrot) |}];
+  test Enduring Elixirs data1;
+  [%expect {|
+    ((Monster_horn Keese_wing) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Lizalfos_horn) Tireless_frog
+     Tireless_frog Tireless_frog Tireless_frog Tireless_frog) |}];
+  test Enduring Any data1;
+  [%expect {|
+    ((Monster_horn Keese_wing) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Lizalfos_horn) Raw_meat Raw_meat
+     Raw_meat Bird_egg Tireless_frog Tireless_frog Tireless_frog Tireless_frog
+     Tireless_frog Endura_shroom Endura_shroom Endura_shroom Endura_shroom
+     Endura_shroom Endura_carrot Endura_carrot Endura_carrot Endura_carrot
+     Endura_carrot) |}]
 
 let%expect_test "Cooking by category, basic" =
   let max_hearts = 20 in
@@ -98,6 +118,17 @@ let%expect_test "Cooking by category, basic" =
   in
   let data3 = Glossary.[ Big_hearty_truffle, 5 ] in
   let data4 = Glossary.[ Staminoka_bass, 5; Stamella_shroom, 5; Apple, 5 ] in
+  let data5 =
+    Glossary.
+      [
+        Goat_butter, 1;
+        Goron_spice, 1;
+        Silent_shroom, 2;
+        Sunset_firefly, 3;
+        Monster_guts Hinox_guts, 5;
+        Fairy, 2;
+      ]
+  in
   let test ~kind ~category ~algo ll =
     Optimize.run ll ~max_hearts ~max_stamina ~algo ~kind ~category |> Optimize.to_string |> print_endline
   in
@@ -210,7 +241,7 @@ let%expect_test "Cooking by category, basic" =
       Voltfin_trout, 5;
       Voltfruit, 1;
       Zapshroom, 1;
-      Bird_egg, 1;
+      Fresh_milk, 1;
       Goron_spice, 1;
       Goat_butter, 2;
       Apple, 2;
@@ -219,22 +250,22 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    229 pts (2379, 3.100000)
-    Bird_egg, Goat_butter, Goron_spice, Voltfin_trout x2
+    227 pts (2379, 2.100000)
+    Fresh_milk, Goat_butter, Goron_spice, Voltfin_trout x2
     (Food
-     ((hearts (Restores 6)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 560)))) (num_ingredients 5)
+     ((hearts (Restores 5)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 550)))) (num_ingredients 5)
       (num_effect_ingredients 2)))
-    222 pts (2379, 9.100000)
-    Bird_egg, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+    221 pts (2379, 8.100000)
+    Fresh_milk, Goron_spice, Raw_whole_bird, Voltfin_trout x2
     (Food
-     ((hearts (Restores 12)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
+     ((hearts (Restores 11)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
       (num_effect_ingredients 2)))
-    221 pts (2379, 9.600000)
-    Bird_egg, Goat_butter, Raw_whole_bird, Voltfin_trout x2
+    221 pts (2379, 7.600000)
+    Goat_butter, Goron_spice, Raw_whole_bird, Voltfin_trout x2
     (Food
-     ((hearts (Restores 12)) (stamina Nothing)
+     ((hearts (Restores 10)) (stamina Nothing)
       (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
       (num_effect_ingredients 2))) |}];
   test ~kind:Electro ~category:Meals ~algo:Maximize
@@ -276,7 +307,7 @@ let%expect_test "Cooking by category, basic" =
       Voltfin_trout, 5;
       Voltfruit, 1;
       Zapshroom, 1;
-      Bird_egg, 7;
+      Fresh_milk, 7;
       Goron_spice, 1;
       Goat_butter, 2;
       Apple, 2;
@@ -285,22 +316,22 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
       (0s)
-      229 pts (2379, 3.957143)
-      Bird_egg, Goat_butter, Goron_spice, Voltfin_trout x2
+      227 pts (2379, 2.957143)
+      Fresh_milk, Goat_butter, Goron_spice, Voltfin_trout x2
       (Food
-       ((hearts (Restores 6)) (stamina Nothing)
-        (effect (Electro ((potency 3) (duration 560)))) (num_ingredients 5)
+       ((hearts (Restores 5)) (stamina Nothing)
+        (effect (Electro ((potency 3) (duration 550)))) (num_ingredients 5)
         (num_effect_ingredients 2)))
-      222 pts (2379, 9.957143)
-      Bird_egg, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+      221 pts (2379, 8.957143)
+      Fresh_milk, Goron_spice, Raw_whole_bird, Voltfin_trout x2
       (Food
-       ((hearts (Restores 12)) (stamina Nothing)
-        (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
+       ((hearts (Restores 11)) (stamina Nothing)
+        (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
         (num_effect_ingredients 2)))
-      221 pts (2379, 10.457143)
-      Bird_egg, Goat_butter, Raw_whole_bird, Voltfin_trout x2
+      221 pts (2379, 7.600000)
+      Goat_butter, Goron_spice, Raw_whole_bird, Voltfin_trout x2
       (Food
-       ((hearts (Restores 12)) (stamina Nothing)
+       ((hearts (Restores 10)) (stamina Nothing)
         (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
         (num_effect_ingredients 2))) |}];
   test ~kind:Electro ~category:Meals ~algo:Balanced
@@ -309,7 +340,7 @@ let%expect_test "Cooking by category, basic" =
       Voltfin_trout, 5;
       Voltfruit, 1;
       Zapshroom, 1;
-      Bird_egg, 7;
+      Fresh_milk, 7;
       Goron_spice, 1;
       Apple, 2;
       Raw_whole_bird, 2;
@@ -317,45 +348,45 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    222 pts (2379, 9.957143)
-    Bird_egg, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+    221 pts (2379, 8.957143)
+    Fresh_milk, Goron_spice, Raw_whole_bird, Voltfin_trout x2
     (Food
-     ((hearts (Restores 12)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
+     ((hearts (Restores 11)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
       (num_effect_ingredients 2)))
-    221 pts (2379, 6.257143)
-    Bird_egg, Goron_spice, Voltfin_trout x3
+    220 pts (2379, 5.257143)
+    Fresh_milk, Goron_spice, Voltfin_trout x3
     (Food
-     ((hearts (Restores 8)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 630)))) (num_ingredients 5)
+     ((hearts (Restores 7)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 620)))) (num_ingredients 5)
       (num_effect_ingredients 3)))
-    221 pts (2379, 2.657143)
-    Bird_egg, Goron_spice, Voltfin_trout, Voltfruit, Zapshroom
+    220 pts (2379, 1.657143)
+    Fresh_milk, Goron_spice, Voltfin_trout, Voltfruit, Zapshroom
     (Food
-     ((hearts (Restores 6)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 630)))) (num_ingredients 5)
+     ((hearts (Restores 5)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 620)))) (num_ingredients 5)
       (num_effect_ingredients 3))) |}];
   test ~kind:Electro ~category:Meals ~algo:Balanced
     [ Electric_safflina, 1; Zapshroom, 1; Bird_egg, 7; Goron_spice, 1; Apple, 2; Raw_whole_bird, 2 ];
   [%expect
     {|
     (0s)
-    190 pts (62, 5.357143)
+    187 pts (62, 5.357143)
     Bird_egg, Electric_safflina, Goron_spice, Raw_whole_bird, Zapshroom
     (Food
      ((hearts (Restores 9)) (stamina Nothing)
-      (effect (Electro ((potency 2) (duration 510)))) (num_ingredients 5)
+      (effect (Electro ((potency 2) (duration 480)))) (num_ingredients 5)
       (num_effect_ingredients 2)))
-    188 pts (62, -0.142857)
+    184 pts (62, -0.142857)
     Bird_egg, Electric_safflina, Goron_spice, Zapshroom
     (Food
      ((hearts (Restores 3)) (stamina Nothing)
-      (effect (Electro ((potency 2) (duration 480)))) (num_ingredients 4)
+      (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 4)
       (num_effect_ingredients 2)))
-    183 pts (62, 11.857143)
-    Bird_egg, Electric_safflina, Raw_whole_bird x2, Zapshroom
+    183 pts (62, 9.000000)
+    Electric_safflina, Goron_spice, Raw_whole_bird x2, Zapshroom
     (Food
-     ((hearts (Restores 15)) (stamina Nothing)
+     ((hearts (Restores 13)) (stamina Nothing)
       (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 5)
       (num_effect_ingredients 2))) |}];
   test ~kind:Electro ~category:Meals ~algo:Balanced
@@ -418,7 +449,51 @@ let%expect_test "Cooking by category, basic" =
     Apple x2, Staminoka_bass x3
     (Food
      ((hearts (Restores 8)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 3))) |}]
+      (num_ingredients 5) (num_effect_ingredients 3))) |}];
+  test ~kind:Sneaky ~category:Any ~algo:Balanced data5;
+  [%expect
+    {|
+    (0s)
+    221 pts (4943, -1.133333)
+    Monster_guts x4, Sunset_firefly
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (duration 880)))) (num_ingredients 5)
+      (num_effect_ingredients 1)))
+    208 pts (4943, 9.266667)
+    Fairy, Monster_guts x2, Silent_shroom, Sunset_firefly
+    (Food
+     ((hearts (Restores 11)) (stamina Nothing)
+      (effect (Sneaky ((potency 2) (duration 650)))) (num_ingredients 5)
+      (num_effect_ingredients 2)))
+    201 pts (4943, 9.400000)
+    Fairy, Monster_guts x3, Silent_shroom
+    (Food
+     ((hearts (Restores 11)) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (duration 720)))) (num_ingredients 5)
+      (num_effect_ingredients 1))) |}];
+  test ~kind:Sneaky ~category:Any ~algo:Maximize data5;
+  [%expect
+    {|
+    (0s)
+    240 pts (4943, 9.266667)
+    Fairy, Monster_guts x2, Silent_shroom, Sunset_firefly
+    (Food
+     ((hearts (Restores 11)) (stamina Nothing)
+      (effect (Sneaky ((potency 2) (duration 650)))) (num_ingredients 5)
+      (num_effect_ingredients 2)))
+    237 pts (4943, -1.133333)
+    Monster_guts x4, Sunset_firefly
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (duration 880)))) (num_ingredients 5)
+      (num_effect_ingredients 1)))
+    231 pts (4943, 9.966667)
+    Fairy, Monster_guts, Silent_shroom x2, Sunset_firefly
+    (Food
+     ((hearts (Restores 12)) (stamina Nothing)
+      (effect (Sneaky ((potency 2) (duration 580)))) (num_ingredients 5)
+      (num_effect_ingredients 3))) |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in
