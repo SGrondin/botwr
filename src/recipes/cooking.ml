@@ -2,6 +2,13 @@ open! Core_kernel
 
 let ( << ), ( >> ) = ( lsl ), ( lsr )
 
+module Algo = struct
+  type t =
+    | Balanced
+    | Maximize
+  [@@deriving sexp, equal]
+end
+
 module Hearts = struct
   type t =
     | Nothing
@@ -27,7 +34,7 @@ module Stamina = struct
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
-  let score ~max_stamina ~num_effect_ingredients = function
+  let score ~max_stamina ~algo ~num_effect_ingredients = function
   | Nothing -> 0
   | Restores theoretical_gain ->
     let actual_gain = min theoretical_gain max_stamina in
@@ -59,7 +66,7 @@ module Effect = struct
     | Tough     of bonus
   [@@deriving sexp, compare, equal]
 
-  let score ~num_effect_ingredients = function
+  let score ~num_effect_ingredients ~algo = function
   | Nothing -> 0
   | Spicy { potency; duration }
    |Chilly { potency; duration }
@@ -70,8 +77,14 @@ module Effect = struct
    |Mighty { potency; duration }
    |Tough { potency; duration } ->
     let actual = min potency 3 in
-    let wasted = potency - actual in
-    100 + (actual << 5) + (duration >> 3) - (wasted << 4) - (num_effect_ingredients << 4)
+    let penalty =
+      match algo with
+      | Algo.Balanced ->
+        let wasted = potency - actual in
+        (num_effect_ingredients << 4) + wasted
+      | Algo.Maximize -> 0
+    in
+    100 + (actual << 5) + (duration >> 3) - penalty
 end
 
 module Meal = struct
@@ -84,11 +97,11 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina = function
+  let score ~max_hearts ~max_stamina ~algo = function
   | { hearts; stamina; effect; num_ingredients; num_effect_ingredients } ->
     Hearts.score ~max_hearts hearts
-    + Stamina.score ~max_stamina ~num_effect_ingredients stamina
-    + Effect.score ~num_effect_ingredients effect
+    + Stamina.score ~max_stamina ~algo ~num_effect_ingredients stamina
+    + Effect.score ~num_effect_ingredients ~algo effect
     - num_ingredients
 end
 
@@ -99,7 +112,7 @@ type t =
   | Failed  of string
 [@@deriving sexp, compare, equal]
 
-let cook ~max_hearts ~max_stamina map =
+let cook map =
   let ingredients, num_ingredients, num_effect_ingredients =
     Glossary.Map.fold map ~init:([], 0, 0) ~f:(fun ~key:g ~data:count (acc, num, num_effect) ->
         let ingredient = Glossary.to_ingredient g in
@@ -119,13 +132,13 @@ let cook ~max_hearts ~max_stamina map =
       match res.effect, res.hearts with
       | Hearty x, _ -> Hearts.Full_plus_bonus x
       | _, 0 -> Nothing
-      | _, x -> Restores (min x max_hearts)
+      | _, x -> Restores x
     in
     let stamina =
       match res.effect with
       | Energizing (One bonus)
        |Energizing (Scaling (bonus, _, _, _, _)) ->
-        Stamina.Restores (min bonus max_stamina)
+        Stamina.Restores bonus
       | Enduring (One bonus)
        |Enduring (Scaling (bonus, _, _, _, _)) ->
         Stamina.Full_plus_bonus bonus

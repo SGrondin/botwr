@@ -97,13 +97,11 @@ let%expect_test "Cooking by category, basic" =
       ]
   in
   let data3 = Glossary.[ Big_hearty_truffle, 5 ] in
-  let data4 = Glossary.[ Staminoka_bass, 5; Stamella_shroom, 5 ] in
-  let test ~kind ~category ll =
-    Optimize.run ll ~max_hearts ~max_stamina ~kind ~category
-    |> Optimize.to_string ~max_hearts ~max_stamina
-    |> print_endline
+  let data4 = Glossary.[ Staminoka_bass, 5; Stamella_shroom, 5; Apple, 5 ] in
+  let test ~kind ~category ~algo ll =
+    Optimize.run ll ~max_hearts ~max_stamina ~algo ~kind ~category |> Optimize.to_string |> print_endline
   in
-  test ~kind:Tough ~category:Meals data1;
+  test ~kind:Tough ~category:Meals ~algo:Balanced data1;
   [%expect
     {|
     (0s)
@@ -125,7 +123,7 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 5)) (stamina Nothing)
       (effect (Tough ((potency 3) (duration 150)))) (num_ingredients 3)
       (num_effect_ingredients 3))) |}];
-  test ~kind:Energizing ~category:Meals data2;
+  test ~kind:Energizing ~category:Meals ~algo:Balanced data2;
   [%expect
     {|
     (0s)
@@ -144,7 +142,7 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Restores 5)) (stamina (Restores 5)) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 4))) |}];
-  test ~kind:Mighty ~category:Meals
+  test ~kind:Mighty ~category:Meals ~algo:Balanced
     [
       Mighty_bananas, 9;
       Mighty_carp, 9;
@@ -175,7 +173,38 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 6)) (stamina Nothing)
       (effect (Mighty ((potency 3) (duration 150)))) (num_ingredients 3)
       (num_effect_ingredients 3))) |}];
-  test ~kind:Electro ~category:Meals
+  test ~kind:Mighty ~category:Meals ~algo:Maximize
+    [
+      Mighty_bananas, 9;
+      Mighty_carp, 9;
+      Mighty_porgy, 9;
+      Mighty_thistle, 9;
+      Bladed_rhino_beetle, 9;
+      Razorclaw_crab, 9;
+      Razorshroom, 9;
+    ];
+  [%expect
+    {|
+    (0s)
+    222 pts (174436, 9.444444)
+    Mighty_porgy x5
+    (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Mighty ((potency 3) (duration 250)))) (num_ingredients 5)
+      (num_effect_ingredients 5)))
+    222 pts (174436, 9.444444)
+    Razorclaw_crab x5
+    (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Mighty ((potency 3) (duration 250)))) (num_ingredients 5)
+      (num_effect_ingredients 5)))
+    222 pts (174436, 9.444444)
+    Mighty_porgy, Razorclaw_crab x4
+    (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Mighty ((potency 4) (duration 250)))) (num_ingredients 5)
+      (num_effect_ingredients 5))) |}];
+  test ~kind:Electro ~category:Meals ~algo:Balanced
     [
       Electric_safflina, 2;
       Voltfin_trout, 5;
@@ -208,7 +237,40 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 12)) (stamina Nothing)
       (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
       (num_effect_ingredients 2))) |}];
-  test ~kind:Electro ~category:Meals
+  test ~kind:Electro ~category:Meals ~algo:Maximize
+    [
+      Electric_safflina, 2;
+      Voltfin_trout, 5;
+      Voltfruit, 1;
+      Zapshroom, 1;
+      Bird_egg, 1;
+      Goron_spice, 1;
+      Goat_butter, 2;
+      Apple, 2;
+      Raw_whole_bird, 2;
+    ];
+  [%expect
+    {|
+    (0s)
+    284 pts (2379, 9.000000)
+    Voltfin_trout x5
+    (Food
+     ((hearts (Restores 10)) (stamina Nothing)
+      (effect (Electro ((potency 3) (duration 750)))) (num_ingredients 5)
+      (num_effect_ingredients 5)))
+    284 pts (2379, 7.200000)
+    Voltfin_trout x4, Zapshroom
+    (Food
+     ((hearts (Restores 9)) (stamina Nothing)
+      (effect (Electro ((potency 4) (duration 750)))) (num_ingredients 5)
+      (num_effect_ingredients 5)))
+    284 pts (2379, 7.200000)
+    Voltfin_trout x4, Voltfruit
+    (Food
+     ((hearts (Restores 9)) (stamina Nothing)
+      (effect (Electro ((potency 4) (duration 750)))) (num_ingredients 5)
+      (num_effect_ingredients 5))) |}];
+  test ~kind:Electro ~category:Meals ~algo:Balanced
     [
       Electric_safflina, 2;
       Voltfin_trout, 5;
@@ -241,7 +303,7 @@ let%expect_test "Cooking by category, basic" =
        ((hearts (Restores 12)) (stamina Nothing)
         (effect (Electro ((potency 3) (duration 500)))) (num_ingredients 5)
         (num_effect_ingredients 2))) |}];
-  test ~kind:Electro ~category:Meals
+  test ~kind:Electro ~category:Meals ~algo:Balanced
     [
       Electric_safflina, 2;
       Voltfin_trout, 5;
@@ -273,7 +335,7 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 6)) (stamina Nothing)
       (effect (Electro ((potency 3) (duration 630)))) (num_ingredients 5)
       (num_effect_ingredients 3))) |}];
-  test ~kind:Electro ~category:Meals
+  test ~kind:Electro ~category:Meals ~algo:Balanced
     [ Electric_safflina, 1; Zapshroom, 1; Bird_egg, 7; Goron_spice, 1; Apple, 2; Raw_whole_bird, 2 ];
   [%expect
     {|
@@ -296,8 +358,10 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 15)) (stamina Nothing)
       (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 5)
       (num_effect_ingredients 2))) |}];
-  test ~kind:Electro ~category:Meals [ Voltfruit, 1; Zapshroom, 1; Apple, 2; Raw_whole_bird, 1 ];
-  [%expect {|
+  test ~kind:Electro ~category:Meals ~algo:Balanced
+    [ Voltfruit, 1; Zapshroom, 1; Apple, 2; Raw_whole_bird, 1 ];
+  [%expect
+    {|
     (0s)
     175 pts (31, 6.000000)
     Apple x2, Raw_whole_bird, Voltfruit, Zapshroom
@@ -317,7 +381,7 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 4)) (stamina Nothing)
       (effect (Electro ((potency 2) (duration 360)))) (num_ingredients 4)
       (num_effect_ingredients 2))) |}];
-  test ~kind:Hearty ~category:Meals data3;
+  test ~kind:Hearty ~category:Meals ~algo:Balanced data3;
   [%expect
     {|
     (0s)
@@ -336,33 +400,30 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Full_plus_bonus 16)) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 4))) |}];
-  test ~kind:Energizing ~category:Meals data4;
+  test ~kind:Energizing ~category:Meals ~algo:Balanced data4;
   [%expect
     {|
     (0s)
-    151 pts (637, 5.400000)
+    151 pts (3472, 5.400000)
     Staminoka_bass x3
     (Food
      ((hearts (Restores 6)) (stamina (Restores 15)) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3)))
-    148 pts (637, 7.200000)
-    Staminoka_bass x4
-    (Food
-     ((hearts (Restores 8)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 4)))
-    148 pts (637, 6.200000)
-    Stamella_shroom, Staminoka_bass x3
+    150 pts (3472, 6.200000)
+    Apple, Staminoka_bass x3
     (Food
      ((hearts (Restores 7)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 4))) |}]
+      (num_ingredients 4) (num_effect_ingredients 3)))
+    149 pts (3472, 7.000000)
+    Apple x2, Staminoka_bass x3
+    (Food
+     ((hearts (Restores 8)) (stamina (Restores 15)) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 3))) |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in
   let test ll =
-    ll
-    |> Optimize.top_sort ~max_hearts:20 ~max_stamina:15 grouped
-    |> sprintf !"%{sexp: Optimize.iteration list}"
-    |> print_endline
+    ll |> Optimize.top_sort grouped |> sprintf !"%{sexp: Optimize.iteration list}" |> print_endline
   in
   test
     [

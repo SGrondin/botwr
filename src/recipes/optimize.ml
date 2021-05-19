@@ -98,16 +98,16 @@ type folder = {
   third: int * Recipe.t list;
 }
 
-let combine ~max_hearts ~max_stamina list =
+let combine ~max_hearts ~max_stamina ~algo list =
   let cache = Recipe.Table.create () in
   let f (({ first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc), i)
      (recipe : Recipe.t) =
     let score =
       Recipe.Table.find_or_add cache recipe ~default:(fun () ->
-          match cook ~max_hearts ~max_stamina recipe with
+          match cook recipe with
           | Food meal
            |Elixir meal ->
-            Meal.score ~max_hearts ~max_stamina meal
+            Meal.score ~max_hearts ~max_stamina ~algo meal
           | Dubious
            |Failed _ ->
             -1_000_000)
@@ -137,10 +137,10 @@ let rarity_score grouped recipe =
       let removing = data // remaining in
       Float.(removing + acc))
 
-let break_ties ~max_hearts ~max_stamina grouped recipe =
+let break_ties grouped recipe =
   let rarity = rarity_score grouped recipe in
   let hearts =
-    match cook ~max_hearts ~max_stamina recipe with
+    match cook recipe with
     | Food { hearts = Restores x; _ }
      |Elixir { hearts = Restores x; _ } ->
       x
@@ -148,10 +148,10 @@ let break_ties ~max_hearts ~max_stamina grouped recipe =
   in
   rarity, Float.(of_int hearts - rarity)
 
-let top_most_common ?(n = 3) ~max_hearts ~max_stamina grouped recipes =
+let top_most_common ?(n = 3) grouped recipes =
   let sorted =
     List.fold recipes ~init:Float.Map.empty ~f:(fun acc recipe ->
-        let rarity, tiebreaker = break_ties ~max_hearts ~max_stamina grouped recipe in
+        let rarity, tiebreaker = break_ties grouped recipe in
         Float.Map.add_multi acc ~key:tiebreaker ~data:(recipe, rarity))
   in
   Float.Map.to_sequence sorted ~order:`Decreasing_key
@@ -174,24 +174,23 @@ type t = {
 }
 [@@deriving sexp, equal]
 
-let to_string ~max_hearts ~max_stamina { iterations; count; duration } =
+let to_string { iterations; count; duration } =
   let buf = Buffer.create 128 in
   bprintf buf "(%ds)" (Float.to_int duration);
   List.iter iterations ~f:(fun { rarity = _; tiebreaker; score; recipe } ->
       bprintf buf
         !"\n%d pts (%d, %f)\n%{Recipe}\n%{sexp: Cooking.t}"
-        score count tiebreaker recipe
-        (cook ~max_hearts ~max_stamina recipe));
+        score count tiebreaker recipe (cook recipe));
   Buffer.contents buf
 
-let top_sort ~max_hearts ~max_stamina grouped ll =
+let top_sort grouped ll =
   let rec loop from (ll, count) =
     match from with
     | [] -> List.rev ll |> List.concat
     | (score, recipes) :: rest ->
       let next =
         List.dedup_and_sort recipes ~compare:[%compare: Recipe.t]
-        |> top_most_common ~n:(3 - count) ~max_hearts ~max_stamina grouped
+        |> top_most_common ~n:(3 - count) grouped
         |> List.map ~f:(fun (tiebreaker, (recipe, rarity)) -> { tiebreaker; rarity; score; recipe })
       in
       let len = count + List.length next in
@@ -199,12 +198,12 @@ let top_sort ~max_hearts ~max_stamina grouped ll =
   in
   loop ll ([], 0)
 
-let run ~max_hearts ~max_stamina ~kind ~category items =
+let run ~max_hearts ~max_stamina ~algo ~kind ~category items =
   let r = time () in
   let grouped = group items in
   let { first; second; third }, count =
-    filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina
+    filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina ~algo
   in
-  let iterations = top_sort ~max_hearts ~max_stamina grouped [ first; second; third ] in
+  let iterations = top_sort grouped [ first; second; third ] in
   let duration = diff_time r in
   { iterations; count; duration }

@@ -37,15 +37,19 @@ let render_instructions (data : Kitchen.Model.t) kind total ~kind_buttons ~max_h
   |> Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ]
 
 let render ~clear_all_node ~total ingredients
-   ( data,
-     update_kitchen,
-     calculate,
-     `Kitchen kitchen,
-     `Kind (kind, kind_buttons),
-     `Meals meals_switch,
-     `Elixirs elixirs_switch,
-     `Max_hearts max_hearts_node,
-     `Max_stamina max_stamina_node ) =
+   Kitchen.
+     {
+       data;
+       update_data = update_kitchen;
+       calculate;
+       kitchen_node;
+       kind;
+       kind_buttons;
+       meals_switch;
+       elixirs_switch;
+       max_hearts_node;
+       max_stamina_node;
+     } =
   let id_ = "hidden-btn" in
   let hidden =
     Node.button
@@ -101,5 +105,5 @@ let render ~clear_all_node ~total ingredients
       instructions_node;
       Node.div Attr.[ class_ "ms-2" ] [ meals_switch; elixirs_switch ];
       button;
-      kitchen;
+      kitchen_node;
     ]

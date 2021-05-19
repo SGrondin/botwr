@@ -85,7 +85,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       | x, y -> Node.textf "%d minutes and %d seconds" x y
     in
     let icon_text icon text = Node.span [] [ icon >>| make_icon |> or_none; Node.text text ] in
-    let cooked = Recipes.Cooking.cook ~max_hearts ~max_stamina recipe in
+    let cooked = Recipes.Cooking.cook recipe in
 
     let rarity_icon, rarity_text =
       let open Float in
@@ -286,6 +286,19 @@ let render_buttons ~update selected_kind =
          in
          node :: acc))
 
+type state = {
+  data: Model.t;
+  update_data: Model.t -> Ui_event.t;
+  calculate: Recipes.Ingredient.Effect.Kind.t -> (Recipes.Glossary.t * int) list -> Recipes.Optimize.t;
+  kitchen_node: Node.t;
+  kind: Recipes.Ingredient.Effect.Kind.t option;
+  kind_buttons: Node.t;
+  meals_switch: Node.t;
+  elixirs_switch: Node.t;
+  max_hearts_node: Node.t;
+  max_stamina_node: Node.t;
+}
+
 let button_label = "Cook"
 
 let component ~updates ?kind () =
@@ -305,6 +318,7 @@ let component ~updates ?kind () =
   in
   let%sub meals = Bonsai.state [%here] (module Bool) ~default_model:true in
   let%sub elixirs = Bonsai.state [%here] (module Bool) ~default_model:true in
+  let%sub algo = Bonsai.state [%here] (module Recipes.Cooking.Algo) ~default_model:Balanced in
   let%sub kind = Bonsai.state_opt [%here] (module Recipes.Ingredient.Effect.Kind) ?default_model:kind in
   return
   @@ let%map data, update_data = component
@@ -313,6 +327,7 @@ let component ~updates ?kind () =
      and updates = updates
      and meals, update_meals = meals
      and elixirs, update_elixirs = elixirs
+     and algo, update_algo = algo
      and kind, update_kind = kind in
      let category : Recipes.Glossary.Category.t =
        match meals, elixirs with
@@ -345,10 +360,6 @@ let component ~updates ?kind () =
            [ Node.span Attr.[ class_ "visually-hidden" ] [ Node.text "Loading..." ] ]
        | New -> Node.none
      in
-     let buttons =
-       let update x = Event.Many [ update_kind x; update_data New ] in
-       render_buttons ~update kind
-     in
      let meals_switch =
        let handler _evt =
          let events = [ update_meals (not meals); update_data New ] in
@@ -371,15 +382,87 @@ let component ~updates ?kind () =
        in
        Utils.render_switch ~handler ~id:"elixirs-switch" "Elixirs" elixirs
      in
-     let calculate kind ingredients =
-       Recipes.Optimize.run ~max_hearts ~max_stamina ~kind ~category ingredients
+     let algo_node =
+       let make_choice ~css_left ~css_right ~is_checked ~algo text =
+         let handler _evt s =
+           update_algo (Sexp.of_string_conv_exn s [%of_sexp: Recipes.Cooking.Algo.t])
+         in
+         let text_value = sprintf !"%{sexp: Recipes.Cooking.Algo.t}" algo in
+         let id_ = sprintf "algo-radio-%s" text_value in
+         let input_attrs =
+           Attr.
+             [
+               classes [ "form-check-input"; "mt-0" ];
+               type_ "radio";
+               name "algo-radio";
+               id id_;
+               value text_value;
+               on_change handler;
+               create "aria-label" "Radio button to select optimization algorithm";
+             ]
+           |> add_if is_checked Attr.checked
+         in
+         Node.div
+           Attr.[ class_ "input-group" ]
+           [
+             Node.div Attr.[ class_ "input-group-text"; style css_left ] [ Node.input input_attrs [] ];
+             Node.div
+               Attr.
+                 [
+                   classes [ "input-group-text"; "bg-white" ]; style Css_gen.(css_right @> width (`Em 16));
+                 ]
+               [ Node.label Attr.[ for_ id_ ] [ Node.text text ] ];
+           ]
+       in
+       Node.div []
+         [
+           make_choice
+             ~css_left:Css_gen.(create ~field:"border-bottom-left-radius" ~value:"0")
+             ~css_right:Css_gen.(create ~field:"border-bottom-right-radius" ~value:"0")
+             ~is_checked:true ~algo:Balanced "Maximize effect efficiently";
+           make_choice
+             ~css_left:Css_gen.(create ~field:"border-top-left-radius" ~value:"0")
+             ~css_right:Css_gen.(create ~field:"border-top-right-radius" ~value:"0")
+             ~is_checked:false ~algo:Maximize "Maximize effect and duration";
+         ]
      in
-     ( data,
-       update_data,
-       calculate,
-       `Kitchen kitchen_node,
-       `Kind (kind, buttons),
-       `Meals meals_switch,
-       `Elixirs elixirs_switch,
-       `Max_hearts max_hearts_node,
-       `Max_stamina max_stamina_node )
+     let kind_buttons =
+       let update x = Event.Many [ update_kind x; update_data New ] in
+       let kind_with_duration =
+         Option.filter kind ~f:(function
+           | Nothing
+            |Neutral
+            |Hearty
+            |Energizing
+            |Enduring ->
+             false
+           | Spicy
+            |Chilly
+            |Electro
+            |Fireproof
+            |Hasty
+            |Sneaky
+            |Mighty
+            |Tough ->
+             true)
+       in
+       let nodes =
+         [] |> add_opt kind_with_duration ~f:(const algo_node) |> List.cons @@ render_buttons ~update kind
+       in
+       Node.div [] nodes
+     in
+     let calculate kind ingredients =
+       Recipes.Optimize.run ~max_hearts ~max_stamina ~algo ~kind ~category ingredients
+     in
+     {
+       data;
+       update_data;
+       calculate;
+       kitchen_node;
+       kind;
+       kind_buttons;
+       meals_switch;
+       elixirs_switch;
+       max_hearts_node;
+       max_stamina_node;
+     }

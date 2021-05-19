@@ -3,15 +3,11 @@ open Cooking
 
 let%expect_test "List of ingredients" =
   let open Glossary in
-  let max_hearts = 20 in
-  let max_stamina = 15 in
   let list_to_map ll =
     List.fold ll ~init:Glossary.Map.empty
       ~f:(Glossary.Map.update ~f:(Option.value_map ~default:1 ~f:succ))
   in
-  let test ll =
-    ll |> list_to_map |> cook ~max_hearts ~max_stamina |> sprintf !"%{sexp: Cooking.t}" |> print_endline
-  in
+  let test ll = ll |> list_to_map |> cook |> sprintf !"%{sexp: Cooking.t}" |> print_endline in
   test [];
   [%expect {| (Failed "No ingredients") |}];
   test [ Endura_shroom ];
@@ -80,7 +76,8 @@ let%expect_test "List of ingredients" =
      ((hearts (Restores 1)) (stamina (Restores 1)) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 1))) |}];
   test [ Goron_spice; Voltfin_trout; Voltfin_trout; Bird_egg; Bird_egg ];
-  [%expect {|
+  [%expect
+    {|
     (Food
      ((hearts (Restores 8)) (stamina Nothing)
       (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
@@ -90,7 +87,13 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 20)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 1))) |}]
+      (num_ingredients 5) (num_effect_ingredients 1))) |}];
+  test [ Staminoka_bass; Staminoka_bass; Staminoka_bass; Stamella_shroom ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores 7)) (stamina (Restores 16)) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 4))) |}]
 
 let%expect_test "Hashing" =
   let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in
