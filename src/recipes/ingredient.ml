@@ -69,24 +69,15 @@ module Effect = struct
   module Activity = struct
     type t = {
       duration: Duration.t;
-      potency: int;
-      scaling: scaling;
+      points: int;
     }
     [@@deriving sexp, compare, equal, hash]
 
-    let merge ~count { duration; potency = _; scaling } =
-      {
-        duration = Duration.merge ~count duration;
-        potency = scale ~count scaling;
-        scaling = 0, 0, 0, 0, 0;
-      }
+    let merge ~count { duration; points } =
+      { duration = Duration.merge ~count duration; points = points * count }
 
     let combine left right =
-      {
-        duration = Duration.combine left.duration right.duration;
-        potency = left.potency + right.potency;
-        scaling = 0, 0, 0, 0, 0;
-      }
+      { duration = Duration.combine left.duration right.duration; points = left.points + right.points }
   end
 
   module Bonus = struct

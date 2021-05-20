@@ -50,6 +50,7 @@ end
 module Effect = struct
   type bonus = {
     potency: int;
+    wasted: int;
     duration: int;
   }
   [@@deriving sexp, compare, equal]
@@ -66,27 +67,46 @@ module Effect = struct
     | Tough     of bonus
   [@@deriving sexp, compare, equal, variants]
 
+  let potency = function
+  | Nothing -> 0
+  | Spicy { potency; _ } -> potency
+  | Chilly { potency; _ } -> potency
+  | Electro { potency; _ } -> potency
+  | Fireproof { potency; _ } -> potency
+  | Hasty { potency; _ } -> potency
+  | Sneaky { potency; _ } -> potency
+  | Mighty { potency; _ } -> potency
+  | Tough { potency; _ } -> potency
+
+  let duration = function
+  | Nothing -> 0
+  | Spicy { duration; _ } -> duration
+  | Chilly { duration; _ } -> duration
+  | Electro { duration; _ } -> duration
+  | Fireproof { duration; _ } -> duration
+  | Hasty { duration; _ } -> duration
+  | Sneaky { duration; _ } -> duration
+  | Mighty { duration; _ } -> duration
+  | Tough { duration; _ } -> duration
+
   let score ~num_effect_ingredients ~random_bonus ~algo = function
   | Nothing -> 0
-  | Spicy { potency; duration }
-   |Chilly { potency; duration }
-   |Electro { potency; duration }
-   |Fireproof { potency; duration }
-   |Hasty { potency; duration }
-   |Sneaky { potency; duration }
-   |Mighty { potency; duration }
-   |Tough { potency; duration } ->
-    let actual = min potency 3 in
+  | Spicy { potency; wasted; duration }
+   |Chilly { potency; wasted; duration }
+   |Electro { potency; wasted; duration }
+   |Fireproof { potency; wasted; duration }
+   |Hasty { potency; wasted; duration }
+   |Sneaky { potency; wasted; duration }
+   |Mighty { potency; wasted; duration }
+   |Tough { potency; wasted; duration } ->
     let actual_duration = min duration 1800 in
     let wasted_duration = duration - actual_duration in
     let penalty =
       match algo with
-      | Algo.Balanced ->
-        let wasted = potency - actual in
-        (num_effect_ingredients << 4) + wasted + wasted_duration
+      | Algo.Balanced -> (num_effect_ingredients << 4) + wasted + wasted_duration
       | Algo.Maximize -> 0
     in
-    100 + (actual << 5) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
+    100 + (potency << 6) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
 end
 
 module Special_bonus = struct
@@ -179,11 +199,19 @@ let cook map =
       | _ -> Nothing
     in
     let effect : Effect.t =
-      let convert (constructor : Effect.bonus -> Effect.t) : Ingredient.Effect.Activity.t -> Effect.t =
-        function
-        | { potency; duration = Always duration; _ } -> constructor { potency; duration }
-        | { potency; duration = Diminishing { first = duration; _ }; _ } ->
-          constructor { potency; duration }
+      let convert_duration : Ingredient.Duration.t -> int = function
+        | Always x
+         |Diminishing { first = x; _ } ->
+          x
+      in
+      let convert lvl2 lvl3 (constructor : Effect.bonus -> Effect.t) :
+         Ingredient.Effect.Activity.t -> Effect.t = function
+        | { points; duration; _ } when points < lvl2 ->
+          constructor { potency = 1; wasted = points - 1; duration = convert_duration duration }
+        | { points; duration; _ } when points < lvl3 ->
+          constructor { potency = 2; wasted = points - lvl2; duration = convert_duration duration }
+        | { points; duration; _ } ->
+          constructor { potency = 3; wasted = points - lvl3; duration = convert_duration duration }
       in
       match res.effect with
       | _ when is_tonic -> Nothing
@@ -193,14 +221,14 @@ let cook map =
        |Energizing _
        |Enduring _ ->
         Nothing
-      | Spicy x -> convert Effect.spicy x
-      | Chilly x -> convert Effect.chilly x
-      | Electro x -> convert Effect.electro x
-      | Fireproof x -> convert Effect.fireproof x
-      | Hasty x -> convert Effect.hasty x
-      | Sneaky x -> convert Effect.sneaky x
-      | Mighty x -> convert Effect.mighty x
-      | Tough x -> convert Effect.tough x
+      | Spicy x -> convert 6 99 Effect.spicy x
+      | Chilly x -> convert 6 99 Effect.chilly x
+      | Electro x -> convert 4 6 Effect.electro x
+      | Fireproof x -> convert 7 99 Effect.fireproof x
+      | Hasty x -> convert 5 7 Effect.hasty x
+      | Sneaky x -> convert 6 9 Effect.sneaky x
+      | Mighty x -> convert 5 7 Effect.mighty x
+      | Tough x -> convert 5 9 Effect.tough x
     in
     let random_effects : Special_bonus.t list =
       match res.critical, hearts, stamina, effect with

@@ -127,27 +127,38 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       in
       let effect =
         opt >>| fun (s, icon, { potency; _ }) ->
-        let actual = min potency 3 in
-        Node.span [] (Node.textf "%s %d " s actual :: List.init actual ~f:(const (make_icon icon)))
+        Node.span [] (Node.textf "%s %d " s potency :: List.init potency ~f:(const (make_icon icon)))
       in
       let duration = opt >>| fun (_, _, { duration; _ }) -> make_duration duration in
       effect, duration
     in
 
     let random_effects =
-      meal >>| Recipes.Cooking.Meal.random_effects >>= function
-      | [] -> None
-      | ll ->
-        List.filter_map ll ~f:(function
-          | Red_hearts -> Some (Node.span [] [ make_icon Heart; make_icon Heart; make_icon Heart ])
-          | Yellow_hearts -> None
-          | Green_wheels -> Some (Node.span [] [ make_icon Energizing2 ])
-          | Yellow_wheels -> Some (Node.span [] [ make_icon Enduring2 ])
-          | Potency -> Some (Node.text "+1 power")
-          | Duration -> Some (Node.text "+5:00"))
+      meal >>= function
+      | { random_effects = []; _ } -> None
+      | { random_effects; effect; _ } ->
+        let choices =
+          List.filter_map random_effects ~f:(function
+            | Red_hearts -> Some (Node.span [] [ make_icon Heart; make_icon Heart; make_icon Heart ])
+            | Yellow_hearts -> None
+            | Green_wheels -> Some (Node.span [] [ make_icon Energizing2 ])
+            | Yellow_wheels -> Some (Node.span [] [ make_icon Enduring2 ])
+            | Potency -> (
+              match Recipes.Cooking.Effect.potency effect with
+              | 3 -> None
+              | _ -> Some (Node.text "+1 power")
+            )
+            | Duration -> (
+              match Recipes.Cooking.Effect.duration effect with
+              | x when x >= 1800 -> None
+              | _ -> Some (Node.text "+5:00")
+            ))
+        in
+        let pct = 100 / List.length random_effects in
+        List.map choices ~f:(fun node -> Node.span [] [ node; Node.textf " ( %d %% )" pct ])
         |> List.intersperse ~sep:(Node.text " or ")
         |> Node.span []
-        |> Option.return
+        |> Option.some_if (List.is_empty choices |> not)
     in
 
     let col_width x = Attr.[ style Css_gen.(width (`Em x)) ] in
