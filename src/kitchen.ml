@@ -136,15 +136,15 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
 
     let random_effects =
       meal >>| Recipes.Cooking.Meal.random_effects >>= function
-      | [||] -> None
-      | arr ->
-        Array.fold arr ~init:[] ~f:(fun acc -> function
-          | Red_hearts -> Node.span [] [ make_icon Heart; make_icon Heart; make_icon Heart ] :: acc
-          | Yellow_hearts -> acc
-          | Green_wheels -> Node.span [] [ make_icon Energizing2 ] :: acc
-          | Yellow_wheels -> Node.span [] [ make_icon Enduring2 ] :: acc
-          | Potency -> Node.text "+1 potency" :: acc
-          | Duration -> Node.text "+5:00" :: acc)
+      | [] -> None
+      | ll ->
+        List.filter_map ll ~f:(function
+          | Red_hearts -> Some (Node.span [] [ make_icon Heart; make_icon Heart; make_icon Heart ])
+          | Yellow_hearts -> None
+          | Green_wheels -> Some (Node.span [] [ make_icon Energizing2 ])
+          | Yellow_wheels -> Some (Node.span [] [ make_icon Enduring2 ])
+          | Potency -> Some (Node.text "+1 power")
+          | Duration -> Some (Node.text "+5:00"))
         |> List.intersperse ~sep:(Node.text " or ")
         |> Node.span []
         |> Option.return

@@ -44,18 +44,18 @@ let%expect_test "Filter" =
   test Electro Meals data1;
   [%expect
     {|
-    (Goron_spice Fresh_milk Bird_egg Raw_meat Electric_safflina Electric_safflina
+    (Bird_egg Goron_spice Fresh_milk Raw_meat Electric_safflina Electric_safflina
      Electric_safflina Electric_safflina Electric_safflina) |}];
   test Electro Any data1;
   [%expect
     {|
     ((Monster_guts Hinox_guts) (Monster_guts Moblin_guts)
-     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Goron_spice
-     Fresh_milk Bird_egg Raw_meat Electric_darner Electric_darner Electric_darner
-     Electric_darner Electric_darner Thunderwing_butterfly Thunderwing_butterfly
+     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Bird_egg
+     Goron_spice Fresh_milk Raw_meat Electric_darner Electric_darner
+     Electric_darner Electric_darner Electric_darner Thunderwing_butterfly
      Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
-     Electric_safflina Electric_safflina Electric_safflina Electric_safflina
-     Electric_safflina) |}];
+     Thunderwing_butterfly Electric_safflina Electric_safflina Electric_safflina
+     Electric_safflina Electric_safflina) |}];
   test Hearty Meals data1;
   [%expect
     {|
@@ -84,7 +84,7 @@ let%expect_test "Filter" =
   test Enduring Meals data1;
   [%expect
     {|
-    (Raw_meat Raw_meat Raw_meat Bird_egg Endura_shroom Endura_shroom
+    (Raw_meat Raw_meat Raw_meat Fresh_milk Endura_shroom Endura_shroom
      Endura_shroom Endura_shroom Endura_shroom Endura_carrot Endura_carrot
      Endura_carrot Endura_carrot Endura_carrot) |}];
   test Enduring Elixirs data1;
@@ -98,7 +98,7 @@ let%expect_test "Filter" =
     {|
     ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
      (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Raw_meat Raw_meat
-     Raw_meat Bird_egg Tireless_frog Tireless_frog Tireless_frog Tireless_frog
+     Raw_meat Fresh_milk Tireless_frog Tireless_frog Tireless_frog Tireless_frog
      Tireless_frog Endura_shroom Endura_shroom Endura_shroom Endura_shroom
      Endura_shroom Endura_carrot Endura_carrot Endura_carrot Endura_carrot
      Endura_carrot) |}]
@@ -363,22 +363,22 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    187 pts (62, 5.357143)
+    190 pts (62, 5.357143)
     Bird_egg, Electric_safflina, Goron_spice, Raw_whole_bird, Zapshroom
     (Food
      ((hearts (Restores 9)) (stamina Nothing)
-      (effect (Electro ((potency 2) (duration 480)))) (num_ingredients 5)
+      (effect (Electro ((potency 2) (duration 510)))) (num_ingredients 5)
       (num_effect_ingredients 2) (random_effects ())))
-    184 pts (62, -0.142857)
+    188 pts (62, -0.142857)
     Bird_egg, Electric_safflina, Goron_spice, Zapshroom
     (Food
      ((hearts (Restores 3)) (stamina Nothing)
-      (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 4)
+      (effect (Electro ((potency 2) (duration 480)))) (num_ingredients 4)
       (num_effect_ingredients 2) (random_effects ())))
-    183 pts (62, 9.000000)
-    Electric_safflina, Goron_spice, Raw_whole_bird x2, Zapshroom
+    183 pts (62, 11.857143)
+    Bird_egg, Electric_safflina, Raw_whole_bird x2, Zapshroom
     (Food
-     ((hearts (Restores 13)) (stamina Nothing)
+     ((hearts (Restores 15)) (stamina Nothing)
       (effect (Electro ((potency 2) (duration 450)))) (num_ingredients 5)
       (num_effect_ingredients 2) (random_effects ()))) |}];
   test ~kind:Electro ~category:Meals ~algo:Balanced

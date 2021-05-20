@@ -107,13 +107,17 @@ module Meal = struct
     effect: Effect.t;
     num_ingredients: int;
     num_effect_ingredients: int;
-    random_effects: Special_bonus.t array;
+    random_effects: Special_bonus.t list;
   }
   [@@deriving sexp, compare, equal, fields]
 
   let score ~max_hearts ~max_stamina ~algo = function
   | { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } ->
-    let random_bonus = Array.is_empty random_effects |> not in
+    let random_bonus =
+      match random_effects with
+      | _ :: _ -> true
+      | _ -> false
+    in
     Hearts.score ~max_hearts hearts
     + Stamina.score ~max_stamina ~num_effect_ingredients ~random_bonus stamina
     + Effect.score ~num_effect_ingredients ~random_bonus ~algo effect
@@ -198,43 +202,43 @@ let cook map =
       | Mighty x -> convert Effect.mighty x
       | Tough x -> convert Effect.tough x
     in
-    let random_effects : Special_bonus.t array =
+    let random_effects : Special_bonus.t list =
       match res.critical, hearts, stamina, effect with
-      | false, _, _, _ -> [||]
-      | true, Full_plus_bonus _, _, _ -> [| Yellow_hearts |]
-      | true, _, Full_plus_bonus _, _ -> [| Yellow_wheels; Red_hearts |]
-      | true, _, Restores _, _ -> [| Green_wheels; Red_hearts |]
-      | true, _, _, Nothing -> [| Red_hearts |]
-      | true, _, _, _ -> [| Potency; Duration |]
+      | false, _, _, _ -> []
+      | true, Full_plus_bonus _, _, _ -> [ Yellow_hearts ]
+      | true, _, Full_plus_bonus _, _ -> [ Yellow_wheels; Red_hearts ]
+      | true, _, Restores _, _ -> [ Green_wheels; Red_hearts ]
+      | true, _, _, Nothing -> [ Red_hearts ]
+      | true, _, _, _ -> [ Potency; Duration ]
     in
     let meal : Meal.t =
       match random_effects, hearts with
-      | [| Yellow_hearts |], Full_plus_bonus x ->
+      | [ Yellow_hearts ], Full_plus_bonus x ->
         {
           hearts = Full_plus_bonus (x + 1);
           stamina;
           effect;
           num_ingredients;
           num_effect_ingredients;
-          random_effects = [||];
+          random_effects = [];
         }
-      | [| Red_hearts |], Restores x ->
+      | [ Red_hearts ], Restores x ->
         {
           hearts = Restores (x + 3);
           stamina;
           effect;
           num_ingredients;
           num_effect_ingredients;
-          random_effects = [||];
+          random_effects = [];
         }
-      | [| Red_hearts |], Nothing ->
+      | [ Red_hearts ], Nothing ->
         {
           hearts = Restores 3;
           stamina;
           effect;
           num_ingredients;
           num_effect_ingredients;
-          random_effects = [||];
+          random_effects = [];
         }
       | _ -> { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects }
     in

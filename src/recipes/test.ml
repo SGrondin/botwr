@@ -80,7 +80,7 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 8)) (stamina Nothing)
-      (effect (Electro ((potency 3) (duration 480)))) (num_ingredients 5)
+      (effect (Electro ((potency 3) (duration 510)))) (num_ingredients 5)
       (num_effect_ingredients 2) (random_effects ()))) |}];
   test [ Apple; Raw_gourmet_meat; Raw_gourmet_meat; Raw_gourmet_meat; Stamella_shroom ];
   [%expect
@@ -150,7 +150,7 @@ let%expect_test "List of ingredients" =
     {|
     (Food
      ((hearts (Restores 2)) (stamina Nothing)
-      (effect (Sneaky ((potency 1) (duration 180)))) (num_ingredients 2)
+      (effect (Sneaky ((potency 1) (duration 210)))) (num_ingredients 2)
       (num_effect_ingredients 1) (random_effects ()))) |}];
   test [ Hearty_lizard; Staminoka_bass; Fairy ];
   (* Tested in game *)

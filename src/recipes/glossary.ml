@@ -118,7 +118,7 @@ let to_ingredient =
     | Raw_bird_thigh -> make_food 3 30
     | Raw_meat -> make_food 2 30
     | Raw_bird_drumstick -> make_food 2 30
-    | Bird_egg -> make_ingredient 2 60 30
+    | Bird_egg -> make_ingredient 2 90 30
     | Fresh_milk -> make_ingredient 1 80 30
     | Acorn -> make_ingredient 1 50 30
     | Chickaloo_tree_nut -> make_ingredient 1 40 30
