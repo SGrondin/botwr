@@ -57,7 +57,7 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) 
     | 4 -> [ make_icon Energizing4 ]
     | _ -> []
   in
-  let actual = min x (20 - max_stamina) in
+  let actual = min x (25 - max_stamina) in
   let yellow_wheels = Int.( /% ) actual 5 |> List.init ~f:(const (make_icon Enduring)) in
   let yellow_remainder =
     match Int.( % ) actual 5 with
@@ -77,8 +77,9 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
   let open Recipes.Optimize in
   let render_iteration { rarity; score = _; tiebreaker = _; recipe } =
     let make_duration sec =
-      let minutes = Int.( /% ) sec 60 in
-      let remainder = Int.( % ) sec 60 in
+      let actual = min sec 1800 in
+      let minutes = Int.( /% ) actual 60 in
+      let remainder = Int.( % ) actual 60 in
       match minutes, remainder with
       | 0, x -> Node.textf "%d seconds" x
       | x, 0 -> Node.textf "%d minutes" x
@@ -101,7 +102,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       match cooked with
       | Food m -> "Meal", Some Icon.Meal, Some m
       | Elixir m -> "Elixir", Some Icon.Elixir, Some m
-      | Tonic m -> "Fairy Tonic", Some Icon.Elixir, Some m
+      | Tonic m -> "Tonic", Some Icon.Elixir, Some m
       | Dubious -> "Dubious food", None, None
       | Failed msg ->
         print_endline msg;
@@ -133,6 +134,22 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       effect, duration
     in
 
+    let random_effects =
+      meal >>| Recipes.Cooking.Meal.random_effects >>= function
+      | [||] -> None
+      | arr ->
+        Array.fold arr ~init:[] ~f:(fun acc -> function
+          | Red_hearts -> Node.span [] [ make_icon Heart; make_icon Heart; make_icon Heart ] :: acc
+          | Yellow_hearts -> acc
+          | Green_wheels -> Node.span [] [ make_icon Energizing2 ] :: acc
+          | Yellow_wheels -> Node.span [] [ make_icon Enduring2 ] :: acc
+          | Potency -> Node.text "+1 potency" :: acc
+          | Duration -> Node.text "+5:00" :: acc)
+        |> List.intersperse ~sep:(Node.text " or ")
+        |> Node.span []
+        |> Option.return
+    in
+
     let col_width x = Attr.[ style Css_gen.(width (`Em x)) ] in
     let make_row x y = Node.tr [] [ Node.td (col_width 6) [ Node.text x ]; Node.td [] [ y ] ] in
 
@@ -152,6 +169,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
               stamina >>| Tuple2.uncurry make_row |> or_none;
               effect >>| make_row "Effect" |> or_none;
               duration >>| make_row "Duration" |> or_none;
+              random_effects >>| make_row "Random Effects" |> or_none;
             ];
         ]
     in
@@ -296,6 +314,7 @@ type state = {
   kind_buttons: Node.t;
   meals_switch: Node.t;
   elixirs_switch: Node.t;
+  use_special_switch: Node.t;
   max_hearts_node: Node.t;
   max_stamina_node: Node.t;
 }
@@ -317,8 +336,11 @@ let component ~updates ?kind () =
         |> render_stamina 15
         |> Option.value_map ~f:snd ~default:Node.none)
   in
-  let%sub meals = Bonsai.state [%here] (module Bool) ~default_model:true in
-  let%sub elixirs = Bonsai.state [%here] (module Bool) ~default_model:true in
+  let%sub meals = Switch.component ~id:"meals-switch" ~label:"Meals" true in
+  let%sub elixirs = Switch.component ~id:"elixirs-switch" ~label:"Elixirs" true in
+  let%sub use_special =
+    Switch.component ~id:"special-switch" ~label:"Use dragon parts, fairies, stars" false
+  in
   let%sub algo = Bonsai.state [%here] (module Recipes.Cooking.Algo) ~default_model:Balanced in
   let%sub kind = Bonsai.state_opt [%here] (module Recipes.Ingredient.Effect.Kind) ?default_model:kind in
   return
@@ -326,8 +348,9 @@ let component ~updates ?kind () =
      and max_hearts, max_hearts_node = max_hearts
      and max_stamina, max_stamina_node = max_stamina
      and updates = updates
-     and meals, update_meals = meals
-     and elixirs, update_elixirs = elixirs
+     and meals, render_meals, update_meals = meals
+     and elixirs, render_elixirs, update_elixirs = elixirs
+     and use_special, render_use_special, update_use_special = use_special
      and algo, update_algo = algo
      and kind, update_kind = kind in
      let category : Recipes.Glossary.Category.t =
@@ -370,7 +393,7 @@ let component ~updates ?kind () =
            Event.Many events
          | _ -> Event.Many (update_elixirs (not elixirs) :: events)
        in
-       Utils.render_switch ~handler ~id:"meals-switch" "Meals" meals
+       render_meals ~handler
      in
      let elixirs_switch =
        let handler _evt =
@@ -381,7 +404,11 @@ let component ~updates ?kind () =
            Event.Many events
          | _ -> Event.Many (update_meals (not meals) :: events)
        in
-       Utils.render_switch ~handler ~id:"elixirs-switch" "Elixirs" elixirs
+       render_elixirs ~handler
+     in
+     let use_special_switch =
+       let handler _evt = Event.Many [ update_use_special (not use_special); update_data New ] in
+       render_use_special ~handler
      in
      let algo_node =
        let make_choice ~css_left ~css_right ~is_checked ~algo text =
@@ -420,11 +447,11 @@ let component ~updates ?kind () =
            make_choice
              ~css_left:Css_gen.(create ~field:"border-bottom-left-radius" ~value:"0")
              ~css_right:Css_gen.(create ~field:"border-bottom-right-radius" ~value:"0")
-             ~is_checked:true ~algo:Balanced "Maximize effect efficiently";
+             ~is_checked:true ~algo:Balanced "Max effect + Balanced duration";
            make_choice
              ~css_left:Css_gen.(create ~field:"border-top-left-radius" ~value:"0")
              ~css_right:Css_gen.(create ~field:"border-top-right-radius" ~value:"0")
-             ~is_checked:false ~algo:Maximize "Maximize effect and duration";
+             ~is_checked:false ~algo:Maximize "Max effect + Max duration";
          ]
      in
      let kind_buttons =
@@ -453,7 +480,8 @@ let component ~updates ?kind () =
        Node.div [] nodes
      in
      let calculate kind ingredients =
-       Recipes.Optimize.run ~max_hearts ~max_stamina ~algo ~kind ~category ingredients
+       let settings = Recipes.Optimize.{ max_hearts; max_stamina; algo; kind; category; use_special } in
+       Recipes.Optimize.run settings ingredients
      in
      {
        data;
@@ -464,6 +492,7 @@ let component ~updates ?kind () =
        kind_buttons;
        meals_switch;
        elixirs_switch;
+       use_special_switch;
        max_hearts_node;
        max_stamina_node;
      }

@@ -43,7 +43,13 @@ module Group = struct
    |Monster_fang _
    |Monster_guts _ ->
     Monster_parts
-  | Fairy -> Special
+  | Dragon_scales _
+   |Dragon_claws _
+   |Dragon_fangs _
+   |Dragon_horns _
+   |Star_fragment
+   |Fairy ->
+    Special
   | x -> (
     match Glossary.to_kind x with
     | Nothing
@@ -175,9 +181,9 @@ let default_model =
   |> Bonsai.Value.return
 
 let component ~inventory () =
-  let%sub show_all = Bonsai.state [%here] (module Bool) ~default_model:true in
-  let%pattern_bind show_all, update_show_all = show_all in
-  let%sub by_effect = Bonsai.state [%here] (module Bool) ~default_model:false in
+  let%sub show_all = Switch.component ~id:"show-all-switch" ~label:"Show All" true in
+  let%pattern_bind show_all, render_show_all, update_show_all = show_all in
+  let%sub by_effect = Switch.component ~id:"by-effect-switch" ~label:"Group by Effect" false in
   let%sub selected = Bonsai.state_opt [%here] (module Glossary) in
   let%pattern_bind selected, update_selected = selected in
   let%sub backpack =
@@ -205,8 +211,9 @@ let component ~inventory () =
   return
   @@ let%map backpack = backpack
      and show_all = show_all
+     and render_show_all = render_show_all
      and update_show_all = update_show_all
-     and by_effect, update_by_effect = by_effect
+     and by_effect, render_by_effect, update_by_effect = by_effect
      and selected = selected
      and update_selected = update_selected
      and () = backpack_changed in
@@ -257,11 +264,11 @@ let component ~inventory () =
      in
      let show_all_node =
        let handler _evt = update_show_all (not show_all) in
-       Utils.render_switch ~handler ~id:"show-all-checkbox" "Show All" show_all
+       render_show_all ~handler
      in
      let by_effect_node =
        let handler _evt = update_by_effect (not by_effect) in
-       Utils.render_switch ~handler ~id:"by-effect-checkbox" "Group by Effect" by_effect
+       render_by_effect ~handler
      in
      let clear_all_node =
        let handler _evt =

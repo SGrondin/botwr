@@ -103,6 +103,7 @@ let blobs =
         | Ironshell_crab -> [%blob "images/83.png"]
         | Armored_porgy -> [%blob "images/79.png"]
         | Fairy -> [%blob "images/85.png"]
+        | Star_fragment -> [%blob "images/54.png"]
         | Monster_horn Bokoblin_horn -> [%blob "images/111.png"]
         | Monster_horn Moblin_horn -> [%blob "images/114.png"]
         | Monster_horn Lizalfos_horn -> [%blob "images/117.png"]
@@ -141,7 +142,17 @@ let blobs =
         | Monster_guts Yellow_lizalfos_tail -> [%blob "images/122.png"]
         | Monster_guts Ancient_core -> [%blob "images/147.png"]
         | Monster_guts Giant_ancient_core -> [%blob "images/148.png"]
-        (* | Monster_extract -> {|53|} *)
-        (* | Star_fragment -> {|54|} *)
+        | Dragon_scales Dinraal -> [%blob "images/55.png"]
+        | Dragon_scales Naydra -> [%blob "images/59.png"]
+        | Dragon_scales Farosh -> [%blob "images/63.png"]
+        | Dragon_claws Dinraal -> [%blob "images/56.png"]
+        | Dragon_claws Naydra -> [%blob "images/60.png"]
+        | Dragon_claws Farosh -> [%blob "images/64.png"]
+        | Dragon_fangs Dinraal -> [%blob "images/57.png"]
+        | Dragon_fangs Naydra -> [%blob "images/61.png"]
+        | Dragon_fangs Farosh -> [%blob "images/65.png"]
+        | Dragon_horns Dinraal -> [%blob "images/58.png"]
+        | Dragon_horns Naydra -> [%blob "images/62.png"]
+        | Dragon_horns Farosh -> [%blob "images/66.png"]
       in
       Map.add_exn acc ~key ~data:(compute blob))

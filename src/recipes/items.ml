@@ -48,19 +48,10 @@ module Self = struct
     | Giant_ancient_core
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
-  type dragon_parts =
-    | Dinraal_scale
-    | Naydra_scale
-    | Farosh_scale
-    | Dinraal_claw
-    | Naydra_claw
-    | Farosh_claw
-    | Dinraal_fang
-    | Naydra_fang
-    | Farosh_fang
-    | Dinraal_horn
-    | Naydra_horn
-    | Farosh_horn
+  type dragon =
+    | Dinraal
+    | Naydra
+    | Farosh
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   (* IMPORTANT: sorted by strength within their own category *)
@@ -153,9 +144,14 @@ module Self = struct
     | Ironshell_crab
     | Armored_porgy
     | Fairy
+    | Star_fragment
     | Monster_horn           of monster_horn
     | Monster_fang           of monster_fang
     | Monster_guts           of monster_guts
+    | Dragon_scales          of dragon
+    | Dragon_claws           of dragon
+    | Dragon_fangs           of dragon
+    | Dragon_horns           of dragon
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 end
 

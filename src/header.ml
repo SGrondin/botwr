@@ -47,6 +47,7 @@ let render ~clear_all_node ~total ingredients
        kind_buttons;
        meals_switch;
        elixirs_switch;
+       use_special_switch;
        max_hearts_node;
        max_stamina_node;
      } =
@@ -104,6 +105,7 @@ let render ~clear_all_node ~total ingredients
       Node.h3 Attr.[ id "top" ] [ Node.text "BOTW Cooking Optimizer" ];
       instructions_node;
       Node.div Attr.[ class_ "ms-2" ] [ meals_switch; elixirs_switch ];
+      Node.div Attr.[ class_ "ms-2" ] [ use_special_switch ];
       button;
       kitchen_node;
     ]

@@ -6,12 +6,13 @@ let group items =
       Glossary.Table.update table x ~f:(Option.value_map ~default:n ~f:(( + ) n)));
   table
 
-let filter ~kind ~(category : Glossary.Category.t) grouped =
+let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let open Glossary in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
   let monsters = Queue.create () in
-  let add_to ~n q x = Fn.apply_n_times ~n (fun () -> Queue.enqueue q x) () in
+  let dragons = Queue.create () in
+  let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q (Variants.to_rank key, key)) () in
   let all =
     Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
         let ingredient = to_ingredient key in
@@ -30,17 +31,18 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
             | { effect = Neutral (Diminishing _); _ } ->
               (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
               let n = min data 1 in
-              add_to ~n neutrals (Variants.to_rank key, key);
-              add_to ~n:(4 - n) neutrals_wasteful (Variants.to_rank key, key);
+              add_to ~n neutrals key;
+              add_to ~n:(4 - n) neutrals_wasteful key;
               ()
-            | _ -> add_to ~n:(min data 4) neutrals (Variants.to_rank key, key)
+            | _ -> add_to ~n:(min data 4) neutrals key
           in
+          acc
+        | _, Dragon, _ when use_special ->
+          add_to ~n:(min data 1) dragons key;
           acc
         | _, Monster, Elixirs
          |_, Monster, Any ->
-          Fn.apply_n_times ~n:(min data 4)
-            (fun () -> Queue.enqueue monsters (Variants.to_rank key, key))
-            ();
+          add_to ~n:(min data 4) monsters key;
           acc
         | x, _, Any
          |x, Food, Meals
@@ -49,7 +51,7 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
          |x, Elixir, Elixirs
           when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
-        | _, Tonic, _ -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
+        | _, With_fairy _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc)
   in
   let top ?(up_to = 4) queue init =
@@ -81,7 +83,11 @@ let filter ~kind ~(category : Glossary.Category.t) grouped =
       |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
     )
   in
-  all |> top neutrals |> top neutrals_wasteful ~up_to:(4 - Queue.length neutrals) |> top monsters
+  all
+  |> top neutrals
+  |> top neutrals_wasteful ~up_to:(4 - Queue.length neutrals)
+  |> top monsters
+  |> top dragons
 
 open Combinations
 open Cooking
@@ -201,11 +207,20 @@ let top_sort grouped ll =
   in
   loop ll ([], 0)
 
-let run ~max_hearts ~max_stamina ~algo ~kind ~category items =
+type settings = {
+  max_hearts: int;
+  max_stamina: int;
+  algo: Algo.t;
+  kind: Ingredient.Effect.Kind.t;
+  category: Glossary.Category.t;
+  use_special: bool;
+}
+
+let run { max_hearts; max_stamina; algo; kind; category; use_special } items =
   let r = time () in
   let grouped = group items in
   let { first; second; third }, count =
-    filter ~kind ~category grouped |> combine ~max_hearts ~max_stamina ~algo
+    filter ~kind ~category ~use_special grouped |> combine ~max_hearts ~max_stamina ~algo
   in
   let iterations = top_sort grouped [ first; second; third ] in
   let duration = diff_time r in

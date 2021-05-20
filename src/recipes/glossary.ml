@@ -2,29 +2,46 @@ open! Core_kernel
 
 let always (min, sec) = Ingredient.Duration.Always ((min * 60) + sec)
 
-let make_food hearts sec = Ingredient.{ hearts; effect = Neutral (Always sec); category = Food }
+let make_food hearts sec =
+  Ingredient.{ hearts = Always hearts; effect = Neutral (Always sec); category = Food; critical = false }
 
 let make_ingredient hearts first next =
-  Ingredient.{ hearts; effect = Neutral (Diminishing { first; next }); category = Food }
+  Ingredient.
+    {
+      hearts = Always hearts;
+      effect = Neutral (Diminishing { first; next });
+      category = Food;
+      critical = false;
+    }
 
 let make_spice hearts first next =
-  Ingredient.{ hearts; effect = Neutral (Diminishing { first; next }); category = Spice }
+  Ingredient.
+    {
+      hearts = Always hearts;
+      effect = Neutral (Diminishing { first; next });
+      category = Spice;
+      critical = false;
+    }
 
-let make_hearty hearts bonus = Ingredient.{ hearts; effect = Hearty bonus; category = Food }
+let make_hearty hearts bonus =
+  Ingredient.{ hearts = Always hearts; effect = Hearty bonus; category = Food; critical = false }
 
 let make_effect variant dur hearts ((potency, _, _, _, _) as scaling) =
   Ingredient.
     {
-      hearts;
+      hearts = Always hearts;
       effect = variant Effect.Activity.{ duration = always dur; potency; scaling };
       category = Food;
+      critical = false;
     }
 
 let make_energizing hearts scaling =
-  Ingredient.{ hearts; effect = Energizing (Scaling scaling); category = Food }
+  Ingredient.
+    { hearts = Always hearts; effect = Energizing (Scaling scaling); category = Food; critical = false }
 
 let make_enduring hearts scaling =
-  Ingredient.{ hearts; effect = Enduring (Scaling scaling); category = Food }
+  Ingredient.
+    { hearts = Always hearts; effect = Enduring (Scaling scaling); category = Food; critical = false }
 
 let make_spicy = make_effect Ingredient.Effect.spicy (2, 30)
 
@@ -41,23 +58,48 @@ let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
 let make_tough = make_effect Ingredient.Effect.tough (0, 50)
 
 let bonus_critter ?(hearts = 0) variant scaling =
-  Ingredient.{ hearts; effect = variant Effect.Bonus.(Scaling scaling); category = Critter }
+  Ingredient.
+    {
+      hearts = Always hearts;
+      effect = variant Effect.Bonus.(Scaling scaling);
+      category = Critter;
+      critical = false;
+    }
 
-let effect_critter ?(hearts = 0) dur variant ((potency, _, _, _, _) as scaling) =
+let effect_critter ?(hearts = Ingredient.Hearts.Always 0) dur variant ((potency, _, _, _, _) as scaling) =
   Ingredient.
     {
       hearts;
       effect = variant Effect.Activity.{ duration = always dur; potency; scaling };
       category = Critter;
+      critical = false;
     }
 
-let make_monster dur = Ingredient.{ hearts = 0; effect = Neutral (always dur); category = Monster }
+let make_monster dur =
+  Ingredient.{ hearts = Always 0; effect = Neutral (always dur); category = Monster; critical = false }
+
+let make_dragon hearts first =
+  Ingredient.
+    {
+      hearts = Diminishing { first = hearts; next = 0 };
+      effect = Neutral (Diminishing { first; next = 30 });
+      category = Dragon;
+      critical = true;
+    }
 
 let cached_monster_horn = make_monster (1, 10)
 
 let cached_monster_fang = make_monster (1, 50)
 
 let cached_monster_guts = make_monster (3, 10)
+
+let cached_dragon_scale = make_dragon 1 90
+
+let cached_dragon_claw = make_dragon 2 210
+
+let cached_dragon_fang = make_dragon 2 630
+
+let cached_dragon_horn = make_dragon 3 1800
 
 include Items
 
@@ -93,7 +135,8 @@ let to_ingredient =
     | Hearty_durian -> make_hearty 6 4
     | Big_hearty_truffle -> make_hearty 6 4
     | Hearty_salmon -> make_hearty 8 4
-    | Hearty_lizard -> Ingredient.{ hearts = 8; effect = Hearty 4; category = Critter }
+    | Hearty_lizard ->
+      Ingredient.{ hearts = Always 8; effect = Hearty 4; category = Critter; critical = false }
     | Big_hearty_radish -> make_hearty 8 5
     | Stamella_shroom -> make_energizing 1 (1, 2, 4, 5, 7)
     | Restless_cricket -> bonus_critter Ingredient.Effect.energizing (1, 2, 4, 5, 5)
@@ -150,16 +193,28 @@ let to_ingredient =
     | Armored_carp -> make_tough 2 (1, 1, 2, 3, 3)
     | Ironshell_crab -> make_tough 2 (1, 1, 2, 3, 3)
     | Armored_porgy -> make_tough 2 (1, 2, 3, 3, 3)
-    | Fairy -> { hearts = 10; effect = Neutral (Always 30); category = Tonic }
+    | Fairy ->
+      (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
+      { hearts = Always 10; effect = Neutral (Always 30); category = With_fairy Spice; critical = false }
+    | Star_fragment ->
+      { hearts = Always 0; effect = Neutral (Always 30); category = Dragon; critical = true }
     | Monster_horn _ -> cached_monster_horn
     | Monster_fang _ -> cached_monster_fang
     | Monster_guts _ -> cached_monster_guts
+    | Dragon_scales _ -> cached_dragon_scale
+    | Dragon_claws _ -> cached_dragon_claw
+    | Dragon_fangs _ -> cached_dragon_fang
+    | Dragon_horns _ -> cached_dragon_horn
   in
   let mapped = Array.of_list_map all ~f:do_to_ingredient in
   function
   | Monster_horn _ -> cached_monster_horn
   | Monster_fang _ -> cached_monster_fang
   | Monster_guts _ -> cached_monster_guts
+  | Dragon_scales _ -> cached_dragon_scale
+  | Dragon_claws _ -> cached_dragon_claw
+  | Dragon_fangs _ -> cached_dragon_fang
+  | Dragon_horns _ -> cached_dragon_horn
   | x -> mapped.(Variants.to_rank x)
 
 let to_kind = Fn.compose Ingredient.to_kind to_ingredient
@@ -260,6 +315,7 @@ let to_string = function
 | Ironshell_crab -> "Ironshell Crab"
 | Armored_porgy -> "Armored Porgy"
 | Fairy -> "Fairy"
+| Star_fragment -> "Star Fragment"
 | Monster_horn Bokoblin_horn -> "Bokoblin Horn"
 | Monster_horn Moblin_horn -> "Moblin Horn"
 | Monster_horn Lizalfos_horn -> "Lizalfos Horn"
@@ -298,6 +354,18 @@ let to_string = function
 | Monster_guts Yellow_lizalfos_tail -> "Yellow Lizalfos Tail"
 | Monster_guts Ancient_core -> "Ancient Core"
 | Monster_guts Giant_ancient_core -> "Giant Ancient Core"
+| Dragon_scales Dinraal -> "Dinraal's Scale"
+| Dragon_scales Naydra -> "Naydra's Scale"
+| Dragon_scales Farosh -> "Farosh's Scale"
+| Dragon_claws Dinraal -> "Dinraal's Claw"
+| Dragon_claws Naydra -> "Naydra's Claw"
+| Dragon_claws Farosh -> "Farosh's Claw"
+| Dragon_fangs Dinraal -> "Shard of Dinraal's Fang"
+| Dragon_fangs Naydra -> "Shard of Naydra's Fang"
+| Dragon_fangs Farosh -> "Shard of Farosh's Fang"
+| Dragon_horns Dinraal -> "Shard of Dinraal's Horn"
+| Dragon_horns Naydra -> "Shard of Naydra's Horn"
+| Dragon_horns Farosh -> "Shard of Farosh's Horn"
 
 let ordered =
   [|
@@ -353,6 +421,19 @@ let ordered =
     Goat_butter;
     Goron_spice;
     Rock_salt;
+    Star_fragment;
+    Dragon_scales Dinraal;
+    Dragon_scales Naydra;
+    Dragon_scales Farosh;
+    Dragon_claws Dinraal;
+    Dragon_claws Naydra;
+    Dragon_claws Farosh;
+    Dragon_fangs Dinraal;
+    Dragon_fangs Naydra;
+    Dragon_fangs Farosh;
+    Dragon_horns Dinraal;
+    Dragon_horns Naydra;
+    Dragon_horns Farosh;
     Hearty_salmon;
     Hearty_bass;
     Hyrule_bass;

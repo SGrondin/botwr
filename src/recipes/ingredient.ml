@@ -1,6 +1,14 @@
 open! Core_kernel
 
-module Duration = struct
+module type S_First_or_next = sig
+  type t [@@deriving sexp, compare, equal, hash]
+
+  val merge : count:int -> t -> t
+
+  val combine : t -> t -> t
+end
+
+module First_or_next = struct
   type t =
     | Always      of int
     | Diminishing of {
@@ -19,6 +27,32 @@ module Duration = struct
     | Always x, Diminishing { first; _ } -> Always (x + first)
     | Diminishing { first; _ }, Always y -> Always (first + y)
     | Diminishing { first = x; _ }, Diminishing { first = y; _ } -> Always (x + y)
+end
+
+module Duration : sig
+  type t =
+    | Always      of int
+    | Diminishing of {
+        first: int;
+        next: int;
+      }
+
+  include S_First_or_next with type t := t
+end = struct
+  include First_or_next
+end
+
+module Hearts : sig
+  type t =
+    | Always      of int
+    | Diminishing of {
+        first: int;
+        next: int;
+      }
+
+  include S_First_or_next with type t := t
+end = struct
+  include First_or_next
 end
 
 module Effect = struct
@@ -172,26 +206,24 @@ module Category = struct
     | Critter
     | Monster
     | Elixir
-    | Tonic_food
-    | Tonic
+    | With_fairy of t
+    | Dragon
     | Dubious
   [@@deriving sexp, compare, equal, hash]
 
-  let combine left right =
+  let rec combine left right =
     match left, right with
-    | Tonic, Food
-     |Food, Tonic
-     |Tonic_food, _
-     |_, Tonic_food ->
-      Tonic_food
+    | x, Dragon
+     |Dragon, x ->
+      x
+    | With_fairy x, y
+     |y, With_fairy x ->
+      With_fairy (combine x y)
     | Food, Food -> Food
     | Spice, Spice -> Spice
     | Food, Spice
      |Spice, Food ->
       Food
-    | Tonic, _
-     |_, Tonic ->
-      Tonic
     | Food, _
      |_, Food
      |Spice, _
@@ -212,9 +244,10 @@ module Category = struct
 end
 
 type t = {
-  hearts: int;
+  hearts: Hearts.t;
   effect: Effect.t;
   category: Category.t;
+  critical: bool;
 }
 [@@deriving sexp, compare, equal, hash]
 
@@ -233,7 +266,8 @@ let to_kind : t -> Effect.Kind.t = function
 | { effect = Mighty _; _ } -> Mighty
 | { effect = Tough _; _ } -> Tough
 
-let has_effect : t -> bool = function
+let has_effect_or_special : t -> bool = function
+| { category = Dragon; _ } -> true
 | { effect = Nothing; _ }
  |{ effect = Neutral _; _ } ->
   false
@@ -250,14 +284,15 @@ let has_effect : t -> bool = function
  |{ effect = Tough _; _ } ->
   true
 
-let merge ({ hearts; effect; category } as ingredient) ~count =
+let merge ({ hearts; effect; category; critical } as ingredient) ~count =
   match count with
   | 1 -> ingredient
-  | _ -> { hearts = hearts * count; effect = Effect.merge ~count effect; category }
+  | _ -> { hearts = Hearts.merge ~count hearts; effect = Effect.merge ~count effect; category; critical }
 
 let combine left right =
   {
-    hearts = left.hearts + right.hearts;
+    hearts = Hearts.combine left.hearts right.hearts;
     effect = Effect.combine left.effect right.effect;
     category = Category.combine left.category right.category;
+    critical = left.critical || right.critical;
   }
