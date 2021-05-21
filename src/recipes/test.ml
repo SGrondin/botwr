@@ -216,7 +216,7 @@ let%expect_test "List of ingredients" =
     (Food
      ((hearts (Restores 1)) (stamina Nothing)
       (effect (Hasty ((potency 1) (wasted 0) (duration 90)))) (num_ingredients 2)
-      (num_effect_ingredients 2) (random_effects (Potency Duration)))) |}];
+      (num_effect_ingredients 2) (random_effects (Potency Duration Red_hearts)))) |}];
   test [ Swift_carrot; Hearty_radish; Star_fragment ];
   [%expect {|
     (Food

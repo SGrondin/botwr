@@ -457,19 +457,19 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    253 pts (4943, -1.133333)
+    253 pts (2379, -1.133333)
     Monster_guts x4, Sunset_firefly
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 0) (duration 880))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
-    230 pts (4943, -0.933333)
+    230 pts (2379, -0.933333)
     Monster_guts x3, Sunset_firefly
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 0) (duration 690))))
       (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
-    227 pts (4943, -1.266667)
+    227 pts (2379, -1.266667)
     Monster_guts x3, Sunset_firefly x2
     (Elixir
      ((hearts Nothing) (stamina Nothing)
@@ -479,19 +479,19 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    269 pts (4943, -1.133333)
+    269 pts (2379, -1.133333)
     Monster_guts x4, Sunset_firefly
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 0) (duration 880))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
-    260 pts (4943, -1.266667)
+    260 pts (2379, -1.266667)
     Monster_guts x3, Sunset_firefly x2
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 810))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
-    251 pts (4943, -1.400000)
+    251 pts (2379, -1.400000)
     Monster_guts x2, Sunset_firefly x3
     (Elixir
      ((hearts Nothing) (stamina Nothing)
@@ -523,21 +523,21 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 6)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1130))))
       (num_ingredients 5) (num_effect_ingredients 3)
-      (random_effects (Potency Duration))))
+      (random_effects (Potency Duration Red_hearts))))
     263 pts (1585, 0.500000)
     Dragon_claws, Dragon_fangs, Goat_butter, Goron_spice, Silent_shroom
     (Food
      ((hearts (Restores 5)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1130))))
       (num_ingredients 5) (num_effect_ingredients 3)
-      (random_effects (Potency Duration))))
+      (random_effects (Potency Duration Red_hearts))))
     263 pts (1585, 0.500000)
     Cane_sugar, Dragon_claws, Dragon_fangs, Goron_spice, Silent_shroom
     (Food
      ((hearts (Restores 5)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1130))))
       (num_ingredients 5) (num_effect_ingredients 3)
-      (random_effects (Potency Duration)))) |}];
+      (random_effects (Potency Duration Red_hearts)))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Maximize data6;
   [%expect {|
     (0s)
@@ -547,21 +547,21 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 4)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1920))))
       (num_ingredients 2) (num_effect_ingredients 2)
-      (random_effects (Potency Duration))))
+      (random_effects (Potency Duration Red_hearts))))
     398 pts (1585, 12.000000)
     Dragon_horns, Fairy, Silent_shroom
     (Food
      ((hearts (Restores 14)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1950))))
       (num_ingredients 3) (num_effect_ingredients 2)
-      (random_effects (Potency Duration))))
+      (random_effects (Potency Duration Red_hearts))))
     398 pts (1585, 3.500000)
     Dragon_fangs, Dragon_horns, Silent_shroom
     (Food
      ((hearts (Restores 6)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 2550))))
       (num_ingredients 3) (num_effect_ingredients 3)
-      (random_effects (Potency Duration)))) |}];
+      (random_effects (Potency Duration Red_hearts)))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Balanced ~use_special:false data6;
   [%expect {|
     (0s)
