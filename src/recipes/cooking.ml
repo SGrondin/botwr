@@ -12,7 +12,7 @@ end
 module Hearts = struct
   type t =
     | Nothing
-    | Restores        of int
+    | Restores        of Ingredient.Hearts.quarters
     | Full_plus_bonus of int
   [@@deriving sexp, compare, equal]
 
@@ -73,16 +73,16 @@ module Effect = struct
     | Tough     of bonus
   [@@deriving sexp, compare, equal, variants]
 
-  let potency = function
-  | Nothing -> 0
-  | Spicy { potency; _ } -> potency
-  | Chilly { potency; _ } -> potency
-  | Electro { potency; _ } -> potency
-  | Fireproof { potency; _ } -> potency
-  | Hasty { potency; _ } -> potency
-  | Sneaky { potency; _ } -> potency
-  | Mighty { potency; _ } -> potency
-  | Tough { potency; _ } -> potency
+  let max_potency = function
+  | Nothing -> true
+  | Spicy { potency; _ } -> potency = 2
+  | Chilly { potency; _ } -> potency = 2
+  | Electro { potency; _ } -> potency = 3
+  | Fireproof { potency; _ } -> potency = 2
+  | Hasty { potency; _ } -> potency = 3
+  | Sneaky { potency; _ } -> potency = 3
+  | Mighty { potency; _ } -> potency = 3
+  | Tough { potency; _ } -> potency = 3
 
   let duration = function
   | Nothing -> 0
@@ -185,11 +185,11 @@ let cook map =
     let hearts =
       match res with
       | { effect = Hearty x; _ } -> Hearts.Full_plus_bonus x
-      | { hearts = Always 0; _ } -> Nothing
-      | { hearts = Always x; _ }
-       |{ hearts = Diminishing { first = x; _ }; _ }
+      | { hearts = Always (Quarters 0); _ } -> Nothing
+      | { hearts = Always (Quarters x); _ }
+       |{ hearts = Diminishing { first = Quarters x; _ }; _ }
         when is_tonic ->
-        Restores (x - 3)
+        Restores (Quarters (x - 12))
       | { hearts = Always x; _ }
        |{ hearts = Diminishing { first = x; _ }; _ } ->
         Restores x
@@ -258,9 +258,9 @@ let cook map =
           num_effect_ingredients;
           random_effects = [];
         }
-      | [ Red_hearts ], Restores x ->
+      | [ Red_hearts ], Restores (Quarters x) ->
         {
-          hearts = Restores (x + 3);
+          hearts = Restores (Quarters (x + 12));
           stamina;
           effect;
           num_ingredients;
@@ -269,7 +269,7 @@ let cook map =
         }
       | [ Red_hearts ], Nothing ->
         {
-          hearts = Restores 3;
+          hearts = Restores (Quarters 12);
           stamina;
           effect;
           num_ingredients;

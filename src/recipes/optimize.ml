@@ -43,13 +43,14 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
          |_, Monster, Any ->
           add_to ~n:(min data 4) monsters key;
           acc
-        | x, _, Any
+        | x, Food, Any
          |x, Food, Meals
-         |x, Spice, Meals
-         |x, Critter, Elixirs
-         |x, Elixir, Elixirs
           when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
+        | x, Critter, Any
+         |x, Critter, Elixirs
+          when [%equal: Ingredient.Effect.Kind.t] x kind ->
+          Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _, With_fairy _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc)
   in
@@ -149,9 +150,9 @@ let break_ties grouped recipe =
   let rarity = rarity_score grouped recipe in
   let hearts =
     match cook recipe with
-    | Food { hearts = Restores x; _ }
-     |Elixir { hearts = Restores x; _ } ->
-      x
+    | Food { hearts = Restores (Quarters x); _ }
+     |Elixir { hearts = Restores (Quarters x); _ } ->
+      x lsr 2
     | _ -> 0
   in
   rarity, Float.(of_int hearts - rarity)

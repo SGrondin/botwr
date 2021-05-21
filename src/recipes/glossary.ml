@@ -3,12 +3,18 @@ open! Core_kernel
 let always (min, sec) = Ingredient.Duration.Always ((min * 60) + sec)
 
 let make_food hearts sec =
-  Ingredient.{ hearts = Always hearts; effect = Neutral (Always sec); category = Food; critical = false }
+  Ingredient.
+    {
+      hearts = Always (Quarters (hearts * 4));
+      effect = Neutral (Always sec);
+      category = Food;
+      critical = false;
+    }
 
 let make_ingredient hearts first next =
   Ingredient.
     {
-      hearts = Always hearts;
+      hearts = Always (Quarters (hearts * 4));
       effect = Neutral (Diminishing { first; next });
       category = Food;
       critical = false;
@@ -17,29 +23,42 @@ let make_ingredient hearts first next =
 let make_spice hearts first next =
   Ingredient.
     {
-      hearts = Always hearts;
+      hearts = Always (Quarters (hearts * 4));
       effect = Neutral (Diminishing { first; next });
       category = Spice;
       critical = false;
     }
 
 let make_hearty hearts bonus =
-  Ingredient.{ hearts = Always hearts; effect = Hearty bonus; category = Food; critical = false }
+  Ingredient.
+    { hearts = Always (Quarters (hearts * 4)); effect = Hearty bonus; category = Food; critical = false }
 
 let make_effect variant dur hearts points =
   Ingredient.
     {
-      hearts = Always hearts;
+      hearts = Always (Quarters (hearts * 4));
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Food;
       critical = false;
     }
 
 let make_energizing hearts x =
-  Ingredient.{ hearts = Always hearts; effect = Energizing (Fifths x); category = Food; critical = false }
+  Ingredient.
+    {
+      hearts = Always (Quarters (hearts * 4));
+      effect = Energizing (Fifths x);
+      category = Food;
+      critical = false;
+    }
 
 let make_enduring hearts x =
-  Ingredient.{ hearts = Always hearts; effect = Enduring (Quarters x); category = Food; critical = false }
+  Ingredient.
+    {
+      hearts = Always (Quarters (hearts * 4));
+      effect = Enduring (Quarters x);
+      category = Food;
+      critical = false;
+    }
 
 let make_spicy = make_effect Ingredient.Effect.spicy (2, 30)
 
@@ -55,30 +74,36 @@ let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
 
 let make_tough = make_effect Ingredient.Effect.tough (0, 50)
 
-let energizing_critter ?(hearts = 0) x =
+let energizing_critter x =
   Ingredient.
-    { hearts = Always hearts; effect = Energizing (Fifths x); category = Critter; critical = false }
+    { hearts = Always (Quarters 0); effect = Energizing (Fifths x); category = Critter; critical = false }
 
 let enduring_critter ?(hearts = 0) x =
   Ingredient.
-    { hearts = Always hearts; effect = Enduring (Quarters x); category = Critter; critical = false }
+    {
+      hearts = Always (Quarters (hearts * 4));
+      effect = Enduring (Quarters x);
+      category = Critter;
+      critical = false;
+    }
 
-let effect_critter ?(hearts = Ingredient.Hearts.Always 0) dur variant points =
+let effect_critter dur variant points =
   Ingredient.
     {
-      hearts;
+      hearts = Always (Quarters 0);
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Critter;
       critical = false;
     }
 
 let make_monster dur =
-  Ingredient.{ hearts = Always 0; effect = Neutral (always dur); category = Monster; critical = false }
+  Ingredient.
+    { hearts = Always (Quarters 0); effect = Neutral (always dur); category = Monster; critical = false }
 
 let make_dragon hearts first =
   Ingredient.
     {
-      hearts = Diminishing { first = hearts; next = 0 };
+      hearts = Diminishing { first = hearts; next = Quarters 0 };
       effect = Neutral (Diminishing { first; next = 30 });
       category = Dragon;
       critical = true;
@@ -90,13 +115,13 @@ let cached_monster_fang = make_monster (1, 50)
 
 let cached_monster_guts = make_monster (3, 10)
 
-let cached_dragon_scale = make_dragon 1 90
+let cached_dragon_scale = make_dragon (Quarters 5) 90
 
-let cached_dragon_claw = make_dragon 2 210
+let cached_dragon_claw = make_dragon (Quarters 8) 210
 
-let cached_dragon_fang = make_dragon 2 630
+let cached_dragon_fang = make_dragon (Quarters 10) 630
 
-let cached_dragon_horn = make_dragon 3 1800
+let cached_dragon_horn = make_dragon (Quarters 15) 1800
 
 include Items
 
@@ -133,7 +158,8 @@ let to_ingredient =
     | Big_hearty_truffle -> make_hearty 6 4
     | Hearty_salmon -> make_hearty 8 4
     | Hearty_lizard ->
-      Ingredient.{ hearts = Always 8; effect = Hearty 4; category = Critter; critical = false }
+      Ingredient.
+        { hearts = Always (Quarters 32); effect = Hearty 4; category = Critter; critical = false }
     | Big_hearty_radish -> make_hearty 8 5
     | Stamella_shroom -> make_energizing 1 7
     | Restless_cricket -> energizing_critter 7
@@ -192,9 +218,14 @@ let to_ingredient =
     | Armored_porgy -> make_tough 2 3
     | Fairy ->
       (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
-      { hearts = Always 10; effect = Neutral (Always 30); category = With_fairy Spice; critical = false }
+      {
+        hearts = Always (Quarters 40);
+        effect = Neutral (Always 30);
+        category = With_fairy Spice;
+        critical = false;
+      }
     | Star_fragment ->
-      { hearts = Always 0; effect = Neutral (Always 30); category = Dragon; critical = true }
+      { hearts = Always (Quarters 0); effect = Neutral (Always 30); category = Dragon; critical = true }
     | Monster_horn _ -> cached_monster_horn
     | Monster_fang _ -> cached_monster_fang
     | Monster_guts _ -> cached_monster_guts

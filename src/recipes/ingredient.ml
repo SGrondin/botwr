@@ -1,14 +1,6 @@
 open! Core_kernel
 
-module type S_First_or_next = sig
-  type t [@@deriving sexp, compare, equal, hash]
-
-  val merge : count:int -> t -> t
-
-  val combine : t -> t -> t
-end
-
-module First_or_next = struct
+module Duration = struct
   type t =
     | Always      of int
     | Diminishing of {
@@ -29,30 +21,29 @@ module First_or_next = struct
     | Diminishing { first = x; _ }, Diminishing { first = y; _ } -> Always (x + y)
 end
 
-module Duration : sig
+module Hearts = struct
+  type quarters = Quarters of int [@@deriving sexp, compare, equal, hash] [@@unboxed]
+
   type t =
-    | Always      of int
+    | Always      of quarters
     | Diminishing of {
-        first: int;
-        next: int;
+        first: quarters;
+        next: quarters;
       }
+  [@@deriving sexp, compare, equal, hash]
 
-  include S_First_or_next with type t := t
-end = struct
-  include First_or_next
-end
+  let merge ~count = function
+  | Always (Quarters x) -> Always (Quarters (x * count))
+  | Diminishing { first = Quarters first; next = Quarters next } ->
+    Always (Quarters (first + (next * (count - 1))))
 
-module Hearts : sig
-  type t =
-    | Always      of int
-    | Diminishing of {
-        first: int;
-        next: int;
-      }
-
-  include S_First_or_next with type t := t
-end = struct
-  include First_or_next
+  let combine left right =
+    match left, right with
+    | Always (Quarters x), Always (Quarters y) -> Always (Quarters (x + y))
+    | Always (Quarters x), Diminishing { first = Quarters first; _ } -> Always (Quarters (x + first))
+    | Diminishing { first = Quarters first; _ }, Always (Quarters y) -> Always (Quarters (first + y))
+    | Diminishing { first = Quarters x; _ }, Diminishing { first = Quarters y; _ } ->
+      Always (Quarters (x + y))
 end
 
 module Effect = struct
@@ -195,7 +186,8 @@ module Category = struct
     | x, Dragon
      |Dragon, x ->
       x
-    | With_fairy x, y
+    | With_fairy x, With_fairy y
+     |With_fairy x, y
      |y, With_fairy x ->
       With_fairy (combine x y)
     | Food, Food -> Food

@@ -20,10 +20,20 @@ let wrap_icon_list nodes = Node.div Attr.[ style Css_gen.(max_width (`Em 30) @> 
 
 let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) option = function
 | Nothing -> None
-| Restores x ->
-  let actual = min x max_hearts in
-  let node = List.init actual ~f:(const (make_icon Heart)) |> wrap_icon_list in
-  Some (sprintf "Hearts (%d)" actual, node)
+| Restores (Quarters x) ->
+  let actual = min x (max_hearts * 4) in
+  let full_hearts = Int.( /% ) actual 4 |> List.init ~f:(const (make_icon Heart)) in
+  let remainder =
+    match Int.( % ) actual 4 with
+    | 1 -> [ make_icon Heart1 ]
+    | 2 -> [ make_icon Heart2 ]
+    | 3 -> [ make_icon Heart3 ]
+    | _ -> []
+  in
+  let node = full_hearts @ remainder |> wrap_icon_list in
+  Some
+    ( sprintf "Hearts (%s)" (Float.to_string_hum ~delimiter:',' ~decimals:2 ~strip_zero:true (actual // 4)),
+      node )
 | Full_plus_bonus x ->
   let actual = min x (30 - max_hearts) in
   let node =
@@ -145,9 +155,9 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
             | Green_wheels -> Some (Node.span [] [ Node.text "+"; make_icon Energizing2 ])
             | Yellow_wheels -> Some (Node.span [] [ Node.text "+"; make_icon Enduring2 ])
             | Potency -> (
-              match Recipes.Cooking.Effect.potency effect with
-              | 3 -> None
-              | _ -> Some (Node.text "+1 power")
+              match Recipes.Cooking.Effect.max_potency effect with
+              | true -> None
+              | false -> Some (Node.text "+1 power")
             )
             | Duration -> (
               match Recipes.Cooking.Effect.duration effect with
@@ -338,9 +348,7 @@ let component ~updates ?kind () =
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
     Stepper.component "max_hearts" 28 ~max_value:30 ~update_kitchen New ~render:(fun x ->
-        Recipes.Cooking.Hearts.Restores x
-        |> render_hearts 30
-        |> Option.value_map ~f:snd ~default:Node.none)
+        List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
   in
   let%sub max_stamina =
     Stepper.component "max_stamina" 15 ~max_value:15 ~update_kitchen New ~render:(fun potency ->
