@@ -237,7 +237,7 @@ let cook map =
       | true, _, Full_plus_bonus _, _ -> [ Yellow_wheels; Red_hearts ]
       | true, _, Restores _, _ -> [ Green_wheels; Red_hearts ]
       | true, _, _, Nothing -> [ Red_hearts ]
-      | true, _, _, _ -> [ Potency; Duration ]
+      | true, _, _, _ -> [ Potency; Duration; Red_hearts ]
     in
     let meal : Meal.t =
       match random_effects, hearts with

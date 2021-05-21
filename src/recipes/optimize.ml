@@ -28,11 +28,10 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
           when not ([%equal: Ingredient.Effect.Kind.t] kind Hearty) ->
           let () =
             match ingredient with
-            | { effect = Neutral (Diminishing _); _ } ->
+            | { effect = Neutral (Diminishing _); _ } when data > 0 ->
               (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
-              let n = min data 1 in
-              add_to ~n neutrals key;
-              add_to ~n:(4 - n) neutrals_wasteful key;
+              add_to ~n:1 neutrals key;
+              add_to ~n:(min 3 (data - 1)) neutrals_wasteful key;
               ()
             | _ -> add_to ~n:(min data 4) neutrals key
           in

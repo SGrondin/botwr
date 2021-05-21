@@ -139,10 +139,11 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       | { random_effects; effect; _ } ->
         let choices =
           List.filter_map random_effects ~f:(function
-            | Red_hearts -> Some (Node.span [] [ make_icon Heart; make_icon Heart; make_icon Heart ])
+            | Red_hearts ->
+              Some (Node.span [] [ Node.text "+"; make_icon Heart; make_icon Heart; make_icon Heart ])
             | Yellow_hearts -> None
-            | Green_wheels -> Some (Node.span [] [ make_icon Energizing2 ])
-            | Yellow_wheels -> Some (Node.span [] [ make_icon Enduring2 ])
+            | Green_wheels -> Some (Node.span [] [ Node.text "+"; make_icon Energizing2 ])
+            | Yellow_wheels -> Some (Node.span [] [ Node.text "+"; make_icon Enduring2 ])
             | Potency -> (
               match Recipes.Cooking.Effect.potency effect with
               | 3 -> None
@@ -156,7 +157,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         in
         let pct = 100 / List.length random_effects in
         List.map choices ~f:(fun node -> Node.span [] [ node; Node.textf " ( %d %% )" pct ])
-        |> List.intersperse ~sep:(Node.text " or ")
+        |> List.intersperse ~sep:(Node.div [] [ Node.text " or " ])
         |> Node.span []
         |> Option.some_if (List.is_empty choices |> not)
     in
