@@ -14,14 +14,16 @@ let%expect_test "List of ingredients" =
   [%expect
     {|
     (Food
-     ((hearts (Restores 2)) (stamina (Full_plus_bonus 1)) (effect Nothing)
-      (num_ingredients 1) (num_effect_ingredients 1) (random_effects ()))) |}];
+     ((hearts (Restores 2)) (stamina (Full_plus_bonus ((potency 1) (wasted 0))))
+      (effect Nothing) (num_ingredients 1) (num_effect_ingredients 1)
+      (random_effects ()))) |}];
   test [ Endura_shroom; Endura_shroom ];
   [%expect
     {|
     (Food
-     ((hearts (Restores 4)) (stamina (Full_plus_bonus 1)) (effect Nothing)
-      (num_ingredients 2) (num_effect_ingredients 2) (random_effects ()))) |}];
+     ((hearts (Restores 4)) (stamina (Full_plus_bonus ((potency 1) (wasted 0))))
+      (effect Nothing) (num_ingredients 2) (num_effect_ingredients 2)
+      (random_effects ()))) |}];
   test [ Endura_shroom; Endura_shroom; Big_hearty_radish ];
   [%expect
     {|
@@ -38,8 +40,9 @@ let%expect_test "List of ingredients" =
   [%expect
     {|
     (Food
-     ((hearts (Restores 8)) (stamina (Restores 5)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 1) (random_effects ()))) |}];
+     ((hearts (Restores 8)) (stamina (Restores ((potency 5) (wasted 3))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 1)
+      (random_effects ()))) |}];
   test [ Voltfruit; Electric_safflina; Electric_safflina; Thunderwing_butterfly ];
   [%expect {| Dubious |}];
   test [ Voltfruit; Electric_safflina; Electric_safflina ];
@@ -67,14 +70,16 @@ let%expect_test "List of ingredients" =
   [%expect
     {|
     (Food
-     ((hearts (Restores 3)) (stamina (Restores 4)) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ()))) |}];
+     ((hearts (Restores 3)) (stamina (Restores ((potency 4) (wasted 1))))
+      (effect Nothing) (num_ingredients 3) (num_effect_ingredients 3)
+      (random_effects ()))) |}];
   test [ Stamella_shroom; Goat_butter; Goat_butter; Goat_butter; Goat_butter ];
   [%expect
     {|
     (Food
-     ((hearts (Restores 1)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 1) (random_effects ()))) |}];
+     ((hearts (Restores 1)) (stamina (Restores ((potency 1) (wasted 2))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 1)
+      (random_effects ()))) |}];
   test [ Goron_spice; Voltfin_trout; Voltfin_trout; Bird_egg; Bird_egg ];
   [%expect
     {|
@@ -86,14 +91,16 @@ let%expect_test "List of ingredients" =
   [%expect
     {|
     (Food
-     ((hearts (Restores 20)) (stamina (Restores 1)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 1) (random_effects ()))) |}];
+     ((hearts (Restores 20)) (stamina (Restores ((potency 1) (wasted 2))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 1)
+      (random_effects ()))) |}];
   test [ Staminoka_bass; Staminoka_bass; Staminoka_bass; Stamella_shroom ];
   [%expect
     {|
     (Food
-     ((hearts (Restores 7)) (stamina (Restores 16)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 4) (random_effects ()))) |}];
+     ((hearts (Restores 7)) (stamina (Restores ((potency 18) (wasted 1))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 4)
+      (random_effects ()))) |}];
   test [ Fairy ];
   [%expect
     {|
@@ -118,20 +125,23 @@ let%expect_test "List of ingredients" =
   [%expect
     {|
     (Tonic
-     ((hearts (Restores 9)) (stamina (Restores 6)) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 2) (random_effects ()))) |}];
+     ((hearts (Restores 9)) (stamina (Restores ((potency 7) (wasted 0))))
+      (effect Nothing) (num_ingredients 3) (num_effect_ingredients 2)
+      (random_effects ()))) |}];
   test [ Endura_carrot; Endura_carrot; Endura_carrot; Endura_carrot; Fairy ];
   [%expect
     {|
     (Food
-     ((hearts (Restores 26)) (stamina (Full_plus_bonus 8)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}];
+     ((hearts (Restores 26)) (stamina (Full_plus_bonus ((potency 8) (wasted 0))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 4)
+      (random_effects ()))) |}];
   test [ Staminoka_bass; Staminoka_bass; Staminoka_bass; Fairy ];
   [%expect
     {|
     (Food
-     ((hearts (Restores 16)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
+     ((hearts (Restores 16)) (stamina (Restores ((potency 16) (wasted 4))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 3)
+      (random_effects ()))) |}];
   test [ Hearty_lizard; Fairy ];
   [%expect
     {|

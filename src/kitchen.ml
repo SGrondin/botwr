@@ -34,8 +34,8 @@ let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) opt
 
 let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) option = function
 | Nothing -> None
-| Restores x ->
-  let actual = min x max_stamina in
+| Restores { potency; wasted = _ } ->
+  let actual = min potency max_stamina in
   let wheels = Int.( /% ) actual 5 |> List.init ~f:(const (make_icon Energizing)) in
   let remainder =
     match Int.( % ) actual 5 with
@@ -47,7 +47,7 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) 
   in
   let node = wheels @ remainder |> wrap_icon_list in
   Some ("Stamina", node)
-| Full_plus_bonus x ->
+| Full_plus_bonus { potency; wasted = _ } ->
   let green_wheels = Int.( /% ) max_stamina 5 |> List.init ~f:(const (make_icon Energizing)) in
   let green_remainder =
     match Int.( % ) max_stamina 5 with
@@ -57,7 +57,7 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) 
     | 4 -> [ make_icon Energizing4 ]
     | _ -> []
   in
-  let actual = min x (25 - max_stamina) in
+  let actual = min potency (25 - max_stamina) in
   let yellow_wheels = Int.( /% ) actual 5 |> List.init ~f:(const (make_icon Enduring)) in
   let yellow_remainder =
     match Int.( % ) actual 5 with
@@ -343,8 +343,8 @@ let component ~updates ?kind () =
         |> Option.value_map ~f:snd ~default:Node.none)
   in
   let%sub max_stamina =
-    Stepper.component "max_stamina" 15 ~max_value:15 ~update_kitchen New ~render:(fun x ->
-        Recipes.Cooking.Stamina.Restores x
+    Stepper.component "max_stamina" 15 ~max_value:15 ~update_kitchen New ~render:(fun potency ->
+        Recipes.Cooking.Stamina.Restores { potency; wasted = 0 }
         |> render_stamina 15
         |> Option.value_map ~f:snd ~default:Node.none)
   in

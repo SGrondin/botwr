@@ -8,7 +8,6 @@ open Recipes
 let no_decoration = Attr.style Css_gen.(text_decoration ~line:[ `None ] ())
 
 type item_folder = {
-  nodes: Node.t list;
   keyed_nodes: (int * Node.t) list;
   total: int;
   updates: (Glossary.t * (Card.Action.t -> Ui_event.t)) list;
@@ -118,14 +117,12 @@ let group ~inventory ~selected ~update_selected ~show_all items =
   return
   @@ let%map mapped = mapped
      and show_all = show_all in
-     String.Map.fold_right mapped
-       ~init:{ nodes = []; keyed_nodes = []; total = 0; updates = []; ingredients = [] }
-       ~f:(fun ~key:_ ~data ({ nodes; keyed_nodes; total; updates; ingredients } as acc) ->
+     String.Map.fold mapped ~init:{ keyed_nodes = []; total = 0; updates = []; ingredients = [] }
+       ~f:(fun ~key:_ ~data ({ keyed_nodes; total; updates; ingredients } as acc) ->
          match data with
          | (0, _, _), _ when not show_all -> acc
          | (x, update, item), node ->
            {
-             nodes = node :: nodes;
              keyed_nodes = (Glossary.(Map.find_exn ordered item), node) :: keyed_nodes;
              total = total + x;
              updates = (item, update) :: updates;
@@ -223,12 +220,13 @@ let component ~inventory () =
          ~f:(fun ~key ~data acc ->
            match data with
            | { total = 0; _ } when not show_all -> acc
-           | { updates; total; ingredients; nodes; keyed_nodes } ->
+           | { updates; total; ingredients; keyed_nodes } ->
              let nodes, keyed_nodes =
                match by_effect with
-               | true -> render_group key nodes :: acc.nodes, acc.keyed_nodes
-               | false ->
-                 acc.nodes, List.fold keyed_nodes ~init:acc.keyed_nodes ~f:(fun acc x -> x :: acc)
+               | true ->
+                 let node = Int.Map.of_alist_exn keyed_nodes |> Int.Map.data |> render_group key in
+                 node :: acc.nodes, []
+               | false -> [], List.fold keyed_nodes ~init:acc.keyed_nodes ~f:(fun acc x -> x :: acc)
              in
              {
                nodes;

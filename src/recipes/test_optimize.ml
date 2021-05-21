@@ -104,27 +104,12 @@ let%expect_test "Filter" =
      Endura_carrot) |}]
 
 let%expect_test "Cooking by category, basic" =
-  let data1 =
-    Glossary.[ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 2; Ironshroom, 3; Armored_carp, 1 ]
-  in
-  let data2 =
-    Glossary.
-      [
-        Apple, 5;
-        Goat_butter, 7;
-        Tabantha_wheat, 2;
-        Stamella_shroom, 24;
-        Big_hearty_truffle, 2;
-        Raw_gourmet_meat, 3;
-        Goron_spice, 2;
-      ]
-  in
-  let data3 = Glossary.[ Big_hearty_truffle, 5 ] in
   let test ~kind ~category ~algo ?(use_special = true) ll =
     let settings = Optimize.{ max_hearts = 20; max_stamina = 15; algo; kind; category; use_special } in
     Optimize.run settings ll |> Optimize.to_string |> print_endline
   in
-  test ~kind:Tough ~category:Meals ~algo:Balanced data1;
+  test ~kind:Tough ~category:Meals ~algo:Balanced
+    [ Apple, 1; Palm_fruit, 7; Apple, 1; Ironshell_crab, 2; Ironshroom, 3; Armored_carp, 1 ];
   [%expect
     {|
     (0s)
@@ -146,25 +131,37 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 7)) (stamina Nothing)
       (effect (Tough ((potency 3) (wasted 1) (duration 250))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ()))) |}];
-  test ~kind:Energizing ~category:Meals ~algo:Balanced data2;
+  test ~kind:Energizing ~category:Meals ~algo:Balanced
+    [
+      Apple, 5;
+      Goat_butter, 7;
+      Tabantha_wheat, 2;
+      Stamella_shroom, 24;
+      Big_hearty_truffle, 2;
+      Raw_gourmet_meat, 3;
+      Goron_spice, 2;
+    ];
   [%expect
     {|
     (0s)
-    113 pts (381, 4.791667)
+    141 pts (381, 4.791667)
     Stamella_shroom x5
     (Food
-     ((hearts (Restores 5)) (stamina (Restores 7)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
-    108 pts (381, 3.833333)
+     ((hearts (Restores 5)) (stamina (Restores ((potency 7) (wasted 0))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 5)
+      (random_effects ())))
+    125 pts (381, 3.833333)
     Stamella_shroom x4
     (Food
-     ((hearts (Restores 4)) (stamina (Restores 5)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
-    107 pts (381, 4.633333)
+     ((hearts (Restores 4)) (stamina (Restores ((potency 5) (wasted 3))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 4)
+      (random_effects ())))
+    124 pts (381, 4.633333)
     Apple, Stamella_shroom x4
     (Food
-     ((hearts (Restores 5)) (stamina (Restores 5)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}];
+     ((hearts (Restores 5)) (stamina (Restores ((potency 5) (wasted 3))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 4)
+      (random_effects ()))) |}];
   test ~kind:Mighty ~category:Meals ~algo:Balanced
     [
       Mighty_bananas, 9;
@@ -404,7 +401,7 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores 10)) (stamina Nothing)
       (effect (Electro ((potency 1) (wasted 2) (duration 390))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
-  test ~kind:Hearty ~category:Meals ~algo:Balanced data3;
+  test ~kind:Hearty ~category:Meals ~algo:Balanced [ Big_hearty_truffle, 5 ];
   [%expect
     {|
     (0s)
@@ -427,21 +424,24 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    151 pts (3472, 5.400000)
+    206 pts (3472, 5.400000)
     Staminoka_bass x3
     (Food
-     ((hearts (Restores 6)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
-    150 pts (3472, 6.200000)
+     ((hearts (Restores 6)) (stamina (Restores ((potency 16) (wasted 4))))
+      (effect Nothing) (num_ingredients 3) (num_effect_ingredients 3)
+      (random_effects ())))
+    205 pts (3472, 6.200000)
     Apple, Staminoka_bass x3
     (Food
-     ((hearts (Restores 7)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
-    149 pts (3472, 7.000000)
+     ((hearts (Restores 7)) (stamina (Restores ((potency 16) (wasted 4))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 3)
+      (random_effects ())))
+    204 pts (3472, 7.000000)
     Apple x2, Staminoka_bass x3
     (Food
-     ((hearts (Restores 8)) (stamina (Restores 15)) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
+     ((hearts (Restores 8)) (stamina (Restores ((potency 16) (wasted 4))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 3)
+      (random_effects ()))) |}];
   let data5 =
     Glossary.
       [
@@ -539,7 +539,8 @@ let%expect_test "Cooking by category, basic" =
       (num_ingredients 5) (num_effect_ingredients 3)
       (random_effects (Potency Duration Red_hearts)))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Maximize data6;
-  [%expect {|
+  [%expect
+    {|
     (0s)
     399 pts (1585, 2.500000)
     Dragon_horns, Silent_shroom
@@ -563,7 +564,8 @@ let%expect_test "Cooking by category, basic" =
       (num_ingredients 3) (num_effect_ingredients 3)
       (random_effects (Potency Duration Red_hearts)))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Balanced ~use_special:false data6;
-  [%expect {|
+  [%expect
+    {|
     (0s)
     198 pts (62, -2.500000)
     Cane_sugar, Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
@@ -584,7 +586,8 @@ let%expect_test "Cooking by category, basic" =
       (effect (Sneaky ((potency 1) (wasted 1) (duration 370))))
       (num_ingredients 4) (num_effect_ingredients 1) (random_effects ()))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Maximize ~use_special:false data6;
-  [%expect {|
+  [%expect
+    {|
     (0s)
     220 pts (62, -1.000000)
     Fresh_milk, Goat_butter, Goron_spice, Silent_shroom x2
@@ -603,7 +606,69 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Restores 2)) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 3) (duration 490))))
-      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}]
+      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
+  test ~kind:Enduring ~category:Any ~algo:Balanced [ Endura_shroom, 5 ];
+  [%expect
+    {|
+    (0s)
+    225 pts (31, 1.800000)
+    Endura_shroom
+    (Food
+     ((hearts (Restores 2)) (stamina (Full_plus_bonus ((potency 1) (wasted 0))))
+      (effect Nothing) (num_ingredients 1) (num_effect_ingredients 1)
+      (random_effects ())))
+    224 pts (31, 7.200000)
+    Endura_shroom x4
+    (Food
+     ((hearts (Restores 8)) (stamina (Full_plus_bonus ((potency 2) (wasted 0))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 4)
+      (random_effects ())))
+    222 pts (31, 3.600000)
+    Endura_shroom x2
+    (Food
+     ((hearts (Restores 4)) (stamina (Full_plus_bonus ((potency 1) (wasted 0))))
+      (effect Nothing) (num_ingredients 2) (num_effect_ingredients 2)
+      (random_effects ()))) |}];
+  test ~kind:Hearty ~category:Any ~algo:Balanced [ Hearty_bass, 5 ];
+  [%expect
+    {|
+    (0s)
+    155 pts (31, -1.000000)
+    Hearty_bass x5
+    (Food
+     ((hearts (Full_plus_bonus 10)) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
+    152 pts (31, -0.800000)
+    Hearty_bass x4
+    (Food
+     ((hearts (Full_plus_bonus 8)) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
+    149 pts (31, -0.600000)
+    Hearty_bass x3
+    (Food
+     ((hearts (Full_plus_bonus 6)) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test ~kind:Enduring ~category:Any ~algo:Balanced [ Endura_carrot, 3; Endura_shroom, 5; Apple, 2 ];
+  [%expect {|
+    (0s)
+    261 pts (637, 14.600000)
+    Endura_carrot x3, Endura_shroom x2
+    (Food
+     ((hearts (Restores 16)) (stamina (Full_plus_bonus ((potency 7) (wasted 0))))
+      (effect Nothing) (num_ingredients 5) (num_effect_ingredients 5)
+      (random_effects ())))
+    259 pts (637, 11.000000)
+    Endura_carrot x3
+    (Food
+     ((hearts (Restores 12)) (stamina (Full_plus_bonus ((potency 6) (wasted 0))))
+      (effect Nothing) (num_ingredients 3) (num_effect_ingredients 3)
+      (random_effects ())))
+    258 pts (637, 11.500000)
+    Apple, Endura_carrot x3
+    (Food
+     ((hearts (Restores 13)) (stamina (Full_plus_bonus ((potency 6) (wasted 0))))
+      (effect Nothing) (num_ingredients 4) (num_effect_ingredients 3)
+      (random_effects ()))) |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in

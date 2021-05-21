@@ -35,13 +35,11 @@ let make_effect variant dur hearts points =
       critical = false;
     }
 
-let make_energizing hearts scaling =
-  Ingredient.
-    { hearts = Always hearts; effect = Energizing (Scaling scaling); category = Food; critical = false }
+let make_energizing hearts x =
+  Ingredient.{ hearts = Always hearts; effect = Energizing (Fifths x); category = Food; critical = false }
 
-let make_enduring hearts scaling =
-  Ingredient.
-    { hearts = Always hearts; effect = Enduring (Scaling scaling); category = Food; critical = false }
+let make_enduring hearts x =
+  Ingredient.{ hearts = Always hearts; effect = Enduring (Quarters x); category = Food; critical = false }
 
 let make_spicy = make_effect Ingredient.Effect.spicy (2, 30)
 
@@ -57,14 +55,13 @@ let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
 
 let make_tough = make_effect Ingredient.Effect.tough (0, 50)
 
-let bonus_critter ?(hearts = 0) variant scaling =
+let energizing_critter ?(hearts = 0) x =
   Ingredient.
-    {
-      hearts = Always hearts;
-      effect = variant Effect.Bonus.(Scaling scaling);
-      category = Critter;
-      critical = false;
-    }
+    { hearts = Always hearts; effect = Energizing (Fifths x); category = Critter; critical = false }
+
+let enduring_critter ?(hearts = 0) x =
+  Ingredient.
+    { hearts = Always hearts; effect = Enduring (Quarters x); category = Critter; critical = false }
 
 let effect_critter ?(hearts = Ingredient.Hearts.Always 0) dur variant points =
   Ingredient.
@@ -138,15 +135,15 @@ let to_ingredient =
     | Hearty_lizard ->
       Ingredient.{ hearts = Always 8; effect = Hearty 4; category = Critter; critical = false }
     | Big_hearty_radish -> make_hearty 8 5
-    | Stamella_shroom -> make_energizing 1 (1, 2, 4, 5, 7)
-    | Restless_cricket -> bonus_critter Ingredient.Effect.energizing (1, 2, 4, 5, 5)
-    | Courser_bee_honey -> make_energizing 4 (2, 5, 8, 11, 14)
-    | Bright_eyed_crab -> make_energizing 2 (2, 5, 8, 11, 14)
-    | Staminoka_bass -> make_energizing 2 (5, 11, 15, 15, 15)
-    | Energetic_rhino_beetle -> bonus_critter Ingredient.Effect.energizing (8, 15, 15, 15, 15)
-    | Endura_shroom -> make_enduring 2 (1, 1, 1, 2, 2)
-    | Tireless_frog -> bonus_critter ~hearts:4 Ingredient.Effect.enduring (1, 2, 3, 4, 4)
-    | Endura_carrot -> make_enduring 4 (2, 4, 6, 8, 10)
+    | Stamella_shroom -> make_energizing 1 7
+    | Restless_cricket -> energizing_critter 7
+    | Courser_bee_honey -> make_energizing 4 14
+    | Bright_eyed_crab -> make_energizing 2 14
+    | Staminoka_bass -> make_energizing 2 28
+    | Energetic_rhino_beetle -> energizing_critter 42
+    | Endura_shroom -> make_enduring 2 2
+    | Tireless_frog -> enduring_critter ~hearts:4 4
+    | Endura_carrot -> make_enduring 4 8
     | Spicy_pepper -> make_spicy 1 1
     | Warm_safflina -> make_spicy 0 1
     | Summerwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.spicy 1

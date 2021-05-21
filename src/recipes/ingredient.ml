@@ -56,16 +56,6 @@ end = struct
 end
 
 module Effect = struct
-  type scaling = int * int * int * int * int [@@deriving sexp, compare, equal, hash]
-
-  let scale ~count ((a, b, c, d, e) : scaling) =
-    match count with
-    | 1 -> a
-    | 2 -> b
-    | 3 -> c
-    | 4 -> d
-    | _ -> e
-
   module Activity = struct
     type t = {
       duration: Duration.t;
@@ -80,30 +70,28 @@ module Effect = struct
       { duration = Duration.combine left.duration right.duration; points = left.points + right.points }
   end
 
-  module Bonus = struct
-    type t =
-      | Flat    of int
-      | Scaling of scaling
-    [@@deriving sexp, compare, equal, hash]
+  module Quarters = struct
+    type t = Quarters of int [@@deriving sexp, compare, equal, hash] [@@unboxed]
 
-    let merge ~count = function
-    | Flat x -> Flat (x * count)
-    | Scaling scaling -> Flat (scale ~count scaling)
+    let merge ~count (Quarters x) = Quarters (x * count)
 
-    let first = function
-    | Flat x
-     |Scaling (x, _, _, _, _) ->
-      x
+    let combine (Quarters x) (Quarters y) = Quarters (x + y)
+  end
 
-    let combine left right = Flat (first left + first right)
+  module Fifths = struct
+    type t = Fifths of int [@@deriving sexp, compare, equal, hash] [@@unboxed]
+
+    let merge ~count (Fifths x) = Fifths (x * count)
+
+    let combine (Fifths x) (Fifths y) = Fifths (x + y)
   end
 
   type t =
     | Nothing
     | Neutral    of Duration.t
     | Hearty     of int
-    | Energizing of Bonus.t
-    | Enduring   of Bonus.t
+    | Energizing of Fifths.t
+    | Enduring   of Quarters.t
     | Spicy      of Activity.t
     | Chilly     of Activity.t
     | Electro    of Activity.t
@@ -118,8 +106,8 @@ module Effect = struct
   | Nothing -> Nothing
   | Neutral x -> Neutral (Duration.merge ~count x)
   | Hearty x -> Hearty (x * count)
-  | Energizing x -> Energizing (Bonus.merge ~count x)
-  | Enduring x -> Enduring (Bonus.merge ~count x)
+  | Energizing x -> Energizing (Fifths.merge ~count x)
+  | Enduring x -> Enduring (Quarters.merge ~count x)
   | Spicy x -> Spicy (Activity.merge ~count x)
   | Chilly x -> Chilly (Activity.merge ~count x)
   | Electro x -> Electro (Activity.merge ~count x)
@@ -136,8 +124,8 @@ module Effect = struct
       Nothing
     | Neutral x, Neutral y -> Neutral (Duration.combine x y)
     | Hearty x, Hearty y -> Hearty (x + y)
-    | Energizing x, Energizing y -> Energizing (Bonus.combine x y)
-    | Enduring x, Enduring y -> Enduring (Bonus.combine x y)
+    | Energizing x, Energizing y -> Energizing (Fifths.combine x y)
+    | Enduring x, Enduring y -> Enduring (Quarters.combine x y)
     | Spicy x, Spicy y -> Spicy (Activity.combine x y)
     | Chilly x, Chilly y -> Chilly (Activity.combine x y)
     | Electro x, Electro y -> Electro (Activity.combine x y)

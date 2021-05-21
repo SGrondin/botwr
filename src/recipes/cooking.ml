@@ -28,23 +28,29 @@ module Hearts = struct
 end
 
 module Stamina = struct
+  type restoration = {
+    potency: int;
+    wasted: int;
+  }
+  [@@deriving sexp, compare, equal]
+
   type t =
     | Nothing
-    | Restores        of int
-    | Full_plus_bonus of int
+    | Restores        of restoration
+    | Full_plus_bonus of restoration
   [@@deriving sexp, compare, equal]
 
   let score ~max_stamina ~num_effect_ingredients ~random_bonus = function
   | Nothing -> 0
-  | Restores theoretical_gain ->
-    let actual_gain = min theoretical_gain max_stamina in
-    let wasted = theoretical_gain - actual_gain in
-    100 + (actual_gain << 2) + (if random_bonus then 2 else 0) - wasted - (num_effect_ingredients << 1)
-  | Full_plus_bonus x ->
-    let theoretical_gain = max_stamina + x in
+  | Restores { potency; wasted } ->
+    let actual_gain = min potency max_stamina in
+    let wasted = potency - actual_gain + wasted in
+    100 + (actual_gain << 3) + (if random_bonus then 2 else 0) - wasted - (num_effect_ingredients << 1)
+  | Full_plus_bonus { potency; wasted } ->
+    let theoretical_gain = max_stamina + potency in
     let actual_gain = min theoretical_gain (max_stamina + 10) in
-    let wasted = theoretical_gain - actual_gain in
-    100 + (actual_gain << 2) + (if random_bonus then 2 else 0) - wasted - (num_effect_ingredients << 1)
+    let wasted = theoretical_gain - actual_gain + wasted in
+    100 + (actual_gain << 3) + (if random_bonus then 2 else 0) - wasted - (num_effect_ingredients << 1)
 end
 
 module Effect = struct
@@ -190,12 +196,14 @@ let cook map =
     in
     let stamina =
       match res.effect with
-      | Energizing (Flat bonus)
-       |Energizing (Scaling (bonus, _, _, _, _)) ->
-        Stamina.Restores bonus
-      | Enduring (Flat bonus)
-       |Enduring (Scaling (bonus, _, _, _, _)) ->
-        Stamina.Full_plus_bonus bonus
+      | Energizing (Fifths bonus) ->
+        let wasted = bonus % 5 in
+        let potency = (bonus - wasted) / 5 in
+        Stamina.Restores { wasted; potency }
+      | Enduring (Quarters quarters) ->
+        let potency = max 1 (quarters >> 2) in
+        let wasted = max 0 (quarters - (potency << 2)) in
+        Stamina.Full_plus_bonus { potency; wasted }
       | _ -> Nothing
     in
     let effect : Effect.t =
