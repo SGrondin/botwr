@@ -109,7 +109,7 @@ module Effect = struct
     let wasted_duration = duration - actual_duration in
     let penalty =
       match algo with
-      | Algo.Balanced -> (num_effect_ingredients << 4) + wasted + wasted_duration
+      | Algo.Balanced -> (num_effect_ingredients << 4) + wasted + (wasted_duration << 1)
       | Algo.Maximize -> 0
     in
     100 + (potency << 6) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty

@@ -13,7 +13,7 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let monsters = Queue.create () in
   let dragons = Queue.create () in
   let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q (Variants.to_rank key, key)) () in
-  let all =
+  let basics =
     Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
         let ingredient = to_ingredient key in
         match Ingredient.to_kind ingredient, ingredient.category, category with
@@ -37,7 +37,7 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
           in
           acc
         | _, Dragon, _ when use_special ->
-          add_to ~n:(min data 1) dragons key;
+          add_to ~n:data dragons key;
           acc
         | _, Monster, Elixirs
          |_, Monster, Any ->
@@ -59,7 +59,6 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
     if up_to <= 0
     then init
     else (
-      let arr = Queue.to_array queue in
       let compare =
         match kind with
         | Nothing
@@ -78,16 +77,24 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
          |Tough ->
           (fun (x, _) (y, _) -> [%compare: int] y x)
       in
-      Array.sort arr ~compare;
+      Queue.to_array queue |> Array.sorted_copy ~compare |> fun arr ->
       Array.slice arr 0 (min up_to (Array.length arr))
       |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
     )
   in
-  all
+  Queue.to_array dragons |> Array.sorted_copy ~compare:(fun (x, _) (y, _) -> [%compare: int] y x)
+  |> fun arr ->
+  Array.slice arr 0 (min 4 (Array.length arr))
+  |> Array.fold_until ~init:(basics, 0) ~finish:fst ~f:(fun (acc, time) (_, x) ->
+         let new_time =
+           match to_ingredient x with
+           | { effect = Neutral (Diminishing { first; next = 30 }); _ } -> time + first
+           | _ -> failwithf !"Invalid dragon part at %{Source_code_position}" [%here] ()
+         in
+         if new_time < 1800 then Continue (x :: acc, new_time) else Stop (x :: acc))
   |> top neutrals
   |> top neutrals_wasteful ~up_to:(4 - Queue.length neutrals)
   |> top monsters
-  |> top dragons
 
 open Combinations
 open Cooking

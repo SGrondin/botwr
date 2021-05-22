@@ -514,50 +514,47 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    263 pts (1585, 1.500000)
-    Dragon_claws, Dragon_fangs, Fresh_milk, Goron_spice, Silent_shroom
+    198 pts (381, -2.500000)
+    Cane_sugar, Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
     (Food
-     ((hearts (Restores (Quarters 26))) (stamina Nothing)
-      (effect (Sneaky ((potency 1) (wasted 1) (duration 1130))))
-      (num_ingredients 5) (num_effect_ingredients 3)
-      (random_effects (Potency Duration Red_hearts))))
-    263 pts (1585, 0.500000)
-    Dragon_claws, Dragon_fangs, Goat_butter, Goron_spice, Silent_shroom
+     ((hearts (Restores (Quarters 8))) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (wasted 1) (duration 450))))
+      (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
+    192 pts (381, 8.000000)
+    Fairy, Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
     (Food
-     ((hearts (Restores (Quarters 22))) (stamina Nothing)
-      (effect (Sneaky ((potency 1) (wasted 1) (duration 1130))))
-      (num_ingredients 5) (num_effect_ingredients 3)
-      (random_effects (Potency Duration Red_hearts))))
-    263 pts (1585, 0.500000)
-    Cane_sugar, Dragon_claws, Dragon_fangs, Goron_spice, Silent_shroom
+     ((hearts (Restores (Quarters 48))) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (wasted 1) (duration 400))))
+      (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
+    192 pts (381, 8.000000)
+    Cane_sugar, Fairy, Fresh_milk, Goron_spice, Silent_shroom
     (Food
-     ((hearts (Restores (Quarters 22))) (stamina Nothing)
-      (effect (Sneaky ((potency 1) (wasted 1) (duration 1130))))
-      (num_ingredients 5) (num_effect_ingredients 3)
-      (random_effects (Potency Duration Red_hearts)))) |}];
+     ((hearts (Restores (Quarters 48))) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (wasted 1) (duration 400))))
+      (num_ingredients 5) (num_effect_ingredients 1) (random_effects ()))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Maximize data6;
   [%expect
     {|
     (0s)
-    399 pts (1585, 2.500000)
+    399 pts (381, 2.500000)
     Dragon_horns, Silent_shroom
     (Food
      ((hearts (Restores (Quarters 19))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1920))))
       (num_ingredients 2) (num_effect_ingredients 2)
       (random_effects (Potency Duration Red_hearts))))
-    398 pts (1585, 12.000000)
+    398 pts (381, 12.000000)
     Dragon_horns, Fairy, Silent_shroom
     (Food
      ((hearts (Restores (Quarters 59))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1950))))
       (num_ingredients 3) (num_effect_ingredients 2)
       (random_effects (Potency Duration Red_hearts))))
-    398 pts (1585, 4.500000)
-    Dragon_fangs, Dragon_horns, Silent_shroom
+    398 pts (381, 3.000000)
+    Dragon_horns, Silent_shroom x2
     (Food
-     ((hearts (Restores (Quarters 29))) (stamina Nothing)
-      (effect (Sneaky ((potency 1) (wasted 1) (duration 2550))))
+     ((hearts (Restores (Quarters 23))) (stamina Nothing)
+      (effect (Sneaky ((potency 1) (wasted 3) (duration 2040))))
       (num_ingredients 3) (num_effect_ingredients 3)
       (random_effects (Potency Duration Red_hearts)))) |}];
   test ~kind:Sneaky ~category:Any ~algo:Balanced ~use_special:false data6;
@@ -646,7 +643,8 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Full_plus_bonus 6)) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ()))) |}];
   test ~kind:Enduring ~category:Any ~algo:Balanced [ Endura_carrot, 3; Endura_shroom, 5; Apple, 2 ];
-  [%expect {|
+  [%expect
+    {|
     (0s)
     261 pts (637, 14.600000)
     Endura_carrot x3, Endura_shroom x2
@@ -665,7 +663,65 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Restores (Quarters 52)))
       (stamina (Full_plus_bonus ((potency 6) (wasted 0)))) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}]
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
+  let data7 =
+    Glossary.
+      [
+        Razorclaw_crab, 3;
+        Mighty_porgy, 3;
+        Mighty_carp, 3;
+        Goron_spice, 1;
+        Bird_egg, 1;
+        Dragon_fangs Naydra, 1;
+        Dragon_horns Naydra, 1;
+      ]
+  in
+  test ~kind:Mighty ~category:Any ~algo:Balanced data7;
+  [%expect
+    {|
+    (0s)
+    280 pts (1585, 5.000000)
+    Bird_egg, Goron_spice, Mighty_porgy, Razorclaw_crab x2
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
+    280 pts (1585, 5.000000)
+    Bird_egg, Goron_spice, Mighty_carp x2, Mighty_porgy
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
+    280 pts (1585, 5.000000)
+    Bird_egg, Goron_spice, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test ~kind:Mighty ~category:Any ~algo:Maximize data7;
+  [%expect {|
+    (0s)
+    525 pts (1585, 7.000000)
+    Dragon_horns, Mighty_porgy x3
+    (Food
+     ((hearts (Restores (Quarters 39))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 2) (duration 1950))))
+      (num_ingredients 4) (num_effect_ingredients 4)
+      (random_effects (Potency Duration Red_hearts))))
+    525 pts (1585, 7.000000)
+    Dragon_horns, Mighty_porgy, Razorclaw_crab x2
+    (Food
+     ((hearts (Restores (Quarters 39))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
+      (num_ingredients 4) (num_effect_ingredients 4)
+      (random_effects (Potency Duration Red_hearts))))
+    525 pts (1585, 7.000000)
+    Dragon_horns, Mighty_porgy x2, Razorclaw_crab
+    (Food
+     ((hearts (Restores (Quarters 39))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 1) (duration 1950))))
+      (num_ingredients 4) (num_effect_ingredients 4)
+      (random_effects (Potency Duration Red_hearts)))) |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in
