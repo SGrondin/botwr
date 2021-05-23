@@ -6,6 +6,10 @@ let group items =
       Glossary.Table.update table x ~f:(Option.value_map ~default:n ~f:(( + ) n)));
   table
 
+let best (x, _) (y, _) = [%compare: int] y x
+
+let worst (x, _) (y, _) = [%compare: int] x y
+
 let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let open Glossary in
   let neutrals = Queue.create () in
@@ -66,7 +70,7 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
          |Enduring
          |Energizing
          |Hearty ->
-          (fun (x, _) (y, _) -> [%compare: int] x y)
+          worst
         | Chilly
          |Electro
          |Fireproof
@@ -75,15 +79,14 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
          |Sneaky
          |Spicy
          |Tough ->
-          (fun (x, _) (y, _) -> [%compare: int] y x)
+          best
       in
       Queue.to_array queue |> Array.sorted_copy ~compare |> fun arr ->
       Array.slice arr 0 (min up_to (Array.length arr))
       |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
     )
   in
-  Queue.to_array dragons |> Array.sorted_copy ~compare:(fun (x, _) (y, _) -> [%compare: int] y x)
-  |> fun arr ->
+  Queue.to_array dragons |> Array.sorted_copy ~compare:best |> fun arr ->
   Array.slice arr 0 (min 4 (Array.length arr))
   |> Array.fold_until ~init:(basics, 0) ~finish:fst ~f:(fun (acc, time) (_, x) ->
          let new_time =

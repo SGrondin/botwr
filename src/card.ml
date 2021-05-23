@@ -56,12 +56,14 @@ let input_node ~update_selected ~update_state =
       Option.iter (get_quantity_element ()) ~f:(fun el -> el##focus);
       Lwt.return_unit);
 
+  let accept () =
+    let num = get_quantity () |> Option.value ~default:0 in
+    Event.Many [ update_state (Action.Set num); update_selected None ]
+  in
   let handler ev =
     let open Js_of_ocaml in
     match Js.Optdef.case ev##.key (fun () -> None) (fun jss -> Some (Js.to_string jss)) with
-    | Some "Enter" ->
-      let num = get_quantity () |> Option.value ~default:0 in
-      Event.Many [ update_state (Action.Set num); update_selected None ]
+    | Some "Enter" -> accept ()
     | Some "Escape" -> update_selected None
     | _ -> Event.Ignore
   in
@@ -70,6 +72,8 @@ let input_node ~update_selected ~update_state =
       [
         type_ "tel";
         on_keydown handler;
+        on_click (fun _evt -> Event.Stop_propagation);
+        on "focusout" (fun _evt -> accept ());
         class_ "form-control";
         id quantity_node_id;
         create "maxlength" "3";
