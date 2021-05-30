@@ -271,7 +271,7 @@ let component ~inventory () =
      let clear_all_node =
        let handler _evt =
          let events =
-           Glossary.Map.fold updates ~init:[] ~f:(fun ~key:_ ~data acc -> data Remove :: acc)
+           Glossary.Map.fold updates ~init:[] ~f:(fun ~key:_ ~data:update acc -> update Remove :: acc)
          in
          Event.Many events
        in

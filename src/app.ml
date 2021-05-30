@@ -33,7 +33,7 @@ let application =
   let%sub backpack = Backpack.component ~inventory:(Bonsai.Value.return inventory) () in
   let%pattern_bind backpack, updates = backpack in
   let%sub kitchen = Kitchen.component ~updates () in
-  let%sub share = Share.component (backpack >>| fun { ingredients; _ } -> ingredients) in
+  let%sub share = Share.component ~updates (backpack >>| fun { ingredients; _ } -> ingredients) in
   return
   @@ let%map Backpack.
                {
@@ -55,13 +55,13 @@ let application =
        Attr.[ class_ "m-2" ]
        [
          kitchen_node;
-         Node.span []
+         Node.div []
            [
              Node.h3
                Attr.[ classes [ "mt-4"; "d-inline-block" ]; style unselectable ]
                [ Node.text "Ingredients" ];
-             share;
            ];
+         share;
          Node.div Attr.[ class_ "my-3" ] [ show_all_node; by_effect_node ];
          (if by_effect then jump_to_node else Node.none);
          items_node;

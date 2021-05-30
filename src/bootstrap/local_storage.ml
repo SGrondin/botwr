@@ -7,7 +7,13 @@ let ls = Js_of_ocaml.Dom_html.window##.localStorage |> Js_of_ocaml.Js.Optdef.to_
 
 let keys () =
   Option.value_map ls ~default:[] ~f:(fun ls ->
-      Js.object_keys ls |> Js.to_array |> Array.fold ~init:[] ~f:(fun acc jss -> Js.to_string jss :: acc))
+      Js.object_keys ls
+      |> Js.to_array
+      |> Array.fold_right ~init:[] ~f:(fun jss acc -> Js.to_string jss :: acc))
+
+let keys_array () =
+  Option.value_map ls ~default:[||] ~f:(fun ls ->
+      Js.object_keys ls |> Js.to_array |> Array.map ~f:Js.to_string)
 
 let get_item key =
   let open Option.Let_syntax in
