@@ -699,7 +699,8 @@ let%expect_test "Cooking by category, basic" =
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
   test ~kind:Mighty ~category:Any ~algo:Maximize data7;
-  [%expect {|
+  [%expect
+    {|
     (0s)
     525 pts (1585, 7.000000)
     Dragon_horns, Mighty_porgy x3
@@ -721,7 +722,40 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 1) (duration 1950))))
       (num_ingredients 4) (num_effect_ingredients 4)
-      (random_effects (Potency Duration Red_hearts)))) |}]
+      (random_effects (Potency Duration Red_hearts)))) |}];
+  let data8 =
+    Glossary.
+      [
+        Razorclaw_crab, 3;
+        Mighty_porgy, 3;
+        Mighty_carp, 3;
+        Goron_spice, 1;
+        Bird_egg, 1;
+        Dragon_scales Naydra, 1;
+        Star_fragment, 1;
+      ]
+  in
+  test ~kind:Mighty ~category:Any ~algo:Balanced data8;
+  [%expect {|
+    (0s)
+    280 pts (2379, 5.000000)
+    Bird_egg, Goron_spice, Mighty_porgy, Razorclaw_crab x2
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
+    280 pts (2379, 5.000000)
+    Bird_egg, Goron_spice, Mighty_carp x2, Mighty_porgy
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
+    280 pts (2379, 5.000000)
+    Bird_egg, Goron_spice, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in

@@ -92,6 +92,7 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
          let new_time =
            match to_ingredient x with
            | { effect = Neutral (Diminishing { first; next = 30 }); _ } -> time + first
+           | { effect = Neutral (Always d); _ } -> time + d
            | _ -> failwithf !"Invalid dragon part at %{Source_code_position}" [%here] ()
          in
          if new_time < 1800 then Continue (x :: acc, new_time) else Stop (x :: acc))
