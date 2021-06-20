@@ -10,12 +10,34 @@ let best (x, _) (y, _) = [%compare: int] y x
 
 let worst (x, _) (y, _) = [%compare: int] x y
 
+let get_sort_by_kind : Ingredient.Effect.Kind.t -> int * 'a -> int * 'b -> int = function
+| Nothing
+ |Neutral
+ |Enduring
+ |Energizing
+ |Hearty ->
+  worst
+| Chilly
+ |Electro
+ |Fireproof
+ |Hasty
+ |Mighty
+ |Sneaky
+ |Spicy
+ |Tough ->
+  best
+
 let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let open Glossary in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
   let monsters = Queue.create () in
-  let dragons = Queue.create () in
+  let dragon_scales = Queue.create () in
+  let dragon_claws = Queue.create () in
+  let dragon_fangs = Queue.create () in
+  let dragon_horns = Queue.create () in
+  let dragons_wasteful = Queue.create () in
+  let star_fragments = Queue.create () in
   let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q (Variants.to_rank key, key)) () in
   let basics =
     Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
@@ -30,18 +52,25 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
          |Neutral, Spice, Meals
          |Neutral, Spice, Any
           when not ([%equal: Ingredient.Effect.Kind.t] kind Hearty) ->
-          let () =
-            match ingredient with
-            | { effect = Neutral (Diminishing _); _ } when data > 0 ->
-              (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
-              add_to ~n:1 neutrals key;
-              add_to ~n:(min 3 (data - 1)) neutrals_wasteful key;
-              ()
-            | _ -> add_to ~n:(min data 4) neutrals key
-          in
+          (match ingredient with
+          | { effect = Neutral (Diminishing _); _ } when data > 0 ->
+            (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
+            add_to ~n:1 neutrals key;
+            add_to ~n:(min 3 (data - 1)) neutrals_wasteful key;
+            ()
+          | _ -> add_to ~n:(min data 4) neutrals key);
+          acc
+        | _, Dragon, _ when use_special && [%equal: t] key Star_fragment ->
+          add_to ~n:data star_fragments key;
           acc
         | _, Dragon, _ when use_special ->
-          add_to ~n:data dragons key;
+          (match key with
+          | Dragon_scales _ -> add_to ~n:1 dragon_scales key
+          | Dragon_claws _ -> add_to ~n:1 dragon_claws key
+          | Dragon_fangs _ -> add_to ~n:1 dragon_fangs key
+          | Dragon_horns _ -> add_to ~n:1 dragon_horns key
+          | k -> failwithf !"Invalid dragon part '%{Glossary}' at %{Source_code_position}" k [%here] ());
+          add_to ~n:(data - 1) dragons_wasteful key;
           acc
         | _, Monster, Elixirs
          |_, Monster, Any ->
@@ -58,46 +87,47 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
         | _, With_fairy _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc)
   in
-  let top ?(up_to = 4) queue init =
-    let up_to = max 0 up_to in
-    if up_to <= 0
-    then init
-    else (
-      let compare =
-        match kind with
-        | Nothing
-         |Neutral
-         |Enduring
-         |Energizing
-         |Hearty ->
-          worst
-        | Chilly
-         |Electro
-         |Fireproof
-         |Hasty
-         |Mighty
-         |Sneaky
-         |Spicy
-         |Tough ->
-          best
+  let top ?(up_to = 4) ?compare ?move queue init =
+    match max 0 up_to with
+    | up_to when up_to <= 0 -> init
+    | up_to ->
+      let compare = Option.value compare ~default:(get_sort_by_kind kind) in
+      let rec loop ~into = function
+        | 0 -> ()
+        | len when len > up_to ->
+          Queue.dequeue_exn queue |> Queue.enqueue into;
+          loop ~into (len - 1)
+        | _ -> ()
       in
+      Option.iter move ~f:(fun into -> loop ~into (Queue.length queue));
       Queue.to_array queue |> Array.sorted_copy ~compare |> fun arr ->
       Array.slice arr 0 (min up_to (Array.length arr))
       |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
-    )
   in
-  Queue.to_array dragons |> Array.sorted_copy ~compare:best |> fun arr ->
-  Array.slice arr 0 (min 4 (Array.length arr))
-  |> Array.fold_until ~init:(basics, 0) ~finish:fst ~f:(fun (acc, time) (_, x) ->
-         let new_time =
-           match to_ingredient x with
-           | { effect = Neutral (Diminishing { first; next = 30 }); _ } -> time + first
-           | { effect = Neutral (Always d); _ } -> time + d
-           | _ -> failwithf !"Invalid dragon part at %{Source_code_position}" [%here] ()
-         in
-         if new_time < 1800 then Continue (x :: acc, new_time) else Stop (x :: acc))
+  let horns_up_to = 1 in
+  let num_horns = min horns_up_to (Queue.length dragon_horns) in
+
+  let fangs_up_to = if Queue.is_empty dragon_horns then 3 else 2 in
+  let num_fangs = min fangs_up_to (Queue.length dragon_fangs) in
+
+  let claws_up_to = 4 - num_fangs in
+  let num_claws = min claws_up_to (Queue.length dragon_claws) in
+
+  let scales_up_to = 4 - (num_fangs + num_claws) in
+  let num_scales = min scales_up_to (Queue.length dragon_scales) in
+
+  let num_dragons = num_scales + num_claws + num_fangs + num_horns in
+
+  basics
+  |> top ~up_to:scales_up_to ~move:dragons_wasteful dragon_scales
+  |> top ~up_to:claws_up_to ~move:dragons_wasteful dragon_claws
+  |> top ~up_to:fangs_up_to ~move:dragons_wasteful dragon_fangs
+  |> top ~up_to:horns_up_to ~move:dragons_wasteful dragon_horns
+  |> top ~up_to:(if num_dragons = 0 then 1 else 0) ~move:dragons_wasteful star_fragments
   |> top neutrals
   |> top neutrals_wasteful ~up_to:(4 - Queue.length neutrals)
+  |> top dragons_wasteful ~compare:worst
+       ~up_to:(4 - Queue.(length neutrals + length neutrals_wasteful + num_dragons))
   |> top monsters
 
 open Combinations
