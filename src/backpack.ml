@@ -118,15 +118,17 @@ let group ~inventory ~selected ~update_selected ~show_all items =
   @@ let%map mapped = mapped
      and show_all = show_all in
      String.Map.fold mapped ~init:{ keyed_nodes = []; total = 0; updates = []; ingredients = [] }
-       ~f:(fun ~key:_ ~data ({ keyed_nodes; total; updates; ingredients } as acc) ->
-         match data with
-         | (0, _, _), _ when not show_all -> acc
-         | (x, update, item), node ->
+       ~f:(fun ~key:_ ~data:((n, update, item), node) ({ keyed_nodes; total; updates; ingredients } as acc)
+          ->
+         let updates = (item, update) :: updates in
+         match n with
+         | 0 when not show_all -> { acc with updates }
+         | _ ->
            {
              keyed_nodes = (Glossary.(Map.find_exn ordered item), node) :: keyed_nodes;
-             total = total + x;
-             updates = (item, update) :: updates;
-             ingredients = (item, x) :: ingredients;
+             total = total + n;
+             updates;
+             ingredients = (item, n) :: ingredients;
            })
 
 let render_group group nodes =
@@ -218,9 +220,13 @@ let component ~inventory () =
        Group.Map.fold_right backpack
          ~init:{ nodes = []; keyed_nodes = []; total = 0; updates = Glossary.Map.empty; ingredients = [] }
          ~f:(fun ~key ~data acc ->
+           let updates =
+             List.fold data.updates ~init:acc.updates ~f:(fun acc (key, data) ->
+                 Glossary.Map.set acc ~key ~data)
+           in
            match data with
-           | { total = 0; _ } when not show_all -> acc
-           | { updates; total; ingredients; keyed_nodes } ->
+           | { total = 0; _ } when not show_all -> { acc with updates }
+           | { total; ingredients; keyed_nodes; _ } ->
              let nodes, keyed_nodes =
                match by_effect with
                | true ->
@@ -232,9 +238,7 @@ let component ~inventory () =
                nodes;
                keyed_nodes;
                total = total + acc.total;
-               updates =
-                 List.fold updates ~init:acc.updates ~f:(fun acc (key, data) ->
-                     Glossary.Map.set acc ~key ~data);
+               updates;
                ingredients = ingredients @ acc.ingredients;
              })
      in
