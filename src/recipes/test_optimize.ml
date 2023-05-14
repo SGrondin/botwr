@@ -98,7 +98,12 @@ let%expect_test "Filter" =
      (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Raw_meat Raw_meat
      Raw_meat Fresh_milk Tireless_frog Tireless_frog Tireless_frog Tireless_frog
      Endura_shroom Endura_shroom Endura_shroom Endura_shroom Endura_shroom
-     Endura_carrot Endura_carrot Endura_carrot Endura_carrot Endura_carrot) |}]
+     Endura_carrot Endura_carrot Endura_carrot Endura_carrot Endura_carrot) |}];
+  test Enduring Any
+    (Items.Table.of_alist_exn [ Endura_carrot, 1; Dragon_horns Farosh, 0; Endura_shroom, 0 ]);
+  [%expect {| (Endura_carrot) |}];
+  test Enduring Any (Items.Table.of_alist_exn [ Endura_carrot, 1; Star_fragment, 0; Endura_shroom, 0 ]);
+  [%expect {| (Endura_carrot) |}]
 
 let%expect_test "Cooking by category, basic" =
   let test ~kind ~category ~algo ?(use_special = true) ll =
@@ -784,7 +789,31 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
-      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}]
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
+
+  let data1 = Glossary.[ Apple, 3; Endura_carrot, 1 ] in
+  test ~kind:Enduring ~category:Any ~algo:Balanced data1;
+  [%expect
+    {|
+    (0s)
+    233 pts (15, 3.000000)
+    Endura_carrot
+    (Food
+     ((hearts (Restores (Quarters 16)))
+      (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
+      (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
+    232 pts (15, 3.666667)
+    Apple, Endura_carrot
+    (Food
+     ((hearts (Restores (Quarters 20)))
+      (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
+      (num_ingredients 2) (num_effect_ingredients 1) (random_effects ())))
+    231 pts (15, 4.333333)
+    Apple x2, Endura_carrot
+    (Food
+     ((hearts (Restores (Quarters 24)))
+      (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in

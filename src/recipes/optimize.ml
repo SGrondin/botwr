@@ -63,7 +63,7 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
         | _, Dragon, _ when use_special && [%equal: t] key Star_fragment ->
           add_to ~n:data star_fragments key;
           acc
-        | _, Dragon, _ when use_special ->
+        | _, Dragon, _ when use_special && data > 0 ->
           (match key with
           | Dragon_scales _ -> add_to ~n:1 dragon_scales key
           | Dragon_claws _ -> add_to ~n:1 dragon_claws key
