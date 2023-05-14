@@ -2,59 +2,59 @@ open! Core_kernel
 
 let always (min, sec) = Ingredient.Duration.Always ((min * 60) + sec)
 
-let make_food hearts sec =
+let make_food quarters sec =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = Neutral (Always sec);
       category = Food;
       critical = false;
     }
 
-let make_ingredient hearts first next =
+let make_ingredient quarters first next =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = Neutral (Diminishing { first; next });
       category = Food;
       critical = false;
     }
 
-let make_spice hearts first next =
+let make_spice quarters first next =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = Neutral (Diminishing { first; next });
       category = Spice;
       critical = false;
     }
 
-let make_hearty hearts bonus =
+let make_hearty quarters bonus =
   Ingredient.
-    { hearts = Always (Quarters (hearts * 4)); effect = Hearty bonus; category = Food; critical = false }
+    { hearts = Always (Quarters quarters); effect = Hearty bonus; category = Food; critical = false }
 
-let make_effect variant dur hearts points =
+let make_effect variant dur quarters points =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Food;
       critical = false;
     }
 
-let make_energizing hearts x =
+let make_energizing quarters x =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = Energizing (Fifths x);
       category = Food;
       critical = false;
     }
 
-let make_enduring hearts x =
+let make_enduring quarters x =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = Enduring (Quarters x);
       category = Food;
       critical = false;
@@ -78,10 +78,10 @@ let energizing_critter x =
   Ingredient.
     { hearts = Always (Quarters 0); effect = Energizing (Fifths x); category = Critter; critical = false }
 
-let enduring_critter ?(hearts = 0) x =
+let enduring_critter ?(quarters = 0) x =
   Ingredient.
     {
-      hearts = Always (Quarters (hearts * 4));
+      hearts = Always (Quarters quarters);
       effect = Enduring (Quarters x);
       category = Critter;
       critical = false;
@@ -127,95 +127,95 @@ include Items
 
 let to_ingredient =
   let do_to_ingredient = function
-    | Palm_fruit -> make_food 2 30
-    | Apple -> make_food 1 30
-    | Wildberry -> make_food 1 30
-    | Hylian_shroom -> make_food 1 30
-    | Hyrule_herb -> make_food 2 30
-    | Hyrule_bass -> make_food 2 30
-    | Sanke_carp -> make_food 2 30
-    | Raw_gourmet_meat -> make_food 6 30
-    | Raw_whole_bird -> make_food 6 30
-    | Raw_prime_meat -> make_food 3 30
-    | Raw_bird_thigh -> make_food 3 30
-    | Raw_meat -> make_food 2 30
-    | Raw_bird_drumstick -> make_food 2 30
-    | Bird_egg -> make_ingredient 2 90 30
-    | Fresh_milk -> make_ingredient 1 80 30
-    | Acorn -> make_ingredient 1 50 30
-    | Chickaloo_tree_nut -> make_ingredient 1 40 30
-    | Hylian_rice -> make_spice 2 60 30
-    | Tabantha_wheat -> make_spice 2 60 30
+    | Palm_fruit -> make_food 8 30
+    | Apple -> make_food 4 30
+    | Wildberry -> make_food 4 30
+    | Hylian_shroom -> make_food 4 30
+    | Hyrule_herb -> make_food 8 30
+    | Hyrule_bass -> make_food 8 30
+    | Sanke_carp -> make_food 8 30
+    | Raw_gourmet_meat -> make_food 24 30
+    | Raw_whole_bird -> make_food 24 30
+    | Raw_prime_meat -> make_food 12 30
+    | Raw_bird_thigh -> make_food 12 30
+    | Raw_meat -> make_food 8 30
+    | Raw_bird_drumstick -> make_food 8 30
+    | Bird_egg -> make_ingredient 8 90 30
+    | Fresh_milk -> make_ingredient 4 80 30
+    | Acorn -> make_ingredient 4 50 30
+    | Chickaloo_tree_nut -> make_ingredient 4 40 30
+    | Hylian_rice -> make_spice 8 60 30
+    | Tabantha_wheat -> make_spice 8 60 30
     | Cane_sugar -> make_spice 0 80 30
     | Goat_butter -> make_spice 0 80 30
     | Goron_spice -> make_spice 0 90 30
     | Rock_salt -> make_spice 0 60 30
-    | Hearty_truffle -> make_hearty 4 1
-    | Hearty_bass -> make_hearty 4 2
-    | Hearty_radish -> make_hearty 5 3
-    | Hearty_blueshell_snail -> make_hearty 6 3
-    | Hearty_durian -> make_hearty 6 4
-    | Big_hearty_truffle -> make_hearty 6 4
-    | Hearty_salmon -> make_hearty 8 4
+    | Hearty_truffle -> make_hearty 16 1
+    | Hearty_bass -> make_hearty 16 2
+    | Hearty_radish -> make_hearty 20 3
+    | Hearty_blueshell_snail -> make_hearty 24 3
+    | Hearty_durian -> make_hearty 24 4
+    | Big_hearty_truffle -> make_hearty 24 4
+    | Hearty_salmon -> make_hearty 32 4
     | Hearty_lizard ->
       Ingredient.
         { hearts = Always (Quarters 32); effect = Hearty 4; category = Critter; critical = false }
-    | Big_hearty_radish -> make_hearty 8 5
-    | Stamella_shroom -> make_energizing 1 7
+    | Big_hearty_radish -> make_hearty 32 5
+    | Stamella_shroom -> make_energizing 4 7
     | Restless_cricket -> energizing_critter 7
-    | Courser_bee_honey -> make_energizing 4 14
-    | Bright_eyed_crab -> make_energizing 2 14
-    | Staminoka_bass -> make_energizing 2 28
+    | Courser_bee_honey -> make_energizing 16 14
+    | Bright_eyed_crab -> make_energizing 8 14
+    | Staminoka_bass -> make_energizing 8 28
     | Energetic_rhino_beetle -> energizing_critter 42
-    | Endura_shroom -> make_enduring 2 2
-    | Tireless_frog -> enduring_critter ~hearts:4 4
-    | Endura_carrot -> make_enduring 4 8
-    | Spicy_pepper -> make_spicy 1 1
+    | Endura_shroom -> make_enduring 8 2
+    | Tireless_frog -> enduring_critter ~quarters:16 4
+    | Endura_carrot -> make_enduring 16 8
+    | Spicy_pepper -> make_spicy 4 1
     | Warm_safflina -> make_spicy 0 1
     | Summerwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.spicy 1
-    | Sunshroom -> make_spicy 1 2
+    | Sunshroom -> make_spicy 4 2
     | Warm_darner -> effect_critter (2, 30) Ingredient.Effect.spicy 2
-    | Sizzlefin_trout -> make_spicy 2 3
-    | Hydromelon -> make_chilly 1 1
+    | Sizzlefin_trout -> make_spicy 8 3
+    | Hydromelon -> make_chilly 4 1
     | Cool_safflina -> make_chilly 0 1
     | Winterwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.chilly 1
-    | Chillshroom -> make_chilly 1 2
+    | Chillshroom -> make_chilly 4 2
     | Cold_darner -> effect_critter (2, 30) Ingredient.Effect.chilly 2
-    | Chillfin_trout -> make_chilly 2 3
-    | Voltfruit -> make_electro 1 1
+    | Chillfin_trout -> make_chilly 8 3
+    | Voltfruit -> make_electro 4 1
     | Electric_safflina -> make_electro 0 1
     | Thunderwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.electro 1
-    | Zapshroom -> make_electro 1 2
+    | Zapshroom -> make_electro 4 2
     | Electric_darner -> effect_critter (2, 30) Ingredient.Effect.electro 2
-    | Voltfin_trout -> make_electro 2 3
+    | Voltfin_trout -> make_electro 8 3
     | Fireproof_lizard -> effect_critter (2, 30) Ingredient.Effect.fireproof 1
     | Smotherwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.fireproof 2
-    | Rushroom -> make_hasty 1 1
-    | Swift_carrot -> make_hasty 1 1
+    | Rushroom -> make_hasty 4 1
+    | Swift_carrot -> make_hasty 4 1
     | Hightail_lizard -> effect_critter (1, 0) Ingredient.Effect.hasty 1
-    | Fleet_lotus_seeds -> make_hasty 1 2
+    | Fleet_lotus_seeds -> make_hasty 4 2
     | Swift_violet -> make_hasty 0 2
     | Hot_footed_frog -> effect_critter (1, 0) Ingredient.Effect.hasty 2
     | Blue_nightshade -> make_sneaky 0 1
-    | Sneaky_river_snail -> make_sneaky 2 1
+    | Sneaky_river_snail -> make_sneaky 8 1
     | Sunset_firefly -> effect_critter (2, 0) Ingredient.Effect.sneaky 1
-    | Silent_shroom -> make_sneaky 1 2
-    | Stealthfin_trout -> make_sneaky 2 2
-    | Silent_princess -> make_sneaky 2 3
+    | Silent_shroom -> make_sneaky 4 2
+    | Stealthfin_trout -> make_sneaky 8 2
+    | Silent_princess -> make_sneaky 8 3
     | Mighty_thistle -> make_mighty 0 1
     | Bladed_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.mighty 1
-    | Mighty_bananas -> make_mighty 1 2
-    | Razorshroom -> make_mighty 1 2
-    | Mighty_carp -> make_mighty 2 2
-    | Razorclaw_crab -> make_mighty 2 2
-    | Mighty_porgy -> make_mighty 2 3
+    | Mighty_bananas -> make_mighty 4 2
+    | Razorshroom -> make_mighty 4 2
+    | Mighty_carp -> make_mighty 8 2
+    | Razorclaw_crab -> make_mighty 8 2
+    | Mighty_porgy -> make_mighty 8 3
     | Armoranth -> make_tough 0 1
     | Rugged_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.tough 1
-    | Fortified_pumpkin -> make_tough 1 2
-    | Ironshroom -> make_tough 1 2
-    | Armored_carp -> make_tough 2 2
-    | Ironshell_crab -> make_tough 2 2
-    | Armored_porgy -> make_tough 2 3
+    | Fortified_pumpkin -> make_tough 4 2
+    | Ironshroom -> make_tough 4 2
+    | Armored_carp -> make_tough 8 2
+    | Ironshell_crab -> make_tough 8 2
+    | Armored_porgy -> make_tough 8 3
     | Fairy ->
       (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
       {
