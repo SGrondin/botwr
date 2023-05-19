@@ -25,6 +25,7 @@ type t =
   | Enduring3
   | Enduring4
   | Hearty
+  | Sunny
   | Chilly
   | Electro
   | Fireproof
@@ -33,6 +34,7 @@ type t =
   | Spicy
   | Mighty
   | Tough
+  | Sticky
   | Bookmark_plus
   | Check_all
   | Folder2_open
@@ -51,6 +53,7 @@ let of_kind : Recipes.Ingredient.Effect.Kind.t -> t = function
 | Nothing -> Meal
 | Neutral -> Meal
 | Hearty -> Hearty
+| Sunny -> Sunny
 | Energizing -> Energizing
 | Enduring -> Enduring
 | Spicy -> Spicy
@@ -61,6 +64,9 @@ let of_kind : Recipes.Ingredient.Effect.Kind.t -> t = function
 | Sneaky -> Sneaky
 | Mighty -> Mighty
 | Tough -> Tough
+| Sticky -> Sticky
+
+let fill_grey = "#949487"
 
 let get_fill = function
 | Bookmark_plus
@@ -98,6 +104,7 @@ let get_fill = function
  |Enduring3
  |Enduring4
  |Hearty
+ |Sunny
  |Reception_2 ->
   "#e8e527"
 | Fireproof
@@ -105,13 +112,15 @@ let get_fill = function
   "#ec444a"
 | Hasty -> "#108fff"
 | Sneaky -> "#d03bfe"
-| Spicy -> "#71d6f0"
+| Spicy
+ |Sticky ->
+  "#71d6f0"
 | Elixir
  |Meal
  |Wait
  |Mighty
  |Tough ->
-  "#949487"
+  fill_grey
 
 let get_viewbox = function
 | Up
@@ -145,7 +154,9 @@ let get_viewbox = function
  |Mighty
  |Tough ->
   -10, 0, 1034, 1024
-| Bookmark_plus
+| Sunny
+ |Sticky
+ |Bookmark_plus
  |Check_all
  |Folder2_open
  |Folder_symlink
@@ -190,6 +201,13 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
     | Hearty
      |Heart ->
       {svg|<path d="M510 824q14 0 78 -51q64 -50 136 -121t130 -148q58 -76 58 -128q2 -123 -64 -148.5t-122 -25.5q-47 0 -81 21t-59 46t-43 46t-33 21t-33 -21q-19 -21 -45 -46t-61 -46t-83 -21q-55 0 -120.5 25.5t-59.5 148.5q3 52 61 128q58 77 129.5 148t135.5 121q63 51 76 51z" />|svg}
+    | Sunny ->
+      {svg|
+<symbol id="heartbreak" viewBox="0 0 16 16">
+  <path d="M8.931.586 7 3l1.5 4-2 3L8 15C22.534 5.396 13.757-2.21 8.931.586ZM7.358.77 5.5 3 7 7l-1.5 3 1.815 4.537C-6.533 4.96 2.685-2.467 7.358.77Z"/>
+</symbol>
+<use href="#heartbreak" width="13" height="13" x="2" y="3" />
+|svg}
     | Energizing1
      |Enduring1 ->
       {svg|<path d="M141 391q16 -50 45 -93q28 -43 65.5 -77t83.5 -58t97 -34q21 -5 41 -7t41 -2v282q-29 0 -55 14.5t-40 40.5q-3 5 -5.5 10.5t-4.5 10.5z" />|svg}
@@ -234,6 +252,16 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
 <path d="M276 494l332 -332l166 -4l-7 162l-333 332l-53 -53l191 -191l-48 -48l-191 191z" />|svg}
     | Tough ->
       {svg|<path d="M272 140q42 45 86 67q44 23 89 23t89 -22q44 -23 86 -68q174 127 203 148.5l29 21.5l-132 160l-68 -60l50 390h-514l50 -390l-68 60l-132 -160l29 -21t203 -149zM447 422q22 0 37.5 -15.5t15.5 -37.5t-15.5 -37.5t-37.5 -15.5t-37.5 15.5t-15.5 37.5t15.5 37.5t37.5 15.5 zM447 570q22 0 37.5 -15.5t15.5 -37.5t-15.5 -37.5t-37.5 -15.5t-37.5 15.5t-15.5 37.5t15.5 37.5t37.5 15.5z" />|svg}
+    | Sticky ->
+      {svg|
+<symbol id="droplet" viewBox="0 0 16 16">
+  <path d="M7 1.5l.364-.343a.5.5 0 0 0-.728 0l-.002.002-.006.007-.022.023-.08.088a28.458 28.458 0 0 0-1.274 1.517c-.769.983-1.714 2.325-2.385 3.727C2.368 7.564 2 8.682 2 9.733 2 12.614 4.212 15 7 15s5-2.386 5-5.267c0-1.05-.368-2.169-.867-3.212-.671-1.402-1.616-2.744-2.385-3.727a28.458 28.458 0 0 0-1.354-1.605l-.022-.023-.006-.007-.002-.001L7 1.5zm0 0-.364-.343L7 1.5zm-.016.766L7 2.247l.016.019"/>
+</symbol>
+<use href="#droplet" width="8" height="8" x="1" y="1" />
+<use href="#droplet" width="6" height="6" x="1.8" y="2" fill="#ffffff" />
+<use href="#droplet" width="12" height="12" x="5" y="3" />
+<use href="#droplet" width="9.25" height="11.25" x="6.15" y="3.5" fill="#ffffff" />
+|svg}
     | Bookmark_plus ->
       {svg|<path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
 <path d="M8 4a.5.5 0 0 1 .5.5V6H10a.5.5 0 0 1 0 1H8.5v1.5a.5.5 0 0 1-1 0V7H6a.5.5 0 0 1 0-1h1.5V4.5A.5.5 0 0 1 8 4z"/>|svg}
@@ -278,6 +306,5 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
     Node.inner_html ~tag:"div" ~this_html_is_sanitized_and_is_totally_safe_trust_me:html
       ([ attrs; Attr.[ classes [ "v-center"; "align-items-center" ] ] ]
       |> List.concat_no_order
-      |> Attrs.merge_classes_and_styles
-      )
+      |> Attrs.merge_classes_and_styles)
   | Span -> Node.inner_html ~tag:"span" ~this_html_is_sanitized_and_is_totally_safe_trust_me:html attrs

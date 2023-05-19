@@ -154,5 +154,7 @@ let blobs =
         | Dragon_horns Dinraal -> [%blob "images/58.png"]
         | Dragon_horns Naydra -> [%blob "images/62.png"]
         | Dragon_horns Farosh -> [%blob "images/66.png"]
+        | Sundelion -> [%blob "images/sundelion.png"]
+        | Stambulb -> [%blob "images/stambulb.png"]
       in
       Map.add_exn acc ~key ~data:(compute blob))

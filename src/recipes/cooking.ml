@@ -2,11 +2,17 @@ open! Core_kernel
 
 let ( << ), ( >> ) = ( lsl ), ( lsr )
 
+let debug = ref false
+
 module Algo = struct
   type t =
     | Balanced
     | Maximize
-  [@@deriving sexp, equal]
+  [@@deriving sexp, equal, enumerate]
+
+  let to_string = function
+  | Balanced -> "Max effect + Balanced duration"
+  | Maximize -> "Max effect + Max duration"
 end
 
 module Hearts = struct
@@ -14,9 +20,10 @@ module Hearts = struct
     | Nothing
     | Restores        of Ingredient.Hearts.quarters
     | Full_plus_bonus of int
+    | Unglooms        of int * Ingredient.Hearts.quarters
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts = function
+  let score ~max_hearts ~gloomy_hearts = function
   | Nothing
    |Restores _ ->
     0
@@ -25,6 +32,29 @@ module Hearts = struct
     let actual_gain = min theoretical_gain 30 in
     let wasted = theoretical_gain - actual_gain in
     100 + (actual_gain << 1) - wasted
+  | Unglooms (unglooms_theoretical_gain, Quarters quarters_theoretical_gain) ->
+    let unglooms_actual_gain = min unglooms_theoretical_gain gloomy_hearts in
+    let unglooms_wasted = unglooms_theoretical_gain - unglooms_actual_gain in
+    let real_max_hearts = max_hearts - (unglooms_actual_gain - gloomy_hearts) in
+    let quarters_actual_gain = min quarters_theoretical_gain (real_max_hearts << 2) in
+    let quarters_wasted = quarters_theoretical_gain - quarters_actual_gain in
+    (* if !debug
+       then
+         print_endline
+           ([
+              sprintf "unglooms_theoretical_gain = %d" unglooms_theoretical_gain;
+              sprintf "unglooms_actual_gain = %d" unglooms_actual_gain;
+              sprintf "unglooms_wasted = %d" unglooms_wasted;
+              sprintf "real_max_hearts = %d" real_max_hearts;
+              sprintf "quarters_theoretical_gain = %d" quarters_theoretical_gain;
+              sprintf "quarters_actual_gain = %d" quarters_actual_gain;
+              sprintf "quarters_wasted = %d" quarters_wasted;
+            ]
+           |> String.concat ~sep:"\n"); *)
+    100
+    + (unglooms_actual_gain << 4)
+    + (quarters_actual_gain << 1)
+    - ((unglooms_wasted << 3) + quarters_wasted)
 end
 
 module Stamina = struct
@@ -71,6 +101,7 @@ module Effect = struct
     | Sneaky    of bonus
     | Mighty    of bonus
     | Tough     of bonus
+    | Sticky    of bonus
   [@@deriving sexp, compare, equal, variants]
 
   let max_potency = function
@@ -83,17 +114,22 @@ module Effect = struct
   | Sneaky { potency; _ } -> potency = 3
   | Mighty { potency; _ } -> potency = 3
   | Tough { potency; _ } -> potency = 3
+  | Sticky { potency; _ } ->
+    (* TODO *)
+    potency = 3
 
   let duration = function
   | Nothing -> 0
-  | Spicy { duration; _ } -> duration
-  | Chilly { duration; _ } -> duration
-  | Electro { duration; _ } -> duration
-  | Fireproof { duration; _ } -> duration
-  | Hasty { duration; _ } -> duration
-  | Sneaky { duration; _ } -> duration
-  | Mighty { duration; _ } -> duration
-  | Tough { duration; _ } -> duration
+  | Spicy { duration; _ }
+   |Chilly { duration; _ }
+   |Electro { duration; _ }
+   |Fireproof { duration; _ }
+   |Hasty { duration; _ }
+   |Sneaky { duration; _ }
+   |Mighty { duration; _ }
+   |Tough { duration; _ }
+   |Sticky { duration; _ } ->
+    duration
 
   let score ~num_effect_ingredients ~random_bonus ~algo = function
   | Nothing -> 0
@@ -104,7 +140,8 @@ module Effect = struct
    |Hasty { potency; wasted; duration }
    |Sneaky { potency; wasted; duration }
    |Mighty { potency; wasted; duration }
-   |Tough { potency; wasted; duration } ->
+   |Tough { potency; wasted; duration }
+   |Sticky { potency; wasted; duration } ->
     let actual_duration = min duration 1800 in
     let wasted_duration = duration - actual_duration in
     let penalty =
@@ -137,14 +174,14 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina ~algo = function
+  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo = function
   | { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } ->
     let random_bonus =
       match random_effects with
       | _ :: _ -> true
       | _ -> false
     in
-    Hearts.score ~max_hearts hearts
+    Hearts.score ~max_hearts ~gloomy_hearts hearts
     + Stamina.score ~max_stamina ~num_effect_ingredients ~random_bonus stamina
     + Effect.score ~num_effect_ingredients ~random_bonus ~algo effect
     - num_ingredients
@@ -185,6 +222,9 @@ let cook map =
     let hearts =
       match res with
       | { effect = Hearty x; _ } -> Hearts.Full_plus_bonus x
+      | { effect = Sunny x; hearts = Always (Quarters _ as q); _ }
+       |{ effect = Sunny x; hearts = Diminishing { first = Quarters _ as q; _ }; _ } ->
+        Hearts.Unglooms (x, q)
       | { hearts = Always (Quarters 0); _ } -> Nothing
       | { hearts = Always (Quarters x); _ }
        |{ hearts = Diminishing { first = Quarters x; _ }; _ }
@@ -226,6 +266,7 @@ let cook map =
       | Nothing
        |Neutral _
        |Hearty _
+       |Sunny _
        |Energizing _
        |Enduring _ ->
         Nothing
@@ -237,6 +278,9 @@ let cook map =
       | Sneaky x -> convert 6 9 Effect.sneaky x
       | Mighty x -> convert 5 7 Effect.mighty x
       | Tough x -> convert 5 9 Effect.tough x
+      | Sticky x ->
+        (* TODO: levels? *)
+        convert 5 9 Effect.sticky x
     in
     let random_effects : Special_bonus.t list =
       match res.critical, hearts, stamina, effect with
@@ -289,5 +333,4 @@ let cook map =
      |Monster
      |Dragon
      |Dubious ->
-      Dubious
-  )
+      Dubious)

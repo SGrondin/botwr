@@ -15,7 +15,8 @@ let get_sort_by_kind : Ingredient.Effect.Kind.t -> int * 'a -> int * 'b -> int =
  |Neutral
  |Enduring
  |Energizing
- |Hearty ->
+ |Hearty
+ |Sunny ->
   worst
 | Chilly
  |Electro
@@ -24,10 +25,11 @@ let get_sort_by_kind : Ingredient.Effect.Kind.t -> int * 'a -> int * 'b -> int =
  |Mighty
  |Sneaky
  |Spicy
- |Tough ->
+ |Tough
+ |Sticky ->
   best
 
-let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
+let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let open Glossary in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
@@ -40,7 +42,9 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let star_fragments = Queue.create () in
   let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q (Variants.to_rank key, key)) () in
   let basics =
-    Table.fold grouped ~init:[] ~f:(fun ~key ~data acc ->
+    Table.fold grouped ~init:[] ~f:(fun ~key ~data -> function
+      | acc when not (Game.is_in_game (availability key) ~game) -> acc
+      | acc -> (
         let ingredient = to_ingredient key in
         match Ingredient.to_kind ingredient, ingredient.category, category with
         | Nothing, Food, Meals
@@ -85,7 +89,7 @@ let filter ~kind ~(category : Glossary.Category.t) ~use_special grouped =
           when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _, With_fairy _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
-        | _ -> acc)
+        | _ -> acc))
   in
   let top ?(up_to = 4) ?compare ?move queue init =
     match max 0 up_to with
@@ -147,7 +151,7 @@ type folder = {
   third: int * Recipe.t list;
 }
 
-let combine ~max_hearts ~max_stamina ~algo list =
+let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
   let cache = Recipe.Table.create () in
   let f (({ first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc), i)
      (recipe : Recipe.t) =
@@ -157,7 +161,7 @@ let combine ~max_hearts ~max_stamina ~algo list =
           | Food meal
            |Elixir meal
            |Tonic meal ->
-            Meal.score ~max_hearts ~max_stamina ~algo meal
+            Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal
           | Dubious
            |Failed _ ->
             -1_000_000)
@@ -249,19 +253,28 @@ let top_sort grouped ll =
   loop ll ([], 0)
 
 type settings = {
+  game: Game.t;
   max_hearts: int;
   max_stamina: int;
+  gloomy_hearts: int;
   algo: Algo.t;
   kind: Ingredient.Effect.Kind.t;
   category: Glossary.Category.t;
   use_special: bool;
 }
 
-let run { max_hearts; max_stamina; algo; kind; category; use_special } items =
+let run { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special } items =
+  let gloomy_hearts =
+    match kind with
+    | Sunny when gloomy_hearts >= max_hearts -> max_hearts - 1
+    | Sunny -> gloomy_hearts
+    | _ -> 0
+  in
   let r = time () in
   let grouped = group items in
   let { first; second; third }, count =
-    filter ~kind ~category ~use_special grouped |> combine ~max_hearts ~max_stamina ~algo
+    filter ~game ~kind ~category ~use_special grouped
+    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo
   in
   let iterations = top_sort grouped [ first; second; third ] in
   let duration = diff_time r in

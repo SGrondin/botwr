@@ -33,6 +33,10 @@ let make_hearty quarters bonus =
   Ingredient.
     { hearts = Always (Quarters quarters); effect = Hearty bonus; category = Food; critical = false }
 
+let make_sunny quarters unglooms =
+  Ingredient.
+    { hearts = Always (Quarters quarters); effect = Sunny unglooms; category = Food; critical = false }
+
 let make_effect variant dur quarters points =
   Ingredient.
     {
@@ -150,6 +154,7 @@ let to_ingredient =
     | Goat_butter -> make_spice 0 80 30
     | Goron_spice -> make_spice 0 90 30
     | Rock_salt -> make_spice 0 60 30
+    (* Hearty *)
     | Hearty_truffle -> make_hearty 16 1
     | Hearty_bass -> make_hearty 16 2
     | Hearty_radish -> make_hearty 20 3
@@ -161,47 +166,59 @@ let to_ingredient =
       Ingredient.
         { hearts = Always (Quarters 32); effect = Hearty 4; category = Critter; critical = false }
     | Big_hearty_radish -> make_hearty 32 5
+    (* Sunny *)
+    | Sundelion -> make_sunny 0 3
+    (* Energizing *)
     | Stamella_shroom -> make_energizing 4 7
+    | Stambulb -> make_energizing 4 7
     | Restless_cricket -> energizing_critter 7
     | Courser_bee_honey -> make_energizing 16 14
     | Bright_eyed_crab -> make_energizing 8 14
     | Staminoka_bass -> make_energizing 8 28
     | Energetic_rhino_beetle -> energizing_critter 42
+    (* Enduring *)
     | Endura_shroom -> make_enduring 8 2
     | Tireless_frog -> enduring_critter ~quarters:16 4
     | Endura_carrot -> make_enduring 16 8
+    (* Spicy *)
     | Spicy_pepper -> make_spicy 4 1
     | Warm_safflina -> make_spicy 0 1
     | Summerwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.spicy 1
     | Sunshroom -> make_spicy 4 2
     | Warm_darner -> effect_critter (2, 30) Ingredient.Effect.spicy 2
     | Sizzlefin_trout -> make_spicy 8 3
+    (* Chilly *)
     | Hydromelon -> make_chilly 4 1
     | Cool_safflina -> make_chilly 0 1
     | Winterwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.chilly 1
     | Chillshroom -> make_chilly 4 2
     | Cold_darner -> effect_critter (2, 30) Ingredient.Effect.chilly 2
     | Chillfin_trout -> make_chilly 8 3
+    (* Electro *)
     | Voltfruit -> make_electro 4 1
     | Electric_safflina -> make_electro 0 1
     | Thunderwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.electro 1
     | Zapshroom -> make_electro 4 2
     | Electric_darner -> effect_critter (2, 30) Ingredient.Effect.electro 2
     | Voltfin_trout -> make_electro 8 3
+    (* Fireproof *)
     | Fireproof_lizard -> effect_critter (2, 30) Ingredient.Effect.fireproof 1
     | Smotherwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.fireproof 2
+    (* Hasty *)
     | Rushroom -> make_hasty 4 1
     | Swift_carrot -> make_hasty 4 1
     | Hightail_lizard -> effect_critter (1, 0) Ingredient.Effect.hasty 1
     | Fleet_lotus_seeds -> make_hasty 4 2
     | Swift_violet -> make_hasty 0 2
     | Hot_footed_frog -> effect_critter (1, 0) Ingredient.Effect.hasty 2
+    (* Sneaky *)
     | Blue_nightshade -> make_sneaky 0 1
     | Sneaky_river_snail -> make_sneaky 8 1
     | Sunset_firefly -> effect_critter (2, 0) Ingredient.Effect.sneaky 1
     | Silent_shroom -> make_sneaky 4 2
     | Stealthfin_trout -> make_sneaky 8 2
     | Silent_princess -> make_sneaky 8 3
+    (* Mighty *)
     | Mighty_thistle -> make_mighty 0 1
     | Bladed_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.mighty 1
     | Mighty_bananas -> make_mighty 4 2
@@ -209,6 +226,7 @@ let to_ingredient =
     | Mighty_carp -> make_mighty 8 2
     | Razorclaw_crab -> make_mighty 8 2
     | Mighty_porgy -> make_mighty 8 3
+    (* Tough *)
     | Armoranth -> make_tough 0 1
     | Rugged_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.tough 1
     | Fortified_pumpkin -> make_tough 4 2
@@ -216,6 +234,7 @@ let to_ingredient =
     | Armored_carp -> make_tough 8 2
     | Ironshell_crab -> make_tough 8 2
     | Armored_porgy -> make_tough 8 3
+    (* Other *)
     | Fairy ->
       (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
       {
@@ -253,6 +272,114 @@ module Category = struct
     | Elixirs
     | Any
 end
+
+let availability : t -> Game.availability = function
+| Apple
+ |Wildberry
+ |Hylian_shroom
+ |Palm_fruit
+ |Hyrule_herb
+ |Hyrule_bass
+ |Sanke_carp
+ |Raw_meat
+ |Raw_bird_drumstick
+ |Raw_bird_thigh
+ |Raw_prime_meat
+ |Raw_gourmet_meat
+ |Raw_whole_bird
+ |Chickaloo_tree_nut
+ |Acorn
+ |Rock_salt
+ |Hylian_rice
+ |Tabantha_wheat
+ |Cane_sugar
+ |Goat_butter
+ |Fresh_milk
+ |Goron_spice
+ |Bird_egg
+ |Hearty_truffle
+ |Hearty_bass
+ |Hearty_radish
+ |Hearty_blueshell_snail ->
+  Both
+| Hearty_durian -> BOTW
+| Big_hearty_truffle
+ |Hearty_salmon
+ |Hearty_lizard
+ |Big_hearty_radish
+ |Stamella_shroom
+ |Restless_cricket
+ |Courser_bee_honey
+ |Bright_eyed_crab
+ |Staminoka_bass
+ |Energetic_rhino_beetle
+ |Endura_shroom
+ |Tireless_frog
+ |Endura_carrot
+ |Spicy_pepper
+ |Warm_safflina
+ |Summerwing_butterfly
+ |Sunshroom
+ |Warm_darner
+ |Sizzlefin_trout
+ |Hydromelon
+ |Cool_safflina
+ |Winterwing_butterfly
+ |Chillshroom
+ |Cold_darner
+ |Chillfin_trout
+ |Voltfruit
+ |Electric_safflina
+ |Thunderwing_butterfly
+ |Zapshroom ->
+  Both
+| Electric_darner -> BOTW
+| Voltfin_trout
+ |Fireproof_lizard
+ |Smotherwing_butterfly
+ |Rushroom
+ |Swift_carrot
+ |Hightail_lizard
+ |Fleet_lotus_seeds
+ |Swift_violet
+ |Hot_footed_frog
+ |Blue_nightshade
+ |Sneaky_river_snail
+ |Sunset_firefly
+ |Silent_shroom
+ |Stealthfin_trout
+ |Silent_princess
+ |Mighty_thistle
+ |Bladed_rhino_beetle
+ |Mighty_bananas
+ |Razorshroom
+ |Mighty_carp
+ |Razorclaw_crab
+ |Mighty_porgy
+ |Armoranth
+ |Rugged_rhino_beetle
+ |Fortified_pumpkin
+ |Ironshroom
+ |Armored_carp
+ |Ironshell_crab
+ |Armored_porgy
+ |Fairy
+ |Star_fragment ->
+  Both
+| Monster_horn (Ancient_screw | Ancient_spring) -> BOTW
+| Monster_horn _ -> Both
+| Monster_fang (Ancient_gear | Ancient_shaft) -> BOTW
+| Monster_fang _ -> Both
+| Monster_guts (Ancient_core | Giant_ancient_core) -> BOTW
+| Monster_guts _ -> Both
+| Dragon_scales _
+ |Dragon_claws _
+ |Dragon_fangs _
+ |Dragon_horns _ ->
+  BOTW
+| Sundelion
+ |Stambulb ->
+  TOTK
 
 let to_string = function
 | Palm_fruit -> "Palm Fruit"
@@ -394,6 +521,8 @@ let to_string = function
 | Dragon_horns Dinraal -> "Shard of Dinraal's Horn"
 | Dragon_horns Naydra -> "Shard of Naydra's Horn"
 | Dragon_horns Farosh -> "Shard of Farosh's Horn"
+| Sundelion -> "Sundelion"
+| Stambulb -> "Stambulb"
 
 let ordered =
   [|
@@ -498,6 +627,9 @@ let ordered =
     Hightail_lizard;
     Hearty_lizard;
     Fireproof_lizard;
+    Sundelion;
+    Stambulb;
+    (* TODO! *)
     Monster_horn Bokoblin_horn;
     Monster_fang Bokoblin_fang;
     Monster_guts Bokoblin_guts;

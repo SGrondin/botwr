@@ -29,6 +29,9 @@ module Group = struct
       | Sneaky
       | Spicy
       | Tough
+      | Sunny
+      | Sticky
+      (* TODO *)
       | Monster_parts
       | Special
     [@@deriving sexp, compare, enumerate]
@@ -36,6 +39,26 @@ module Group = struct
 
   module Map = Map.Make (Self)
   include Self
+
+  let to_game : t -> Game.availability = function
+  | Nothing
+   |Chilly
+   |Electro
+   |Enduring
+   |Energizing
+   |Fireproof
+   |Hasty
+   |Hearty
+   |Mighty
+   |Sneaky
+   |Spicy
+   |Tough
+   |Monster_parts
+   |Special ->
+    Both
+  | Sunny
+   |Sticky ->
+    TOTK
 
   let of_glossary : Glossary.t -> t = function
   | Monster_horn _
@@ -65,7 +88,8 @@ module Group = struct
     | Sneaky -> Sneaky
     | Spicy -> Spicy
     | Tough -> Tough
-  )
+    | Sunny -> Sunny
+    | Sticky -> Sticky)
 
   let to_string = function
   | Nothing -> "No Effect"
@@ -80,6 +104,8 @@ module Group = struct
   | Sneaky -> "Sneaky"
   | Spicy -> "Spicy"
   | Tough -> "Tough"
+  | Sunny -> "Sunny"
+  | Sticky -> "Sticky"
   | Monster_parts -> "Monster Parts"
   | Special -> "Special"
 
@@ -98,6 +124,8 @@ module Group = struct
       | Sneaky -> First Sneaky
       | Spicy -> First Spicy
       | Tough -> First Tough
+      | Sunny -> First Sunny
+      | Sticky -> First Sticky
       | Monster_parts -> Second Glossary.(to_img_src (Monster_guts Bokoblin_guts))
       | Special -> Second Glossary.(to_img_src Fairy)
     in
@@ -107,7 +135,7 @@ module Group = struct
         Node.create "img" Attr.[ src img; style Css_gen.(width (`Rem w) @> height (`Rem h)) ] [])
 end
 
-let group ~inventory ~selected ~update_selected ~show_all items =
+let group ~inventory ~selected ~update_selected ~show_all ~game items =
   let%sub mapped =
     Bonsai.assoc
       (module String)
@@ -116,13 +144,18 @@ let group ~inventory ~selected ~update_selected ~show_all items =
   in
   return
   @@ let%map mapped = mapped
-     and show_all = show_all in
+     and show_all = show_all
+     and game = game in
      String.Map.fold mapped ~init:{ keyed_nodes = []; total = 0; updates = []; ingredients = [] }
-       ~f:(fun ~key:_ ~data:((n, update, item), node) ({ keyed_nodes; total; updates; ingredients } as acc)
+       ~f:(fun
+            ~key:_
+            ~data:((n, update, item), node)
+            ({ keyed_nodes; total; updates; ingredients } as acc)
           ->
          let updates = (item, update) :: updates in
          match n with
          | 0 when not show_all -> { acc with updates }
+         | _ when not (Game.is_in_game (Glossary.availability item) ~game) -> { acc with updates }
          | _ ->
            {
              keyed_nodes = (Glossary.(Map.find_exn ordered item), node) :: keyed_nodes;
@@ -143,10 +176,14 @@ let render_group group nodes =
         [ Icon.svg Arrow_up ~width:1.5 ~height:1.5 ~container:Span []; Node.text "Scroll to the top" ];
     ]
 
-let jump_to_node =
+let jump_to_node ~game =
   let links =
-    List.map Group.all ~f:(fun k ->
-        Node.a Attr.[ href (sprintf "#%s" (Group.to_string k)); no_decoration ] [ Group.to_img_node k ])
+    List.filter_map Group.all ~f:(function
+      | k when Game.is_in_game ~game (Group.to_game k) ->
+        [ Group.to_img_node k ]
+        |> Node.a Attr.[ href (sprintf "#%s" (Group.to_string k)); no_decoration ]
+        |> Option.return
+      | _ -> None)
   in
   let message = Node.text "Jump to... " in
   Node.div Attr.[ class_ "my-3" ] (message :: links)
@@ -179,7 +216,7 @@ let default_model =
           | Some acc -> String.Map.add_exn acc ~key ~data:x))
   |> Bonsai.Value.return
 
-let component ~inventory () =
+let component ~game ~inventory () =
   let%sub show_all = Switch.component ~id:"show-all-switch" ~label:"Show All" true in
   let%pattern_bind show_all, render_show_all, update_show_all = show_all in
   let%sub by_effect = Switch.component ~id:"by-effect-switch" ~label:"Group by Effect" false in
@@ -189,7 +226,7 @@ let component ~inventory () =
     Bonsai.assoc
       (module Group.Map.Key)
       default_model
-      ~f:(fun _key data -> group ~inventory ~selected ~update_selected ~show_all data)
+      ~f:(fun _key data -> group ~inventory ~selected ~update_selected ~show_all ~game data)
   in
   let backpack_changed =
     let ingredients =
@@ -209,6 +246,7 @@ let component ~inventory () =
   in
   return
   @@ let%map backpack = backpack
+     and game = game
      and show_all = show_all
      and render_show_all = render_show_all
      and update_show_all = update_show_all
@@ -293,7 +331,7 @@ let component ~inventory () =
          show_all_node;
          by_effect;
          by_effect_node;
-         jump_to_node;
+         jump_to_node = jump_to_node ~game;
          clear_all_node;
          ingredients;
        }

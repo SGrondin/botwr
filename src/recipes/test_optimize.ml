@@ -28,57 +28,58 @@ let%expect_test "Filter" =
         Monster_fang Ancient_gear, 5;
       ]
   in
-  let test kind category grouped =
-    Optimize.filter ~kind ~category ~use_special:true grouped
+  let test ?(game = (BOTW : Game.t)) kind category grouped =
+    Optimize.filter ~game ~kind ~category ~use_special:true grouped
+    |> List.sort ~compare:Glossary.compare
     |> sprintf !"%{sexp: Glossary.t list}"
     |> print_endline
   in
   test Electro Elixirs data1;
   [%expect
     {|
-    ((Monster_guts Hinox_guts) (Monster_guts Moblin_guts)
-     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Electric_darner
-     Electric_darner Electric_darner Electric_darner Thunderwing_butterfly
-     Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly) |}];
+    (Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
+     Thunderwing_butterfly Electric_darner Electric_darner Electric_darner
+     Electric_darner (Monster_fang Ancient_gear) (Monster_fang Ancient_gear)
+     (Monster_guts Moblin_guts) (Monster_guts Hinox_guts)) |}];
   test Electro Meals data1;
   [%expect
     {|
-    (Bird_egg Goron_spice Fresh_milk Raw_meat Electric_safflina Electric_safflina
+    (Raw_meat Fresh_milk Goron_spice Bird_egg Electric_safflina Electric_safflina
      Electric_safflina Electric_safflina Electric_safflina) |}];
   test Electro Any data1;
   [%expect
     {|
-    ((Monster_guts Hinox_guts) (Monster_guts Moblin_guts)
-     (Monster_fang Bokoblin_fang) (Monster_fang Ancient_gear) Bird_egg
-     Goron_spice Fresh_milk Raw_meat Electric_darner Electric_darner
-     Electric_darner Electric_darner Thunderwing_butterfly Thunderwing_butterfly
-     Thunderwing_butterfly Thunderwing_butterfly Electric_safflina
-     Electric_safflina Electric_safflina Electric_safflina Electric_safflina) |}];
+    (Raw_meat Fresh_milk Goron_spice Bird_egg Electric_safflina Electric_safflina
+     Electric_safflina Electric_safflina Electric_safflina Thunderwing_butterfly
+     Thunderwing_butterfly Thunderwing_butterfly Thunderwing_butterfly
+     Electric_darner Electric_darner Electric_darner Electric_darner
+     (Monster_fang Ancient_gear) (Monster_fang Ancient_gear)
+     (Monster_guts Moblin_guts) (Monster_guts Hinox_guts)) |}];
   test Hearty Meals data1;
   [%expect
     {|
-    (Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
-     Big_hearty_truffle Hearty_bass Hearty_bass Hearty_salmon Hearty_salmon
-     Hearty_salmon Hearty_salmon Hearty_salmon Big_hearty_radish
-     Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
-     Hearty_durian Hearty_durian Hearty_durian Hearty_durian Hearty_durian) |}];
+    (Hearty_bass Hearty_bass Hearty_durian Hearty_durian Hearty_durian
+     Hearty_durian Hearty_durian Big_hearty_truffle Big_hearty_truffle
+     Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Hearty_salmon
+     Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon Big_hearty_radish
+     Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish) |}];
   test Hearty Elixirs data1;
   [%expect
     {|
-    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Hearty_lizard
-     Hearty_lizard Hearty_lizard Hearty_lizard) |}];
+    (Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard
+     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
   test Hearty Any data1;
   [%expect
     {|
-    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Big_hearty_truffle
-     Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle
-     Hearty_bass Hearty_bass Hearty_salmon Hearty_salmon Hearty_salmon
-     Hearty_salmon Hearty_salmon Big_hearty_radish Big_hearty_radish
-     Big_hearty_radish Big_hearty_radish Big_hearty_radish Hearty_durian
-     Hearty_durian Hearty_durian Hearty_durian Hearty_durian Hearty_lizard
-     Hearty_lizard Hearty_lizard Hearty_lizard) |}];
+    (Hearty_bass Hearty_bass Hearty_durian Hearty_durian Hearty_durian
+     Hearty_durian Hearty_durian Big_hearty_truffle Big_hearty_truffle
+     Big_hearty_truffle Big_hearty_truffle Big_hearty_truffle Hearty_salmon
+     Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon Hearty_lizard
+     Hearty_lizard Hearty_lizard Hearty_lizard Big_hearty_radish
+     Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
+     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
   test Enduring Meals data1;
   [%expect
     {|
@@ -88,17 +89,18 @@ let%expect_test "Filter" =
   test Enduring Elixirs data1;
   [%expect
     {|
-    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Tireless_frog
-     Tireless_frog Tireless_frog Tireless_frog) |}];
+    (Tireless_frog Tireless_frog Tireless_frog Tireless_frog
+     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
   test Enduring Any data1;
   [%expect
     {|
-    ((Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing) Raw_meat Raw_meat
-     Raw_meat Fresh_milk Tireless_frog Tireless_frog Tireless_frog Tireless_frog
-     Endura_shroom Endura_shroom Endura_shroom Endura_shroom Endura_shroom
-     Endura_carrot Endura_carrot Endura_carrot Endura_carrot Endura_carrot) |}];
+    (Raw_meat Raw_meat Raw_meat Fresh_milk Endura_shroom Endura_shroom
+     Endura_shroom Endura_shroom Endura_shroom Tireless_frog Tireless_frog
+     Tireless_frog Tireless_frog Endura_carrot Endura_carrot Endura_carrot
+     Endura_carrot Endura_carrot (Monster_horn Lizalfos_horn)
+     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Keese_wing)) |}];
   test Enduring Any
     (Items.Table.of_alist_exn [ Endura_carrot, 1; Dragon_horns Farosh, 0; Endura_shroom, 0 ]);
   [%expect {| (Endura_carrot) |}];
@@ -106,8 +108,11 @@ let%expect_test "Filter" =
   [%expect {| (Endura_carrot) |}]
 
 let%expect_test "Cooking by category, basic" =
-  let test ~kind ~category ~algo ?(use_special = true) ll =
-    let settings = Optimize.{ max_hearts = 20; max_stamina = 15; algo; kind; category; use_special } in
+  let test ?(game = (BOTW : Game.t)) ~kind ~category ~algo ?(max_hearts = 20) ?(max_stamina = 15)
+     ?(gloomy_hearts = 0) ?(use_special = true) ll =
+    let settings =
+      Optimize.{ game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special }
+    in
     Optimize.run settings ll |> Optimize.to_string |> print_endline
   in
   test ~kind:Tough ~category:Meals ~algo:Balanced
@@ -791,8 +796,8 @@ let%expect_test "Cooking by category, basic" =
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
 
-  let data1 = Glossary.[ Apple, 3; Endura_carrot, 1 ] in
-  test ~kind:Enduring ~category:Any ~algo:Balanced data1;
+  let data9 = Glossary.[ Apple, 3; Endura_carrot, 1 ] in
+  test ~kind:Enduring ~category:Any ~algo:Balanced data9;
   [%expect
     {|
     (0s)
@@ -813,7 +818,56 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Restores (Quarters 24)))
       (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}];
+  test ~kind:Sunny ~game:TOTK ~max_hearts:5 ~max_stamina:5 ~gloomy_hearts:3 ~category:Any ~algo:Balanced
+    [ Apple, 1; Hylian_shroom, 1; Hyrule_herb, 1; Sundelion, 2 ];
+  [%expect
+    {|
+    (0s)
+    176 pts (31, -3.500000)
+    Apple, Hylian_shroom, Hyrule_herb, Sundelion
+    (Food
+     ((hearts (Unglooms 3 (Quarters 16))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
+    169 pts (31, -2.500000)
+    Hylian_shroom, Hyrule_herb, Sundelion
+    (Food
+     ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
+    169 pts (31, -2.500000)
+    Apple, Hyrule_herb, Sundelion
+    (Food
+     ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}]
+
+let%expect_test "Scoring" =
+  let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) x =
+    print_endline (sprintf !"%{sexp: Cooking.Hearts.t}" x);
+    Cooking.Hearts.score ~max_hearts ~gloomy_hearts x |> Int.to_string |> print_endline
+  in
+  Cooking.debug := true;
+  test_hearts (Unglooms (3, Quarters 4));
+  [%expect {|
+    (Unglooms 3 (Quarters 4))
+    156 |}];
+  test_hearts (Unglooms (3, Quarters 8));
+  [%expect {|
+    (Unglooms 3 (Quarters 8))
+    164 |}];
+  test_hearts (Unglooms (4, Quarters 4));
+  [%expect {|
+    (Unglooms 4 (Quarters 4))
+    148 |}];
+  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20));
+  [%expect {|
+    (Unglooms 3 (Quarters 20))
+    176 |}];
+  test_hearts (Full_plus_bonus 3);
+  [%expect {|
+    (Full_plus_bonus 3)
+    146 |}];
+
+  Cooking.debug := false
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in

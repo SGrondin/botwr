@@ -9,7 +9,7 @@ module Recipe = struct
       Glossary.Map.fold map ~init ~f:(fun ~key ~data acc ->
           [%hash_fold: int] ([%hash_fold: Glossary.t] acc key) data)
 
-    let hash map = hash_fold_t (Hash.create ()) map |> Hash.get_hash_value
+    let hash map = Hash.of_fold hash_fold_t map
   end
 
   module Table = Hashtbl.Make (Self)

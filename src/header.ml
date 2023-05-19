@@ -5,7 +5,7 @@ open! Vdom
 open Bootstrap
 open Bootstrap.Basic
 
-let render_instructions (data : Kitchen.Model.t) kind total ~kind_buttons ~max_hearts_node
+let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_buttons ~max_hearts_node
    ~max_stamina_node ~clear_all_node =
   let is_loaded =
     match data with
@@ -18,6 +18,7 @@ let render_instructions (data : Kitchen.Model.t) kind total ~kind_buttons ~max_h
   in
   let instructions =
     [
+      "Pick a game.", None, game_node;
       "Set your maximum hearts containers.", None, max_hearts_node;
       "Set your maximum stamina containers.", None, max_stamina_node;
       "Pick a bonus.", Some (Option.is_some kind), kind_buttons;
@@ -36,7 +37,7 @@ let render_instructions (data : Kitchen.Model.t) kind total ~kind_buttons ~max_h
         [ Node.textf "%d. %s" (i + 1) s; svg; node ])
   |> Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ]
 
-let render ~clear_all_node ~total ingredients
+let render ~game_node ~clear_all_node ~total ingredients
    Kitchen.
      {
        data;
@@ -98,7 +99,8 @@ let render ~clear_all_node ~total ingredients
       ]
   in
   let instructions_node =
-    render_instructions data kind total ~kind_buttons ~max_hearts_node ~max_stamina_node ~clear_all_node
+    render_instructions data kind total ~game_node ~kind_buttons ~max_hearts_node ~max_stamina_node
+      ~clear_all_node
   in
   Node.div []
     [

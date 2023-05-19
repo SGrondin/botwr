@@ -30,26 +30,44 @@ let inventory =
 let application =
   print_endline "Made by SGrondin for his one true love ❤️";
   print_endline "🐫 Source code: https://github.com/SGrondin/botwr";
-  let%sub backpack = Backpack.component ~inventory:(Bonsai.Value.return inventory) () in
+  let%sub game =
+    Choices.component "game" [%here]
+      (module Recipes.Game)
+      BOTW ~aria:"Radio button to select which game you're playing"
+      ~node_mapper:(fun ~data node ->
+        match data with
+        | TOTK ->
+          Node.div []
+            [
+              node;
+              Node.div [] [ Node.text "Work in progress!" ];
+              Node.div []
+                [ Node.text "The game is new, not all new items have been tested and added yet" ];
+            ]
+        | BOTW -> Node.div [] [ node ])
+  in
+  let%pattern_bind game, game_node = game in
+  let%sub backpack = Backpack.component ~game ~inventory:(Bonsai.Value.return inventory) () in
   let%pattern_bind backpack, updates = backpack in
-  let%sub kitchen = Kitchen.component ~updates () in
+  let%sub kitchen = Kitchen.component ~game ~updates () in
   let%sub share = Share.component ~updates (backpack >>| fun { ingredients; _ } -> ingredients) in
   return
-  @@ let%map Backpack.
-               {
-                 total;
-                 items_node;
-                 show_all_node;
-                 by_effect;
-                 by_effect_node;
-                 jump_to_node;
-                 clear_all_node;
-                 ingredients;
-               } =
+  @@ let%map game_node = game_node
+     and Backpack.
+           {
+             total;
+             items_node;
+             show_all_node;
+             by_effect;
+             by_effect_node;
+             jump_to_node;
+             clear_all_node;
+             ingredients;
+           } =
        backpack
      and kitchen = kitchen
      and share = share in
-     let kitchen_node = Header.render ~clear_all_node ~total ingredients kitchen in
+     let kitchen_node = Header.render ~game_node ~clear_all_node ~total ingredients kitchen in
 
      Node.div
        Attr.[ class_ "m-2" ]

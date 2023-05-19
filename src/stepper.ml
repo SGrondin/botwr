@@ -14,12 +14,12 @@ end
 
 let initial name = Local_storage.parse_item name [%of_sexp: int]
 
-let component name default ~render ~max_value ~update_kitchen status =
+let component name default ~render ~min_value ~max_value ~update_kitchen status =
   let apply_action ~inject:_ ~schedule_event:_ model (action : Action.t) =
     let updated =
       match action with
       | Increment -> min (model + 1) max_value
-      | Decrement -> max (model - 1) 1
+      | Decrement -> max (model - 1) min_value
     in
     let _res = Local_storage.set_item ~key:name ~data:(sprintf !"%{sexp: int}" updated) in
     updated
@@ -37,7 +37,7 @@ let component name default ~render ~max_value ~update_kitchen status =
            style Css_gen.(pointer @> create ~field:"transform" ~value:"rotate(90deg)");
            on_click (fun _ev -> Event.Many [ update_kitchen status; update Action.Decrement ]);
          ]
-       |> add_if (state = 1) (Attr.class_ "text-secondary")
+       |> add_if (state = min_value) (Attr.class_ "text-secondary")
        |> Icon.svg ~bold:true ~width:1.6 ~height:1.6 Down
      in
      let up_node =

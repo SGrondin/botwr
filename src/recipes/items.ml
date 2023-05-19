@@ -79,6 +79,7 @@ module Self = struct
     | Fresh_milk
     | Goron_spice
     | Bird_egg
+    (* Hearty *)
     | Hearty_truffle
     | Hearty_bass
     | Hearty_radish
@@ -88,47 +89,59 @@ module Self = struct
     | Hearty_salmon
     | Hearty_lizard
     | Big_hearty_radish
+    (* Sunny *)
+    | Sundelion
+    (* Energizing *)
     | Stamella_shroom
+    | Stambulb
     | Restless_cricket
     | Courser_bee_honey
     | Bright_eyed_crab
     | Staminoka_bass
     | Energetic_rhino_beetle
+    (* Enduring *)
     | Endura_shroom
     | Tireless_frog
     | Endura_carrot
+    (* Spicy *)
     | Spicy_pepper
     | Warm_safflina
     | Summerwing_butterfly
     | Sunshroom
     | Warm_darner
     | Sizzlefin_trout
+    (* Chilly *)
     | Hydromelon
     | Cool_safflina
     | Winterwing_butterfly
     | Chillshroom
     | Cold_darner
     | Chillfin_trout
+    (* Electro *)
     | Voltfruit
     | Electric_safflina
     | Thunderwing_butterfly
     | Zapshroom
     | Electric_darner
     | Voltfin_trout
+    (* Fireproof *)
     | Fireproof_lizard
     | Smotherwing_butterfly
+    (* Hasty *)
     | Rushroom
     | Swift_carrot
     | Hightail_lizard
     | Fleet_lotus_seeds
     | Swift_violet
     | Hot_footed_frog
+    (* Snealy *)
     | Blue_nightshade
     | Sneaky_river_snail
     | Sunset_firefly
     | Silent_shroom
     | Stealthfin_trout
     | Silent_princess
+    (* Mighty *)
     | Mighty_thistle
     | Bladed_rhino_beetle
     | Mighty_bananas
@@ -136,6 +149,7 @@ module Self = struct
     | Mighty_carp
     | Razorclaw_crab
     | Mighty_porgy
+    (* Tough *)
     | Armoranth
     | Rugged_rhino_beetle
     | Fortified_pumpkin
@@ -143,6 +157,7 @@ module Self = struct
     | Armored_carp
     | Ironshell_crab
     | Armored_porgy
+    (* Other *)
     | Fairy
     | Star_fragment
     | Monster_horn           of monster_horn

@@ -81,6 +81,7 @@ module Effect = struct
     | Nothing
     | Neutral    of Duration.t
     | Hearty     of int
+    | Sunny      of int
     | Energizing of Fifths.t
     | Enduring   of Quarters.t
     | Spicy      of Activity.t
@@ -91,12 +92,14 @@ module Effect = struct
     | Sneaky     of Activity.t
     | Mighty     of Activity.t
     | Tough      of Activity.t
+    | Sticky     of Activity.t
   [@@deriving sexp, compare, equal, hash, variants]
 
   let merge ~count = function
   | Nothing -> Nothing
   | Neutral x -> Neutral (Duration.merge ~count x)
   | Hearty x -> Hearty (x * count)
+  | Sunny x -> Sunny (x * count)
   | Energizing x -> Energizing (Fifths.merge ~count x)
   | Enduring x -> Enduring (Quarters.merge ~count x)
   | Spicy x -> Spicy (Activity.merge ~count x)
@@ -107,6 +110,7 @@ module Effect = struct
   | Sneaky x -> Sneaky (Activity.merge ~count x)
   | Mighty x -> Mighty (Activity.merge ~count x)
   | Tough x -> Tough (Activity.merge ~count x)
+  | Sticky x -> Sticky (Activity.merge ~count x)
 
   let combine left right =
     match left, right with
@@ -115,6 +119,7 @@ module Effect = struct
       Nothing
     | Neutral x, Neutral y -> Neutral (Duration.combine x y)
     | Hearty x, Hearty y -> Hearty (x + y)
+    | Sunny x, Sunny y -> Sunny (x + y)
     | Energizing x, Energizing y -> Energizing (Fifths.combine x y)
     | Enduring x, Enduring y -> Enduring (Quarters.combine x y)
     | Spicy x, Spicy y -> Spicy (Activity.combine x y)
@@ -125,12 +130,14 @@ module Effect = struct
     | Sneaky x, Sneaky y -> Sneaky (Activity.combine x y)
     | Mighty x, Mighty y -> Mighty (Activity.combine x y)
     | Tough x, Tough y -> Tough (Activity.combine x y)
+    | Sticky x, Sticky y -> Sticky (Activity.combine x y)
     | Neutral dur, x
      |x, Neutral dur -> (
       match x with
       | Nothing -> Nothing
       | Neutral x -> Neutral (Duration.combine dur x)
       | (Hearty _ as x)
+       |(Sunny _ as x)
        |(Energizing _ as x)
        |(Enduring _ as x) ->
         x
@@ -142,7 +149,7 @@ module Effect = struct
       | Sneaky x -> Sneaky { x with duration = Duration.combine dur x.duration }
       | Mighty x -> Mighty { x with duration = Duration.combine dur x.duration }
       | Tough x -> Tough { x with duration = Duration.combine dur x.duration }
-    )
+      | Sticky x -> Sticky { x with duration = Duration.combine dur x.duration })
     | _ -> Nothing
 
   module Kind = struct
@@ -160,12 +167,33 @@ module Effect = struct
         | Mighty
         | Sneaky
         | Spicy
+        | Sticky
+        | Sunny
         | Tough
       [@@deriving sexp, compare, equal, hash]
     end
 
     module Map = Map.Make (Self)
     include Self
+
+    let availability = function
+    | Nothing
+     |Neutral
+     |Chilly
+     |Electro
+     |Enduring
+     |Energizing
+     |Fireproof
+     |Hasty
+     |Hearty
+     |Mighty
+     |Sneaky
+     |Spicy
+     |Tough ->
+      Game.Both
+    | Sunny
+     |Sticky ->
+      Game.TOTK
   end
 end
 
@@ -226,6 +254,7 @@ let to_kind : t -> Effect.Kind.t = function
 | { effect = Nothing; _ } -> Nothing
 | { effect = Neutral _; _ } -> Neutral
 | { effect = Hearty _; _ } -> Hearty
+| { effect = Sunny _; _ } -> Sunny
 | { effect = Energizing _; _ } -> Energizing
 | { effect = Enduring _; _ } -> Enduring
 | { effect = Spicy _; _ } -> Spicy
@@ -236,6 +265,7 @@ let to_kind : t -> Effect.Kind.t = function
 | { effect = Sneaky _; _ } -> Sneaky
 | { effect = Mighty _; _ } -> Mighty
 | { effect = Tough _; _ } -> Tough
+| { effect = Sticky _; _ } -> Sticky
 
 let has_effect_or_special : t -> bool = function
 | { category = Dragon; _ } -> true
@@ -243,6 +273,7 @@ let has_effect_or_special : t -> bool = function
  |{ effect = Neutral _; _ } ->
   false
 | { effect = Hearty _; _ }
+ |{ effect = Sunny _; _ }
  |{ effect = Energizing _; _ }
  |{ effect = Enduring _; _ }
  |{ effect = Spicy _; _ }
@@ -252,7 +283,8 @@ let has_effect_or_special : t -> bool = function
  |{ effect = Hasty _; _ }
  |{ effect = Sneaky _; _ }
  |{ effect = Mighty _; _ }
- |{ effect = Tough _; _ } ->
+ |{ effect = Tough _; _ }
+ |{ effect = Sticky _; _ } ->
   true
 
 let merge ({ hearts; effect; category; critical } as ingredient) ~count =
