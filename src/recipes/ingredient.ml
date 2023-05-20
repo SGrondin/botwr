@@ -93,6 +93,7 @@ module Effect = struct
     | Mighty     of Activity.t
     | Tough      of Activity.t
     | Sticky     of Activity.t
+    | Glowing    of Activity.t
   [@@deriving sexp, compare, equal, hash, variants]
 
   let merge ~count = function
@@ -111,6 +112,7 @@ module Effect = struct
   | Mighty x -> Mighty (Activity.merge ~count x)
   | Tough x -> Tough (Activity.merge ~count x)
   | Sticky x -> Sticky (Activity.merge ~count x)
+  | Glowing x -> Glowing (Activity.merge ~count x)
 
   let combine left right =
     match left, right with
@@ -131,6 +133,7 @@ module Effect = struct
     | Mighty x, Mighty y -> Mighty (Activity.combine x y)
     | Tough x, Tough y -> Tough (Activity.combine x y)
     | Sticky x, Sticky y -> Sticky (Activity.combine x y)
+    | Glowing x, Glowing y -> Glowing (Activity.combine x y)
     | Neutral dur, x
      |x, Neutral dur -> (
       match x with
@@ -149,7 +152,8 @@ module Effect = struct
       | Sneaky x -> Sneaky { x with duration = Duration.combine dur x.duration }
       | Mighty x -> Mighty { x with duration = Duration.combine dur x.duration }
       | Tough x -> Tough { x with duration = Duration.combine dur x.duration }
-      | Sticky x -> Sticky { x with duration = Duration.combine dur x.duration })
+      | Sticky x -> Sticky { x with duration = Duration.combine dur x.duration }
+      | Glowing x -> Glowing { x with duration = Duration.combine dur x.duration })
     | _ -> Nothing
 
   module Kind = struct
@@ -162,6 +166,7 @@ module Effect = struct
         | Enduring
         | Energizing
         | Fireproof
+        | Glowing
         | Hasty
         | Hearty
         | Mighty
@@ -192,7 +197,8 @@ module Effect = struct
      |Tough ->
       Game.Both
     | Sunny
-     |Sticky ->
+     |Sticky
+     |Glowing ->
       Game.TOTK
   end
 end
@@ -266,6 +272,7 @@ let to_kind : t -> Effect.Kind.t = function
 | { effect = Mighty _; _ } -> Mighty
 | { effect = Tough _; _ } -> Tough
 | { effect = Sticky _; _ } -> Sticky
+| { effect = Glowing _; _ } -> Glowing
 
 let has_effect_or_special : t -> bool = function
 | { category = Dragon; _ } -> true
@@ -284,7 +291,8 @@ let has_effect_or_special : t -> bool = function
  |{ effect = Sneaky _; _ }
  |{ effect = Mighty _; _ }
  |{ effect = Tough _; _ }
- |{ effect = Sticky _; _ } ->
+ |{ effect = Sticky _; _ }
+ |{ effect = Glowing _; _ } ->
   true
 
 let merge ({ hearts; effect; category; critical } as ingredient) ~count =

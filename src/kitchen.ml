@@ -18,8 +18,7 @@ let make_icon ?fill icon = Icon.svg icon ?fill ~width:1.5 ~height:1.5 ~container
 
 let wrap_icon_list nodes = Node.div Attr.[ style Css_gen.(max_width (`Em 30) @> unselectable) ] nodes
 
-let get_heart_nodes ~max_hearts (Recipes.Ingredient.Hearts.Quarters q) =
-  let actual = min q (max_hearts * 4) in
+let get_heart_nodes (Recipes.Ingredient.Hearts.Quarters actual) =
   let full_hearts = Int.( /% ) actual 4 |> List.init ~f:(const (make_icon Heart)) in
   let remainder =
     match Int.( % ) actual 4 with
@@ -38,7 +37,7 @@ let get_heart_nodes ~max_hearts (Recipes.Ingredient.Hearts.Quarters q) =
 let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) option = function
 | Nothing -> None
 | Restores (Quarters _ as x) ->
-  let hearts, label = get_heart_nodes ~max_hearts x in
+  let hearts, label = get_heart_nodes x in
   Some (sprintf "Hearts (%s)" (Option.value label ~default:"0"), wrap_icon_list hearts)
 | Full_plus_bonus x ->
   let actual = min x (30 - max_hearts) in
@@ -49,7 +48,7 @@ let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) opt
   Some (sprintf "Hearts (%d + %d)" max_hearts actual, node)
 | Unglooms (x, (Quarters _ as q)) ->
   let unglooms = List.init x ~f:(const (make_icon Sunny)) in
-  let hearts, _hearts_label = get_heart_nodes ~max_hearts q in
+  let hearts, _hearts_label = get_heart_nodes q in
   let node = unglooms @ hearts |> wrap_icon_list in
   let label = if x = 1 then "Repairs 1 Heart" else sprintf "Repairs %d Hearts" x in
 
@@ -148,6 +147,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         | Mighty x -> Some ("Mighty", Icon.Mighty, x)
         | Tough x -> Some ("Tough", Icon.Tough, x)
         | Sticky x -> Some ("Sticky", Icon.Sticky, x)
+        | Glowing x -> Some ("Glowing", Icon.Glowing, x)
       in
       let effect =
         opt >>| fun (s, icon, { potency; _ }) ->
@@ -307,29 +307,31 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
     Node.div [] (time_node :: List.map iterations ~f:render_iteration)
 
 let button_choices =
-  String.Map.of_alist_exn
-    Recipes.Ingredient.Effect.Kind.
-      [
-        "Hearty", Hearty;
-        "Energizing", Energizing;
-        "Enduring", Enduring;
-        "Spicy", Spicy;
-        "Chilly", Chilly;
-        "Electro", Electro;
-        "Fireproof", Fireproof;
-        "Hasty", Hasty;
-        "Sneaky", Sneaky;
-        "Mighty", Mighty;
-        "Tough", Tough;
-        "Sunny", Sunny;
-        "Sticky", Sticky;
-      ]
+  Recipes.Ingredient.Effect.Kind.
+    [|
+      "Chilly", Chilly;
+      "Electro", Electro;
+      "Energizing", Energizing;
+      "Enduring", Enduring;
+      "Fireproof", Fireproof;
+      "Hasty", Hasty;
+      "Hearty", Hearty;
+      "Sunny", Sunny;
+      "Mighty", Mighty;
+      "Sneaky", Sneaky;
+      "Spicy", Spicy;
+      "Tough", Tough;
+      "Sticky", Sticky;
+      "Glowing", Glowing;
+    |]
 
 let render_buttons ~game ~update selected_kind =
-  let handler _evt s = update (String.Map.find button_choices s) in
+  let handler _evt s =
+    update (Array.find_map button_choices ~f:(fun (k, v) -> Option.some_if String.(k = s) v))
+  in
   Node.div
     Attr.[ class_ "my-2"; on_change handler ]
-    (String.Map.fold_right button_choices ~init:[] ~f:(fun ~key:label ~data:kind -> function
+    (Array.fold_right button_choices ~init:[] ~f:(fun (label, kind) -> function
        | acc when not Recipes.(Game.is_in_game (Ingredient.Effect.Kind.availability kind) ~game) -> acc
        | acc ->
          let id_ = sprintf "kind-choice-%s" label in
@@ -485,7 +487,8 @@ let component ~game ~updates ?kind () =
             |Sneaky
             |Mighty
             |Tough
-            |Sticky ->
+            |Sticky
+            |Glowing ->
              true)
        in
        let kind_with_gloomy_hearts =

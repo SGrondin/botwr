@@ -60,6 +60,8 @@ module Self = struct
     | Wildberry
     | Hylian_shroom
     | Palm_fruit
+    | Ancient_arowana (* TODO *)
+    | Hylian_tomato (* TODO *)
     | Hyrule_herb
     | Hyrule_bass
     | Sanke_carp
@@ -157,6 +159,13 @@ module Self = struct
     | Armored_carp
     | Ironshell_crab
     | Armored_porgy
+    (* Sticky *)
+    | Sticky_lizard
+    | Sticky_frog
+    (* Glowing *)
+    | Brightcap
+    | Deep_firefly
+    | Glowing_cave_fish
     (* Other *)
     | Fairy
     | Star_fragment

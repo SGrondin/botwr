@@ -25,13 +25,13 @@ module Group = struct
       | Fireproof
       | Hasty
       | Hearty
+      | Sunny
       | Mighty
       | Sneaky
       | Spicy
       | Tough
-      | Sunny
       | Sticky
-      (* TODO *)
+      | Glowing
       | Monster_parts
       | Special
     [@@deriving sexp, compare, enumerate]
@@ -57,7 +57,8 @@ module Group = struct
    |Special ->
     Both
   | Sunny
-   |Sticky ->
+   |Sticky
+   |Glowing ->
     TOTK
 
   let of_glossary : Glossary.t -> t = function
@@ -89,7 +90,8 @@ module Group = struct
     | Spicy -> Spicy
     | Tough -> Tough
     | Sunny -> Sunny
-    | Sticky -> Sticky)
+    | Sticky -> Sticky
+    | Glowing -> Glowing)
 
   let to_string = function
   | Nothing -> "No Effect"
@@ -106,6 +108,7 @@ module Group = struct
   | Tough -> "Tough"
   | Sunny -> "Sunny"
   | Sticky -> "Sticky"
+  | Glowing -> "Glowing"
   | Monster_parts -> "Monster Parts"
   | Special -> "Special"
 
@@ -126,6 +129,7 @@ module Group = struct
       | Tough -> First Tough
       | Sunny -> First Sunny
       | Sticky -> First Sticky
+      | Glowing -> First Glowing
       | Monster_parts -> Second Glossary.(to_img_src (Monster_guts Bokoblin_guts))
       | Special -> Second Glossary.(to_img_src Fairy)
     in

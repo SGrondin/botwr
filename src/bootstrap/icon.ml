@@ -35,6 +35,7 @@ type t =
   | Mighty
   | Tough
   | Sticky
+  | Glowing
   | Bookmark_plus
   | Check_all
   | Folder2_open
@@ -65,6 +66,7 @@ let of_kind : Recipes.Ingredient.Effect.Kind.t -> t = function
 | Mighty -> Mighty
 | Tough -> Tough
 | Sticky -> Sticky
+| Glowing -> Glowing
 
 let fill_grey = "#949487"
 
@@ -105,6 +107,7 @@ let get_fill = function
  |Enduring4
  |Hearty
  |Sunny
+ |Glowing
  |Reception_2 ->
   "#e8e527"
 | Fireproof
@@ -156,6 +159,7 @@ let get_viewbox = function
   -10, 0, 1034, 1024
 | Sunny
  |Sticky
+ |Glowing
  |Bookmark_plus
  |Check_all
  |Folder2_open
@@ -261,6 +265,14 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
 <use href="#droplet" width="6" height="6" x="1.8" y="2" fill="#ffffff" />
 <use href="#droplet" width="12" height="12" x="5" y="3" />
 <use href="#droplet" width="9.25" height="11.25" x="6.15" y="3.5" fill="#ffffff" />
+|svg}
+    | Glowing ->
+      {svg|
+<symbol id="star" viewBox="0 0 16 16" x="1" y="-4">
+  <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828l.645-1.937z" />
+</symbol>
+<use href="#star" />
+<use href="#star" transform="rotate(45 8.5 8), translate(-1, 0)" />
 |svg}
     | Bookmark_plus ->
       {svg|<path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>

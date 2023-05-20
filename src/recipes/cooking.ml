@@ -11,8 +11,8 @@ module Algo = struct
   [@@deriving sexp, equal, enumerate]
 
   let to_string = function
-  | Balanced -> "Max effect + Balanced duration"
-  | Maximize -> "Max effect + Max duration"
+  | Balanced -> "Max power + Balanced duration"
+  | Maximize -> "Max power + Max duration"
 end
 
 module Hearts = struct
@@ -38,19 +38,6 @@ module Hearts = struct
     let real_max_hearts = max_hearts - (unglooms_actual_gain - gloomy_hearts) in
     let quarters_actual_gain = min quarters_theoretical_gain (real_max_hearts << 2) in
     let quarters_wasted = quarters_theoretical_gain - quarters_actual_gain in
-    (* if !debug
-       then
-         print_endline
-           ([
-              sprintf "unglooms_theoretical_gain = %d" unglooms_theoretical_gain;
-              sprintf "unglooms_actual_gain = %d" unglooms_actual_gain;
-              sprintf "unglooms_wasted = %d" unglooms_wasted;
-              sprintf "real_max_hearts = %d" real_max_hearts;
-              sprintf "quarters_theoretical_gain = %d" quarters_theoretical_gain;
-              sprintf "quarters_actual_gain = %d" quarters_actual_gain;
-              sprintf "quarters_wasted = %d" quarters_wasted;
-            ]
-           |> String.concat ~sep:"\n"); *)
     100
     + (unglooms_actual_gain << 4)
     + (quarters_actual_gain << 1)
@@ -102,6 +89,7 @@ module Effect = struct
     | Mighty    of bonus
     | Tough     of bonus
     | Sticky    of bonus
+    | Glowing   of bonus
   [@@deriving sexp, compare, equal, variants]
 
   let max_potency = function
@@ -117,6 +105,7 @@ module Effect = struct
   | Sticky { potency; _ } ->
     (* TODO *)
     potency = 3
+  | Glowing { potency; _ } -> potency = 3
 
   let duration = function
   | Nothing -> 0
@@ -128,7 +117,8 @@ module Effect = struct
    |Sneaky { duration; _ }
    |Mighty { duration; _ }
    |Tough { duration; _ }
-   |Sticky { duration; _ } ->
+   |Sticky { duration; _ }
+   |Glowing { duration; _ } ->
     duration
 
   let score ~num_effect_ingredients ~random_bonus ~algo = function
@@ -141,7 +131,8 @@ module Effect = struct
    |Sneaky { potency; wasted; duration }
    |Mighty { potency; wasted; duration }
    |Tough { potency; wasted; duration }
-   |Sticky { potency; wasted; duration } ->
+   |Sticky { potency; wasted; duration }
+   |Glowing { potency; wasted; duration } ->
     let actual_duration = min duration 1800 in
     let wasted_duration = duration - actual_duration in
     let penalty =
@@ -281,6 +272,7 @@ let cook map =
       | Sticky x ->
         (* TODO: levels? *)
         convert 5 9 Effect.sticky x
+      | Glowing x -> convert 5 7 Effect.glowing x
     in
     let random_effects : Special_bonus.t list =
       match res.critical, hearts, stamina, effect with

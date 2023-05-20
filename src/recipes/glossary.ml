@@ -78,6 +78,8 @@ let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
 
 let make_tough = make_effect Ingredient.Effect.tough (0, 50)
 
+let make_glowing = make_effect Ingredient.Effect.glowing (2, 0)
+
 let energizing_critter x =
   Ingredient.
     { hearts = Always (Quarters 0); effect = Energizing (Fifths x); category = Critter; critical = false }
@@ -135,6 +137,8 @@ let to_ingredient =
     | Apple -> make_food 4 30
     | Wildberry -> make_food 4 30
     | Hylian_shroom -> make_food 4 30
+    | Ancient_arowana -> make_food 8 30
+    | Hylian_tomato -> make_food 8 30
     | Hyrule_herb -> make_food 8 30
     | Hyrule_bass -> make_food 8 30
     | Sanke_carp -> make_food 8 30
@@ -234,6 +238,15 @@ let to_ingredient =
     | Armored_carp -> make_tough 8 2
     | Ironshell_crab -> make_tough 8 2
     | Armored_porgy -> make_tough 8 3
+    (* Sticky *)
+    (* TODO *)
+    | Sticky_lizard -> effect_critter (2, 0) Ingredient.Effect.sticky 1
+    | Sticky_frog -> effect_critter (2, 0) Ingredient.Effect.sticky 3
+    (* Glowing *)
+    (* TODO *)
+    | Brightcap -> make_glowing 4 1
+    | Deep_firefly -> effect_critter (2, 0) Ingredient.Effect.glowing 2
+    | Glowing_cave_fish -> make_glowing 8 2
     (* Other *)
     | Fairy ->
       (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
@@ -377,8 +390,15 @@ let availability : t -> Game.availability = function
  |Dragon_fangs _
  |Dragon_horns _ ->
   BOTW
-| Sundelion
- |Stambulb ->
+| Ancient_arowana
+ |Hylian_tomato
+ |Sundelion
+ |Stambulb
+ |Deep_firefly
+ |Glowing_cave_fish
+ |Brightcap
+ |Sticky_lizard
+ |Sticky_frog ->
   TOTK
 
 let to_string = function
@@ -521,8 +541,15 @@ let to_string = function
 | Dragon_horns Dinraal -> "Shard of Dinraal's Horn"
 | Dragon_horns Naydra -> "Shard of Naydra's Horn"
 | Dragon_horns Farosh -> "Shard of Farosh's Horn"
+| Ancient_arowana -> "Ancient Arowana"
+| Hylian_tomato -> "Hylian Tomato"
 | Sundelion -> "Sundelion"
 | Stambulb -> "Stambulb"
+| Deep_firefly -> "Deep Firefly"
+| Glowing_cave_fish -> "Glowing Cave Fish"
+| Brightcap -> "Brightcap"
+| Sticky_lizard -> "Sticky Lizard"
+| Sticky_frog -> "Sticky Frog"
 
 let ordered =
   [|
@@ -627,8 +654,16 @@ let ordered =
     Hightail_lizard;
     Hearty_lizard;
     Fireproof_lizard;
+    (* TODO! *)
+    Ancient_arowana;
+    Hylian_tomato;
     Sundelion;
     Stambulb;
+    Sticky_lizard;
+    Sticky_frog;
+    Brightcap;
+    Deep_firefly;
+    Glowing_cave_fish;
     (* TODO! *)
     Monster_horn Bokoblin_horn;
     Monster_fang Bokoblin_fang;

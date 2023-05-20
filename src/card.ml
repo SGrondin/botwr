@@ -91,8 +91,7 @@ let changes_quantity ~update_selected ~update_state is_selected item =
         | _ev when is_selected -> (
           match get_quantity () with
           | Some quantity -> Event.Many [ update_state (Action.Set quantity); update_selected None ]
-          | None -> update_selected None
-        )
+          | None -> update_selected None)
         | _ev ->
           let evts = [ update_selected (Some item) ] in
           Event.Many evts);
@@ -133,7 +132,7 @@ let component ~inventory ~selected ~update_selected item =
          let quantity =
            match is_selected with
            | true -> input_node ~update_state ~update_selected
-           | false -> Node.div Attr.[ style unselectable ] [ Node.textf !"x%d" state ]
+           | false -> Node.div changes_quantity [ Node.textf !"x%d" state ]
          in
          Node.div
            Attr.[ classes [ "d-flex"; "flex-column"; "justify-content-between"; "align-items-center" ] ]
