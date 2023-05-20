@@ -24,14 +24,15 @@ module Group = struct
       | Energizing
       | Fireproof
       | Hasty
+      | Rapid
+      | Sticky
       | Hearty
       | Sunny
       | Mighty
       | Sneaky
       | Spicy
       | Tough
-      | Sticky
-      | Glowing
+      | Bright
       | Monster_parts
       | Special
     [@@deriving sexp, compare, enumerate]
@@ -57,8 +58,9 @@ module Group = struct
    |Special ->
     Both
   | Sunny
+   |Rapid
    |Sticky
-   |Glowing ->
+   |Bright ->
     TOTK
 
   let of_glossary : Glossary.t -> t = function
@@ -84,14 +86,15 @@ module Group = struct
     | Energizing -> Energizing
     | Fireproof -> Fireproof
     | Hasty -> Hasty
+    | Rapid -> Rapid
+    | Sticky -> Sticky
     | Hearty -> Hearty
     | Mighty -> Mighty
     | Sneaky -> Sneaky
     | Spicy -> Spicy
     | Tough -> Tough
     | Sunny -> Sunny
-    | Sticky -> Sticky
-    | Glowing -> Glowing)
+    | Bright -> Bright)
 
   let to_string = function
   | Nothing -> "No Effect"
@@ -99,16 +102,17 @@ module Group = struct
   | Electro -> "Electro"
   | Enduring -> "Enduring"
   | Energizing -> "Energizing"
+  | Hearty -> "Hearty"
+  | Sunny -> "Sunny"
   | Fireproof -> "Fireproof"
   | Hasty -> "Hasty"
-  | Hearty -> "Hearty"
+  | Rapid -> "Rapid"
+  | Sticky -> "Sticky"
   | Mighty -> "Mighty"
   | Sneaky -> "Sneaky"
   | Spicy -> "Spicy"
   | Tough -> "Tough"
-  | Sunny -> "Sunny"
-  | Sticky -> "Sticky"
-  | Glowing -> "Glowing"
+  | Bright -> "Bright"
   | Monster_parts -> "Monster Parts"
   | Special -> "Special"
 
@@ -120,16 +124,17 @@ module Group = struct
       | Electro -> First Electro
       | Enduring -> First Enduring
       | Energizing -> First Energizing
+      | Hearty -> First Hearty
+      | Sunny -> First Sunny
       | Fireproof -> First Fireproof
       | Hasty -> First Hasty
-      | Hearty -> First Hearty
+      | Rapid -> First Rapid
+      | Sticky -> First Sticky
       | Mighty -> First Mighty
       | Sneaky -> First Sneaky
       | Spicy -> First Spicy
       | Tough -> First Tough
-      | Sunny -> First Sunny
-      | Sticky -> First Sticky
-      | Glowing -> First Glowing
+      | Bright -> First Bright
       | Monster_parts -> Second Glossary.(to_img_src (Monster_guts Bokoblin_guts))
       | Special -> Second Glossary.(to_img_src Fairy)
     in
@@ -150,6 +155,11 @@ let group ~inventory ~selected ~update_selected ~show_all ~game items =
   @@ let%map mapped = mapped
      and show_all = show_all
      and game = game in
+     let ordered =
+       match (game : Game.t) with
+       | BOTW -> force Glossary.ordered_botw
+       | TOTK -> force Glossary.ordered_totk
+     in
      String.Map.fold mapped ~init:{ keyed_nodes = []; total = 0; updates = []; ingredients = [] }
        ~f:(fun
             ~key:_

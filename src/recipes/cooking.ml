@@ -85,11 +85,12 @@ module Effect = struct
     | Electro   of bonus
     | Fireproof of bonus
     | Hasty     of bonus
+    | Rapid     of bonus
+    | Sticky    of bonus
     | Sneaky    of bonus
     | Mighty    of bonus
     | Tough     of bonus
-    | Sticky    of bonus
-    | Glowing   of bonus
+    | Bright    of bonus
   [@@deriving sexp, compare, equal, variants]
 
   let max_potency = function
@@ -99,13 +100,14 @@ module Effect = struct
   | Electro { potency; _ } -> potency = 3
   | Fireproof { potency; _ } -> potency = 2
   | Hasty { potency; _ } -> potency = 3
-  | Sneaky { potency; _ } -> potency = 3
-  | Mighty { potency; _ } -> potency = 3
-  | Tough { potency; _ } -> potency = 3
+  | Rapid { potency; _ } -> potency = 1
   | Sticky { potency; _ } ->
     (* TODO *)
     potency = 3
-  | Glowing { potency; _ } -> potency = 3
+  | Sneaky { potency; _ } -> potency = 3
+  | Mighty { potency; _ } -> potency = 3
+  | Tough { potency; _ } -> potency = 3
+  | Bright { potency; _ } -> potency = 3
 
   let duration = function
   | Nothing -> 0
@@ -114,11 +116,12 @@ module Effect = struct
    |Electro { duration; _ }
    |Fireproof { duration; _ }
    |Hasty { duration; _ }
+   |Rapid { duration; _ }
+   |Sticky { duration; _ }
    |Sneaky { duration; _ }
    |Mighty { duration; _ }
    |Tough { duration; _ }
-   |Sticky { duration; _ }
-   |Glowing { duration; _ } ->
+   |Bright { duration; _ } ->
     duration
 
   let score ~num_effect_ingredients ~random_bonus ~algo = function
@@ -128,11 +131,12 @@ module Effect = struct
    |Electro { potency; wasted; duration }
    |Fireproof { potency; wasted; duration }
    |Hasty { potency; wasted; duration }
+   |Rapid { potency; wasted; duration }
+   |Sticky { potency; wasted; duration }
    |Sneaky { potency; wasted; duration }
    |Mighty { potency; wasted; duration }
    |Tough { potency; wasted; duration }
-   |Sticky { potency; wasted; duration }
-   |Glowing { potency; wasted; duration } ->
+   |Bright { potency; wasted; duration } ->
     let actual_duration = min duration 1800 in
     let wasted_duration = duration - actual_duration in
     let penalty =
@@ -266,13 +270,14 @@ let cook map =
       | Electro x -> convert 4 6 Effect.electro x
       | Fireproof x -> convert 7 99 Effect.fireproof x
       | Hasty x -> convert 5 7 Effect.hasty x
-      | Sneaky x -> convert 6 9 Effect.sneaky x
-      | Mighty x -> convert 5 7 Effect.mighty x
-      | Tough x -> convert 5 9 Effect.tough x
+      | Rapid x -> convert 99 99 Effect.rapid x
       | Sticky x ->
         (* TODO: levels? *)
         convert 5 9 Effect.sticky x
-      | Glowing x -> convert 5 7 Effect.glowing x
+      | Sneaky x -> convert 6 9 Effect.sneaky x
+      | Mighty x -> convert 5 7 Effect.mighty x
+      | Tough x -> convert 5 9 Effect.tough x
+      | Bright x -> convert 5 7 Effect.bright x
     in
     let random_effects : Special_bonus.t list =
       match res.critical, hearts, stamina, effect with

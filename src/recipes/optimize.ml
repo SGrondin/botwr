@@ -22,12 +22,13 @@ let get_sort_by_kind : Ingredient.Effect.Kind.t -> int * 'a -> int * 'b -> int =
  |Electro
  |Fireproof
  |Hasty
+ |Rapid
+ |Sticky
  |Mighty
  |Sneaky
  |Spicy
  |Tough
- |Sticky
- |Glowing ->
+ |Bright ->
   best
 
 let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =

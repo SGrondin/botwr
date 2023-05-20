@@ -30,12 +30,13 @@ type t =
   | Electro
   | Fireproof
   | Hasty
+  | Rapid
+  | Sticky
   | Sneaky
   | Spicy
   | Mighty
   | Tough
-  | Sticky
-  | Glowing
+  | Bright
   | Bookmark_plus
   | Check_all
   | Folder2_open
@@ -62,11 +63,12 @@ let of_kind : Recipes.Ingredient.Effect.Kind.t -> t = function
 | Electro -> Electro
 | Fireproof -> Fireproof
 | Hasty -> Hasty
+| Rapid -> Rapid
+| Sticky -> Sticky
 | Sneaky -> Sneaky
 | Mighty -> Mighty
 | Tough -> Tough
-| Sticky -> Sticky
-| Glowing -> Glowing
+| Bright -> Bright
 
 let fill_grey = "#949487"
 
@@ -107,7 +109,7 @@ let get_fill = function
  |Enduring4
  |Hearty
  |Sunny
- |Glowing
+ |Bright
  |Reception_2 ->
   "#e8e527"
 | Fireproof
@@ -116,6 +118,7 @@ let get_fill = function
 | Hasty -> "#108fff"
 | Sneaky -> "#d03bfe"
 | Spicy
+ |Rapid
  |Sticky ->
   "#71d6f0"
 | Elixir
@@ -157,9 +160,10 @@ let get_viewbox = function
  |Mighty
  |Tough ->
   -10, 0, 1034, 1024
+| Rapid -> 0, 0, 8, 8
 | Sunny
  |Sticky
- |Glowing
+ |Bright
  |Bookmark_plus
  |Check_all
  |Folder2_open
@@ -256,6 +260,8 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
 <path d="M276 494l332 -332l166 -4l-7 162l-333 332l-53 -53l191 -191l-48 -48l-191 191z" />|svg}
     | Tough ->
       {svg|<path d="M272 140q42 45 86 67q44 23 89 23t89 -22q44 -23 86 -68q174 127 203 148.5l29 21.5l-132 160l-68 -60l50 390h-514l50 -390l-68 60l-132 -160l29 -21t203 -149zM447 422q22 0 37.5 -15.5t15.5 -37.5t-15.5 -37.5t-37.5 -15.5t-37.5 15.5t-15.5 37.5t15.5 37.5t37.5 15.5 zM447 570q22 0 37.5 -15.5t15.5 -37.5t-15.5 -37.5t-37.5 -15.5t-37.5 15.5t-15.5 37.5t15.5 37.5t37.5 15.5z" />|svg}
+    | Rapid ->
+      {svg|<path d="M.036 3.314a.5.5 0 0 1 .65-.278l1.757.703a1.5 1.5 0 0 0 1.114 0l1.014-.406a2.5 2.5 0 0 1 1.857 0l1.015.406a1.5 1.5 0 0 0 1.114 0l1.014-.406a2.5 2.5 0 0 1 1.857 0l1.015.406a1.5 1.5 0 0 0 1.114 0l1.757-.703a.5.5 0 1 1 .372.928l-1.758.703a2.5 2.5 0 0 1-1.857 0l-1.014-.406a1.5 1.5 0 0 0-1.114 0l-1.015.406a2.5 2.5 0 0 1-1.857 0l-1.014-.406a1.5 1.5 0 0 0-1.114 0l-1.015.406a2.5 2.5 0 0 1-1.857 0L.314 3.964a.5.5 0 0 1-.278-.65zm0 3a.5.5 0 0 1 .65-.278l1.757.703a1.5 1.5 0 0 0 1.114 0l1.014-.406a2.5 2.5 0 0 1 1.857 0l1.015.406a1.5 1.5 0 0 0 1.114 0l1.014-.406a2.5 2.5 0 0 1 1.857 0l1.015.406a1.5 1.5 0 0 0 1.114 0l1.757-.703a.5.5 0 1 1 .372.928l-1.758.703a2.5 2.5 0 0 1-1.857 0l-1.014-.406a1.5 1.5 0 0 0-1.114 0l-1.015.406a2.5 2.5 0 0 1-1.857 0l-1.014-.406a1.5 1.5 0 0 0-1.114 0l-1.015.406a2.5 2.5 0 0 1-1.857 0L.314 6.964a.5.5 0 0 1-.278-.65z"/>|svg}
     | Sticky ->
       {svg|
 <symbol id="droplet" viewBox="0 0 16 16">
@@ -266,7 +272,7 @@ let svg ?(width = 1.0) ?(height = 1.0) ?(bold = false) ?fill ?(container = Div) 
 <use href="#droplet" width="12" height="12" x="5" y="3" />
 <use href="#droplet" width="9.25" height="11.25" x="6.15" y="3.5" fill="#ffffff" />
 |svg}
-    | Glowing ->
+    | Bright ->
       {svg|
 <symbol id="star" viewBox="0 0 16 16" x="1" y="-4">
   <path d="M7.657 6.247c.11-.33.576-.33.686 0l.645 1.937a2.89 2.89 0 0 0 1.829 1.828l1.936.645c.33.11.33.576 0 .686l-1.937.645a2.89 2.89 0 0 0-1.828 1.829l-.645 1.936a.361.361 0 0 1-.686 0l-.645-1.937a2.89 2.89 0 0 0-1.828-1.828l-1.937-.645a.361.361 0 0 1 0-.686l1.937-.645a2.89 2.89 0 0 0 1.828-1.828l.645-1.937z" />

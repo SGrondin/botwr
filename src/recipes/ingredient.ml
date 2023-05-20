@@ -89,11 +89,12 @@ module Effect = struct
     | Electro    of Activity.t
     | Fireproof  of Activity.t
     | Hasty      of Activity.t
+    | Rapid      of Activity.t
+    | Sticky     of Activity.t
     | Sneaky     of Activity.t
     | Mighty     of Activity.t
     | Tough      of Activity.t
-    | Sticky     of Activity.t
-    | Glowing    of Activity.t
+    | Bright     of Activity.t
   [@@deriving sexp, compare, equal, hash, variants]
 
   let merge ~count = function
@@ -108,11 +109,12 @@ module Effect = struct
   | Electro x -> Electro (Activity.merge ~count x)
   | Fireproof x -> Fireproof (Activity.merge ~count x)
   | Hasty x -> Hasty (Activity.merge ~count x)
+  | Rapid x -> Rapid (Activity.merge ~count x)
+  | Sticky x -> Sticky (Activity.merge ~count x)
   | Sneaky x -> Sneaky (Activity.merge ~count x)
   | Mighty x -> Mighty (Activity.merge ~count x)
   | Tough x -> Tough (Activity.merge ~count x)
-  | Sticky x -> Sticky (Activity.merge ~count x)
-  | Glowing x -> Glowing (Activity.merge ~count x)
+  | Bright x -> Bright (Activity.merge ~count x)
 
   let combine left right =
     match left, right with
@@ -129,11 +131,12 @@ module Effect = struct
     | Electro x, Electro y -> Electro (Activity.combine x y)
     | Fireproof x, Fireproof y -> Fireproof (Activity.combine x y)
     | Hasty x, Hasty y -> Hasty (Activity.combine x y)
+    | Rapid x, Rapid y -> Rapid (Activity.combine x y)
+    | Sticky x, Sticky y -> Sticky (Activity.combine x y)
     | Sneaky x, Sneaky y -> Sneaky (Activity.combine x y)
     | Mighty x, Mighty y -> Mighty (Activity.combine x y)
     | Tough x, Tough y -> Tough (Activity.combine x y)
-    | Sticky x, Sticky y -> Sticky (Activity.combine x y)
-    | Glowing x, Glowing y -> Glowing (Activity.combine x y)
+    | Bright x, Bright y -> Bright (Activity.combine x y)
     | Neutral dur, x
      |x, Neutral dur -> (
       match x with
@@ -149,11 +152,12 @@ module Effect = struct
       | Electro x -> Electro { x with duration = Duration.combine dur x.duration }
       | Fireproof x -> Fireproof { x with duration = Duration.combine dur x.duration }
       | Hasty x -> Hasty { x with duration = Duration.combine dur x.duration }
+      | Rapid x -> Rapid { x with duration = Duration.combine dur x.duration }
+      | Sticky x -> Sticky { x with duration = Duration.combine dur x.duration }
       | Sneaky x -> Sneaky { x with duration = Duration.combine dur x.duration }
       | Mighty x -> Mighty { x with duration = Duration.combine dur x.duration }
       | Tough x -> Tough { x with duration = Duration.combine dur x.duration }
-      | Sticky x -> Sticky { x with duration = Duration.combine dur x.duration }
-      | Glowing x -> Glowing { x with duration = Duration.combine dur x.duration })
+      | Bright x -> Bright { x with duration = Duration.combine dur x.duration })
     | _ -> Nothing
 
   module Kind = struct
@@ -166,13 +170,14 @@ module Effect = struct
         | Enduring
         | Energizing
         | Fireproof
-        | Glowing
+        | Bright
         | Hasty
+        | Rapid
+        | Sticky
         | Hearty
         | Mighty
         | Sneaky
         | Spicy
-        | Sticky
         | Sunny
         | Tough
       [@@deriving sexp, compare, equal, hash]
@@ -197,8 +202,9 @@ module Effect = struct
      |Tough ->
       Game.Both
     | Sunny
+     |Rapid
      |Sticky
-     |Glowing ->
+     |Bright ->
       Game.TOTK
   end
 end
@@ -268,11 +274,12 @@ let to_kind : t -> Effect.Kind.t = function
 | { effect = Electro _; _ } -> Electro
 | { effect = Fireproof _; _ } -> Fireproof
 | { effect = Hasty _; _ } -> Hasty
+| { effect = Rapid _; _ } -> Rapid
+| { effect = Sticky _; _ } -> Sticky
 | { effect = Sneaky _; _ } -> Sneaky
 | { effect = Mighty _; _ } -> Mighty
 | { effect = Tough _; _ } -> Tough
-| { effect = Sticky _; _ } -> Sticky
-| { effect = Glowing _; _ } -> Glowing
+| { effect = Bright _; _ } -> Bright
 
 let has_effect_or_special : t -> bool = function
 | { category = Dragon; _ } -> true
@@ -288,11 +295,12 @@ let has_effect_or_special : t -> bool = function
  |{ effect = Electro _; _ }
  |{ effect = Fireproof _; _ }
  |{ effect = Hasty _; _ }
+ |{ effect = Rapid _; _ }
+ |{ effect = Sticky _; _ }
  |{ effect = Sneaky _; _ }
  |{ effect = Mighty _; _ }
  |{ effect = Tough _; _ }
- |{ effect = Sticky _; _ }
- |{ effect = Glowing _; _ } ->
+ |{ effect = Bright _; _ } ->
   true
 
 let merge ({ hearts; effect; category; critical } as ingredient) ~count =

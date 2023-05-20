@@ -72,13 +72,15 @@ let make_electro = make_effect Ingredient.Effect.electro (2, 30)
 
 let make_hasty = make_effect Ingredient.Effect.hasty (1, 0)
 
+let make_rapid = make_effect Ingredient.Effect.rapid (2, 0)
+
 let make_sneaky = make_effect Ingredient.Effect.sneaky (2, 0)
 
 let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
 
 let make_tough = make_effect Ingredient.Effect.tough (0, 50)
 
-let make_glowing = make_effect Ingredient.Effect.glowing (2, 0)
+let make_bright = make_effect Ingredient.Effect.bright (2, 0)
 
 let energizing_critter x =
   Ingredient.
@@ -133,21 +135,24 @@ include Items
 
 let to_ingredient =
   let do_to_ingredient = function
-    | Palm_fruit -> make_food 8 30
+    | Skyshroom -> make_food 2 30
+    | Dazzlefruit -> make_food 2 30 (* TODO *)
     | Apple -> make_food 4 30
     | Wildberry -> make_food 4 30
     | Hylian_shroom -> make_food 4 30
+    | Palm_fruit -> make_food 8 30
     | Ancient_arowana -> make_food 8 30
     | Hylian_tomato -> make_food 8 30
     | Hyrule_herb -> make_food 8 30
     | Hyrule_bass -> make_food 8 30
     | Sanke_carp -> make_food 8 30
+    | Raw_meat -> make_food 8 30
+    | Raw_bird_drumstick -> make_food 8 30
+    | Golden_apple -> make_food 12 30 (* TODO *)
+    | Raw_bird_thigh -> make_food 12 30
     | Raw_gourmet_meat -> make_food 24 30
     | Raw_whole_bird -> make_food 24 30
     | Raw_prime_meat -> make_food 12 30
-    | Raw_bird_thigh -> make_food 12 30
-    | Raw_meat -> make_food 8 30
-    | Raw_bird_drumstick -> make_food 8 30
     | Bird_egg -> make_ingredient 8 90 30
     | Fresh_milk -> make_ingredient 4 80 30
     | Acorn -> make_ingredient 4 50 30
@@ -215,6 +220,13 @@ let to_ingredient =
     | Fleet_lotus_seeds -> make_hasty 4 2
     | Swift_violet -> make_hasty 0 2
     | Hot_footed_frog -> effect_critter (1, 0) Ingredient.Effect.hasty 2
+    (* Rapid *)
+    | Splash_fruit -> make_rapid 2 1
+    (* Sticky *)
+    | Sticky_lizard -> effect_critter (2, 0) Ingredient.Effect.sticky 1
+    | Sticky_frog ->
+      (* TODO *)
+      effect_critter (2, 0) Ingredient.Effect.sticky 3
     (* Sneaky *)
     | Blue_nightshade -> make_sneaky 0 1
     | Sneaky_river_snail -> make_sneaky 8 1
@@ -238,15 +250,10 @@ let to_ingredient =
     | Armored_carp -> make_tough 8 2
     | Ironshell_crab -> make_tough 8 2
     | Armored_porgy -> make_tough 8 3
-    (* Sticky *)
-    (* TODO *)
-    | Sticky_lizard -> effect_critter (2, 0) Ingredient.Effect.sticky 1
-    | Sticky_frog -> effect_critter (2, 0) Ingredient.Effect.sticky 3
-    (* Glowing *)
-    (* TODO *)
-    | Brightcap -> make_glowing 4 1
-    | Deep_firefly -> effect_critter (2, 0) Ingredient.Effect.glowing 2
-    | Glowing_cave_fish -> make_glowing 8 2
+    (* Bright *)
+    | Brightcap -> make_bright 4 1
+    | Deep_firefly -> effect_critter (2, 0) Ingredient.Effect.bright 2
+    | Glowing_cave_fish -> make_bright 8 2
     (* Other *)
     | Fairy ->
       (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
@@ -390,10 +397,14 @@ let availability : t -> Game.availability = function
  |Dragon_fangs _
  |Dragon_horns _ ->
   BOTW
-| Ancient_arowana
+| Skyshroom
+ |Dazzlefruit
+ |Ancient_arowana
  |Hylian_tomato
+ |Golden_apple
  |Sundelion
  |Stambulb
+ |Splash_fruit
  |Deep_firefly
  |Glowing_cave_fish
  |Brightcap
@@ -541,169 +552,318 @@ let to_string = function
 | Dragon_horns Dinraal -> "Shard of Dinraal's Horn"
 | Dragon_horns Naydra -> "Shard of Naydra's Horn"
 | Dragon_horns Farosh -> "Shard of Farosh's Horn"
+| Skyshroom -> "Skyshroom"
+| Dazzlefruit -> "Dazzlefruit"
 | Ancient_arowana -> "Ancient Arowana"
 | Hylian_tomato -> "Hylian Tomato"
+| Golden_apple -> "Golden Apple"
 | Sundelion -> "Sundelion"
 | Stambulb -> "Stambulb"
+| Splash_fruit -> "Splash Fruit"
 | Deep_firefly -> "Deep Firefly"
 | Glowing_cave_fish -> "Glowing Cave Fish"
 | Brightcap -> "Brightcap"
 | Sticky_lizard -> "Sticky Lizard"
 | Sticky_frog -> "Sticky Frog"
 
-let ordered =
-  [|
-    Hearty_durian;
-    Palm_fruit;
-    Apple;
-    Wildberry;
-    Hydromelon;
-    Spicy_pepper;
-    Voltfruit;
-    Fleet_lotus_seeds;
-    Mighty_bananas;
-    Big_hearty_truffle;
-    Hearty_truffle;
-    Hylian_shroom;
-    Endura_shroom;
-    Stamella_shroom;
-    Chillshroom;
-    Sunshroom;
-    Zapshroom;
-    Rushroom;
-    Razorshroom;
-    Ironshroom;
-    Silent_shroom;
-    Big_hearty_radish;
-    Hearty_radish;
-    Endura_carrot;
-    Hyrule_herb;
-    Swift_carrot;
-    Fortified_pumpkin;
-    Cool_safflina;
-    Warm_safflina;
-    Electric_safflina;
-    Swift_violet;
-    Mighty_thistle;
-    Armoranth;
-    Blue_nightshade;
-    Silent_princess;
-    Raw_gourmet_meat;
-    Raw_whole_bird;
-    Raw_prime_meat;
-    Raw_bird_thigh;
-    Raw_meat;
-    Raw_bird_drumstick;
-    Courser_bee_honey;
-    Hylian_rice;
-    Acorn;
-    Chickaloo_tree_nut;
-    Bird_egg;
-    Tabantha_wheat;
-    Fresh_milk;
-    Cane_sugar;
-    Goat_butter;
-    Goron_spice;
-    Rock_salt;
-    Star_fragment;
-    Dragon_scales Dinraal;
-    Dragon_scales Naydra;
-    Dragon_scales Farosh;
-    Dragon_claws Dinraal;
-    Dragon_claws Naydra;
-    Dragon_claws Farosh;
-    Dragon_fangs Dinraal;
-    Dragon_fangs Naydra;
-    Dragon_fangs Farosh;
-    Dragon_horns Dinraal;
-    Dragon_horns Naydra;
-    Dragon_horns Farosh;
-    Hearty_salmon;
-    Hearty_bass;
-    Hyrule_bass;
-    Staminoka_bass;
-    Chillfin_trout;
-    Sizzlefin_trout;
-    Voltfin_trout;
-    Stealthfin_trout;
-    Mighty_carp;
-    Armored_carp;
-    Sanke_carp;
-    Mighty_porgy;
-    Armored_porgy;
-    Sneaky_river_snail;
-    Hearty_blueshell_snail;
-    Razorclaw_crab;
-    Ironshell_crab;
-    Bright_eyed_crab;
-    Fairy;
-    Winterwing_butterfly;
-    Summerwing_butterfly;
-    Thunderwing_butterfly;
-    Smotherwing_butterfly;
-    Cold_darner;
-    Warm_darner;
-    Electric_darner;
-    Restless_cricket;
-    Bladed_rhino_beetle;
-    Rugged_rhino_beetle;
-    Energetic_rhino_beetle;
-    Sunset_firefly;
-    Hot_footed_frog;
-    Tireless_frog;
-    Hightail_lizard;
-    Hearty_lizard;
-    Fireproof_lizard;
-    (* TODO! *)
-    Ancient_arowana;
-    Hylian_tomato;
-    Sundelion;
-    Stambulb;
-    Sticky_lizard;
-    Sticky_frog;
-    Brightcap;
-    Deep_firefly;
-    Glowing_cave_fish;
-    (* TODO! *)
-    Monster_horn Bokoblin_horn;
-    Monster_fang Bokoblin_fang;
-    Monster_guts Bokoblin_guts;
-    Monster_horn Moblin_horn;
-    Monster_fang Moblin_fang;
-    Monster_guts Moblin_guts;
-    Monster_horn Lizalfos_horn;
-    Monster_fang Lizalfos_talon;
-    Monster_guts Lizalfos_tail;
-    Monster_guts Icy_lizalfos_tail;
-    Monster_guts Red_lizalfos_tail;
-    Monster_guts Yellow_lizalfos_tail;
-    Monster_horn Lynel_horn;
-    Monster_fang Lynel_hoof;
-    Monster_guts Lynel_guts;
-    Monster_horn Chuchu_jelly;
-    Monster_fang White_chuchu_jelly;
-    Monster_fang Red_chuchu_jelly;
-    Monster_fang Yellow_chuchu_jelly;
-    Monster_horn Keese_wing;
-    Monster_fang Ice_keese_wing;
-    Monster_fang Fire_keese_wing;
-    Monster_fang Electric_keese_wing;
-    Monster_guts Keese_eyeball;
-    Monster_horn Octorok_tentacle;
-    Monster_fang Octorok_eyeball;
-    Monster_horn Octo_balloon;
-    Monster_fang Molduga_fin;
-    Monster_guts Molduga_guts;
-    Monster_horn Hinox_toenail;
-    Monster_fang Hinox_tooth;
-    Monster_guts Hinox_guts;
-    Monster_horn Ancient_screw;
-    Monster_horn Ancient_spring;
-    Monster_fang Ancient_gear;
-    Monster_fang Ancient_shaft;
-    Monster_guts Ancient_core;
-    Monster_guts Giant_ancient_core;
-  |]
-  |> Array.foldi ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data)
+let ordered_botw =
+  lazy
+    ([|
+       Hearty_durian;
+       Palm_fruit;
+       Apple;
+       Wildberry;
+       Hydromelon;
+       Spicy_pepper;
+       Voltfruit;
+       Fleet_lotus_seeds;
+       Mighty_bananas;
+       Big_hearty_truffle;
+       Hearty_truffle;
+       Hylian_shroom;
+       Endura_shroom;
+       Stamella_shroom;
+       Chillshroom;
+       Sunshroom;
+       Zapshroom;
+       Rushroom;
+       Razorshroom;
+       Ironshroom;
+       Silent_shroom;
+       Big_hearty_radish;
+       Hearty_radish;
+       Endura_carrot;
+       Hyrule_herb;
+       Swift_carrot;
+       Fortified_pumpkin;
+       Cool_safflina;
+       Warm_safflina;
+       Electric_safflina;
+       Swift_violet;
+       Mighty_thistle;
+       Armoranth;
+       Blue_nightshade;
+       Silent_princess;
+       Raw_gourmet_meat;
+       Raw_whole_bird;
+       Raw_prime_meat;
+       Raw_bird_thigh;
+       Raw_meat;
+       Raw_bird_drumstick;
+       Courser_bee_honey;
+       Hylian_rice;
+       Acorn;
+       Chickaloo_tree_nut;
+       Bird_egg;
+       Tabantha_wheat;
+       Fresh_milk;
+       Cane_sugar;
+       Goat_butter;
+       Goron_spice;
+       Rock_salt;
+       Star_fragment;
+       Dragon_scales Dinraal;
+       Dragon_scales Naydra;
+       Dragon_scales Farosh;
+       Dragon_claws Dinraal;
+       Dragon_claws Naydra;
+       Dragon_claws Farosh;
+       Dragon_fangs Dinraal;
+       Dragon_fangs Naydra;
+       Dragon_fangs Farosh;
+       Dragon_horns Dinraal;
+       Dragon_horns Naydra;
+       Dragon_horns Farosh;
+       Hearty_salmon;
+       Hearty_bass;
+       Hyrule_bass;
+       Staminoka_bass;
+       Chillfin_trout;
+       Sizzlefin_trout;
+       Voltfin_trout;
+       Stealthfin_trout;
+       Mighty_carp;
+       Armored_carp;
+       Sanke_carp;
+       Mighty_porgy;
+       Armored_porgy;
+       Sneaky_river_snail;
+       Hearty_blueshell_snail;
+       Razorclaw_crab;
+       Ironshell_crab;
+       Bright_eyed_crab;
+       Fairy;
+       Winterwing_butterfly;
+       Summerwing_butterfly;
+       Thunderwing_butterfly;
+       Smotherwing_butterfly;
+       Cold_darner;
+       Warm_darner;
+       Electric_darner;
+       Restless_cricket;
+       Bladed_rhino_beetle;
+       Rugged_rhino_beetle;
+       Energetic_rhino_beetle;
+       Sunset_firefly;
+       Hot_footed_frog;
+       Tireless_frog;
+       Hightail_lizard;
+       Hearty_lizard;
+       Fireproof_lizard;
+       Monster_horn Bokoblin_horn;
+       Monster_fang Bokoblin_fang;
+       Monster_guts Bokoblin_guts;
+       Monster_horn Moblin_horn;
+       Monster_fang Moblin_fang;
+       Monster_guts Moblin_guts;
+       Monster_horn Lizalfos_horn;
+       Monster_fang Lizalfos_talon;
+       Monster_guts Lizalfos_tail;
+       Monster_guts Icy_lizalfos_tail;
+       Monster_guts Red_lizalfos_tail;
+       Monster_guts Yellow_lizalfos_tail;
+       Monster_horn Lynel_horn;
+       Monster_fang Lynel_hoof;
+       Monster_guts Lynel_guts;
+       Monster_horn Chuchu_jelly;
+       Monster_fang White_chuchu_jelly;
+       Monster_fang Red_chuchu_jelly;
+       Monster_fang Yellow_chuchu_jelly;
+       Monster_horn Keese_wing;
+       Monster_fang Ice_keese_wing;
+       Monster_fang Fire_keese_wing;
+       Monster_fang Electric_keese_wing;
+       Monster_guts Keese_eyeball;
+       Monster_horn Octorok_tentacle;
+       Monster_fang Octorok_eyeball;
+       Monster_horn Octo_balloon;
+       Monster_fang Molduga_fin;
+       Monster_guts Molduga_guts;
+       Monster_horn Hinox_toenail;
+       Monster_fang Hinox_tooth;
+       Monster_guts Hinox_guts;
+       Monster_horn Ancient_screw;
+       Monster_horn Ancient_spring;
+       Monster_fang Ancient_gear;
+       Monster_fang Ancient_shaft;
+       Monster_guts Ancient_core;
+       Monster_guts Giant_ancient_core;
+     |]
+    |> Array.foldi ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
+
+let ordered_totk =
+  lazy
+    ([|
+       Golden_apple;
+       Palm_fruit;
+       Hylian_tomato;
+       Apple;
+       Wildberry;
+       Hydromelon;
+       Fleet_lotus_seeds;
+       Spicy_pepper;
+       (* Fire_fruit *)
+       (* Ice_fruit *)
+       (* Shock_fruit *)
+       Splash_fruit;
+       Dazzlefruit;
+       Voltfruit;
+       Mighty_bananas;
+       Hearty_truffle;
+       Big_hearty_truffle;
+       Big_hearty_radish;
+       Rushroom;
+       Brightcap;
+       Stamella_shroom;
+       Chillshroom;
+       Sunshroom;
+       Hylian_shroom;
+       Silent_shroom;
+       Ironshroom;
+       Skyshroom;
+       Endura_shroom;
+       Zapshroom;
+       Razorshroom;
+       Hyrule_herb;
+       Silent_princess;
+       Swift_carrot;
+       Stambulb;
+       (* Korok_frond *)
+       Hearty_radish;
+       Endura_carrot;
+       Fortified_pumpkin;
+       Cool_safflina;
+       Warm_safflina;
+       Electric_safflina;
+       Armoranth;
+       Blue_nightshade;
+       Swift_violet;
+       Mighty_thistle;
+       Sundelion;
+       Raw_gourmet_meat;
+       Raw_whole_bird;
+       Raw_prime_meat;
+       Raw_bird_thigh;
+       Raw_meat;
+       Raw_bird_drumstick;
+       Courser_bee_honey;
+       Hylian_rice;
+       Acorn;
+       Chickaloo_tree_nut;
+       Bird_egg;
+       Tabantha_wheat;
+       Fresh_milk;
+       Cane_sugar;
+       Goat_butter;
+       Goron_spice;
+       Rock_salt;
+       Star_fragment;
+       Dragon_scales Dinraal;
+       Dragon_scales Naydra;
+       Dragon_scales Farosh;
+       Dragon_claws Dinraal;
+       Dragon_claws Naydra;
+       Dragon_claws Farosh;
+       Dragon_fangs Dinraal;
+       Dragon_fangs Naydra;
+       Dragon_fangs Farosh;
+       Dragon_horns Dinraal;
+       Dragon_horns Naydra;
+       Dragon_horns Farosh;
+       Hearty_salmon;
+       Hearty_bass;
+       Hyrule_bass;
+       Staminoka_bass;
+       Chillfin_trout;
+       Ancient_arowana;
+       Glowing_cave_fish;
+       Sizzlefin_trout;
+       Voltfin_trout;
+       Stealthfin_trout;
+       Mighty_carp;
+       Armored_carp;
+       Sanke_carp;
+       Mighty_porgy;
+       Armored_porgy;
+       Sneaky_river_snail;
+       Hearty_blueshell_snail;
+       Razorclaw_crab;
+       Ironshell_crab;
+       Bright_eyed_crab;
+       Fairy;
+       Winterwing_butterfly;
+       Summerwing_butterfly;
+       Thunderwing_butterfly;
+       Smotherwing_butterfly;
+       Cold_darner;
+       Warm_darner;
+       Electric_darner;
+       Deep_firefly;
+       Restless_cricket;
+       Bladed_rhino_beetle;
+       Rugged_rhino_beetle;
+       Energetic_rhino_beetle;
+       Sunset_firefly;
+       Hot_footed_frog;
+       Tireless_frog;
+       Sticky_frog;
+       Hightail_lizard;
+       Hearty_lizard;
+       Fireproof_lizard;
+       Sticky_lizard;
+       Monster_horn Bokoblin_horn;
+       Monster_fang Bokoblin_fang;
+       Monster_guts Bokoblin_guts;
+       Monster_horn Moblin_horn;
+       Monster_fang Moblin_fang;
+       Monster_guts Moblin_guts;
+       Monster_horn Lizalfos_horn;
+       Monster_fang Lizalfos_talon;
+       Monster_guts Lizalfos_tail;
+       Monster_guts Icy_lizalfos_tail;
+       Monster_guts Red_lizalfos_tail;
+       Monster_guts Yellow_lizalfos_tail;
+       Monster_horn Lynel_horn;
+       Monster_fang Lynel_hoof;
+       Monster_guts Lynel_guts;
+       Monster_horn Chuchu_jelly;
+       Monster_fang White_chuchu_jelly;
+       Monster_fang Red_chuchu_jelly;
+       Monster_fang Yellow_chuchu_jelly;
+       Monster_horn Keese_wing;
+       Monster_fang Ice_keese_wing;
+       Monster_fang Fire_keese_wing;
+       Monster_fang Electric_keese_wing;
+       Monster_guts Keese_eyeball;
+       Monster_horn Octorok_tentacle;
+       Monster_fang Octorok_eyeball;
+       Monster_horn Octo_balloon;
+       Monster_fang Molduga_fin;
+       Monster_guts Molduga_guts;
+       Monster_horn Hinox_toenail;
+       Monster_fang Hinox_tooth;
+       Monster_guts Hinox_guts;
+     |]
+    |> Array.foldi ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
 
 let to_img_src x = Map.find_exn Blob.blobs x

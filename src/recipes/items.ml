@@ -56,17 +56,20 @@ module Self = struct
 
   (* IMPORTANT: sorted by strength within their own category *)
   type t =
+    | Skyshroom
+    | Dazzlefruit
     | Apple
     | Wildberry
     | Hylian_shroom
     | Palm_fruit
-    | Ancient_arowana (* TODO *)
-    | Hylian_tomato (* TODO *)
+    | Ancient_arowana
+    | Hylian_tomato
     | Hyrule_herb
     | Hyrule_bass
     | Sanke_carp
     | Raw_meat
     | Raw_bird_drumstick
+    | Golden_apple
     | Raw_bird_thigh
     | Raw_prime_meat
     | Raw_gourmet_meat
@@ -136,7 +139,12 @@ module Self = struct
     | Fleet_lotus_seeds
     | Swift_violet
     | Hot_footed_frog
-    (* Snealy *)
+    (* Rapid *)
+    | Splash_fruit
+    (* Sticky *)
+    | Sticky_lizard
+    | Sticky_frog
+    (* Sneaky *)
     | Blue_nightshade
     | Sneaky_river_snail
     | Sunset_firefly
@@ -159,10 +167,7 @@ module Self = struct
     | Armored_carp
     | Ironshell_crab
     | Armored_porgy
-    (* Sticky *)
-    | Sticky_lizard
-    | Sticky_frog
-    (* Glowing *)
+    (* Bright *)
     | Brightcap
     | Deep_firefly
     | Glowing_cave_fish

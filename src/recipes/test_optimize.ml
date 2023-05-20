@@ -67,8 +67,8 @@ let%expect_test "Filter" =
   [%expect
     {|
     (Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)) |}];
   test Hearty Any data1;
   [%expect
     {|
@@ -78,8 +78,8 @@ let%expect_test "Filter" =
      Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon Hearty_lizard
      Hearty_lizard Hearty_lizard Hearty_lizard Big_hearty_radish
      Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)) |}];
   test Enduring Meals data1;
   [%expect
     {|
@@ -90,8 +90,8 @@ let%expect_test "Filter" =
   [%expect
     {|
     (Tireless_frog Tireless_frog Tireless_frog Tireless_frog
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)) |}];
   test Enduring Any data1;
   [%expect
     {|
@@ -99,7 +99,7 @@ let%expect_test "Filter" =
      Endura_shroom Endura_shroom Endura_shroom Tireless_frog Tireless_frog
      Tireless_frog Tireless_frog Endura_carrot Endura_carrot Endura_carrot
      Endura_carrot Endura_carrot (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)
      (Monster_horn Keese_wing)) |}];
   test Enduring Any
     (Items.Table.of_alist_exn [ Endura_carrot, 1; Dragon_horns Farosh, 0; Endura_shroom, 0 ]);
@@ -840,8 +840,7 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}];
 
-  test ~kind:Glowing ~game:TOTK ~max_hearts:8 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
-    ~algo:Balanced
+  test ~kind:Bright ~game:TOTK ~max_hearts:8 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any ~algo:Balanced
     [ Glowing_cave_fish, 4; Brightcap, 2 ];
   [%expect
     {|
@@ -850,22 +849,22 @@ let%expect_test "Cooking by category, basic" =
     Brightcap, Glowing_cave_fish x3
     (Food
      ((hearts (Restores (Quarters 28))) (stamina Nothing)
-      (effect (Glowing ((potency 3) (wasted 0) (duration 480))))
+      (effect (Bright ((potency 3) (wasted 0) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     283 pts (62, 7.000000)
     Glowing_cave_fish x4
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
-      (effect (Glowing ((potency 3) (wasted 1) (duration 480))))
+      (effect (Bright ((potency 3) (wasted 1) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     281 pts (62, 6.250000)
     Brightcap x2, Glowing_cave_fish x3
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
-      (effect (Glowing ((potency 3) (wasted 1) (duration 600))))
+      (effect (Bright ((potency 3) (wasted 1) (duration 600))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ()))) |}];
 
-  test ~kind:Glowing ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+  test ~kind:Bright ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
     ~algo:Balanced
     [ Glowing_cave_fish, 2; Brightcap, 2 ];
   [%expect
@@ -875,22 +874,22 @@ let%expect_test "Cooking by category, basic" =
     Brightcap, Glowing_cave_fish x2
     (Food
      ((hearts (Restores (Quarters 20))) (stamina Nothing)
-      (effect (Glowing ((potency 2) (wasted 0) (duration 360))))
+      (effect (Bright ((potency 2) (wasted 0) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     219 pts (15, 4.000000)
     Brightcap x2, Glowing_cave_fish x2
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
-      (effect (Glowing ((potency 2) (wasted 1) (duration 480))))
+      (effect (Bright ((potency 2) (wasted 1) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     162 pts (15, 0.500000)
     Brightcap
     (Food
      ((hearts (Restores (Quarters 4))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 0) (duration 120))))
+      (effect (Bright ((potency 1) (wasted 0) (duration 120))))
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ()))) |}];
 
-  test ~kind:Glowing ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+  test ~kind:Bright ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
     ~algo:Balanced
     [ Glowing_cave_fish, 3 ];
   [%expect
@@ -900,22 +899,22 @@ let%expect_test "Cooking by category, basic" =
     Glowing_cave_fish x3
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
-      (effect (Glowing ((potency 2) (wasted 1) (duration 360))))
+      (effect (Bright ((potency 2) (wasted 1) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     161 pts (7, 1.666667)
     Glowing_cave_fish
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 1) (duration 120))))
+      (effect (Bright ((potency 1) (wasted 1) (duration 120))))
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
     157 pts (7, 3.333333)
     Glowing_cave_fish x2
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 3) (duration 240))))
+      (effect (Bright ((potency 1) (wasted 3) (duration 240))))
       (num_ingredients 2) (num_effect_ingredients 2) (random_effects ()))) |}];
 
-  test ~kind:Glowing ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+  test ~kind:Bright ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
     ~algo:Balanced
     [ Glowing_cave_fish, 4 ];
   [%expect
@@ -925,22 +924,22 @@ let%expect_test "Cooking by category, basic" =
     Glowing_cave_fish x4
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
-      (effect (Glowing ((potency 3) (wasted 1) (duration 480))))
+      (effect (Bright ((potency 3) (wasted 1) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     221 pts (15, 5.250000)
     Glowing_cave_fish x3
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
-      (effect (Glowing ((potency 2) (wasted 1) (duration 360))))
+      (effect (Bright ((potency 2) (wasted 1) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     161 pts (15, 1.750000)
     Glowing_cave_fish
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 1) (duration 120))))
+      (effect (Bright ((potency 1) (wasted 1) (duration 120))))
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ()))) |}];
 
-  test ~kind:Glowing ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+  test ~kind:Bright ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
     ~algo:Maximize
     [ Brightcap, 4 ];
   [%expect
@@ -950,43 +949,44 @@ let%expect_test "Cooking by category, basic" =
     Brightcap x4
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 3) (duration 480))))
+      (effect (Bright ((potency 1) (wasted 3) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     206 pts (15, 2.250000)
     Brightcap x3
     (Food
      ((hearts (Restores (Quarters 12))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 2) (duration 360))))
+      (effect (Bright ((potency 1) (wasted 2) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     192 pts (15, 1.500000)
     Brightcap x2
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 1) (duration 240))))
+      (effect (Bright ((potency 1) (wasted 1) (duration 240))))
       (num_ingredients 2) (num_effect_ingredients 2) (random_effects ()))) |}];
 
-  test ~kind:Glowing ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+  test ~kind:Bright ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
     ~algo:Balanced
     [ Brightcap, 5 ];
-  [%expect {|
+  [%expect
+    {|
     (0s)
     218 pts (31, 4.000000)
     Brightcap x5
     (Food
      ((hearts (Restores (Quarters 20))) (stamina Nothing)
-      (effect (Glowing ((potency 2) (wasted 0) (duration 600))))
+      (effect (Bright ((potency 2) (wasted 0) (duration 600))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     162 pts (31, 0.800000)
     Brightcap
     (Food
      ((hearts (Restores (Quarters 4))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 0) (duration 120))))
+      (effect (Bright ((potency 1) (wasted 0) (duration 120))))
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
     159 pts (31, 1.600000)
     Brightcap x2
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
-      (effect (Glowing ((potency 1) (wasted 1) (duration 240))))
+      (effect (Bright ((potency 1) (wasted 1) (duration 240))))
       (num_ingredients 2) (num_effect_ingredients 2) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =

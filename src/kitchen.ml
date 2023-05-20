@@ -143,11 +143,12 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         | Electro x -> Some ("Electro", Icon.Electro, x)
         | Fireproof x -> Some ("Fireproof", Icon.Fireproof, x)
         | Hasty x -> Some ("Hasty", Icon.Hasty, x)
+        | Rapid x -> Some ("Rapid", Icon.Rapid, x)
+        | Sticky x -> Some ("Sticky", Icon.Sticky, x)
         | Sneaky x -> Some ("Sneaky", Icon.Sneaky, x)
         | Mighty x -> Some ("Mighty", Icon.Mighty, x)
         | Tough x -> Some ("Tough", Icon.Tough, x)
-        | Sticky x -> Some ("Sticky", Icon.Sticky, x)
-        | Glowing x -> Some ("Glowing", Icon.Glowing, x)
+        | Bright x -> Some ("Bright", Icon.Bright, x)
       in
       let effect =
         opt >>| fun (s, icon, { potency; _ }) ->
@@ -315,14 +316,15 @@ let button_choices =
       "Enduring", Enduring;
       "Fireproof", Fireproof;
       "Hasty", Hasty;
+      "Rapid", Rapid;
+      "Sticky", Sticky;
       "Hearty", Hearty;
       "Sunny", Sunny;
       "Mighty", Mighty;
       "Sneaky", Sneaky;
       "Spicy", Spicy;
       "Tough", Tough;
-      "Sticky", Sticky;
-      "Glowing", Glowing;
+      "Bright", Bright;
     |]
 
 let render_buttons ~game ~update selected_kind =
@@ -374,15 +376,18 @@ let component ~game ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
-    Stepper.component "max_hearts" 5 ~min_value:3 ~max_value:30 ~update_kitchen New ~render:(fun x ->
-        List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
+    Stepper.component "max_hearts" 5 ~min_value:3 ~max_value:(Bonsai.Value.return 30) ~update_kitchen New
+      ~render:(fun x -> List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
   in
+
   let%sub gloomy_hearts =
-    Stepper.component "gloomy_hearts" 1 ~min_value:1 ~max_value:29 ~update_kitchen New ~render:(fun x ->
-        List.init x ~f:(const (make_icon ~fill:Icon.fill_grey Sunny)) |> wrap_icon_list)
+    Stepper.component "gloomy_hearts" 1 ~min_value:1
+      ~max_value:(max_hearts >>| fun (hearts, _) -> hearts - 1)
+      ~update_kitchen New
+      ~render:(fun x -> List.init x ~f:(const (make_icon ~fill:Icon.fill_grey Sunny)) |> wrap_icon_list)
   in
   let%sub max_stamina =
-    Stepper.component "max_stamina" 5 ~min_value:5 ~max_value:15 ~update_kitchen New
+    Stepper.component "max_stamina" 5 ~min_value:5 ~max_value:(Bonsai.Value.return 15) ~update_kitchen New
       ~render:(fun potency ->
         Recipes.Cooking.Stamina.Restores { potency; wasted = 0 }
         |> render_stamina 15
@@ -484,11 +489,12 @@ let component ~game ~updates ?kind () =
             |Electro
             |Fireproof
             |Hasty
+            |Rapid
+            |Sticky
             |Sneaky
             |Mighty
             |Tough
-            |Sticky
-            |Glowing ->
+            |Bright ->
              true)
        in
        let kind_with_gloomy_hearts =
