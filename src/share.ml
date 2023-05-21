@@ -5,7 +5,11 @@ open! Vdom
 open Bootstrap
 open Bootstrap.Basic
 
-let prefix = "inventory-"
+let prefix = "inv-"
+
+type inventory_save = (Recipes.Items.t * int) list [@@deriving sexp_of]
+
+type inventory_load = int Recipes.Glossary.Map.t [@@deriving of_sexp]
 
 let copy_link ingredients =
   let compressed = Recipes.Compression.compress ingredients in
@@ -76,7 +80,10 @@ let save_component ~update_status_msg ~update_visibility
            Event.Ignore
          | Some name -> (
            let key = sprintf "%s%s" prefix name in
-           match Local_storage.set_item ~key ~data:(Recipes.Compression.compress ingredients) with
+           let data =
+             List.filter ingredients ~f:(fun (_, n) -> n > 0) |> sprintf !"%{sexp#mach: inventory_save}"
+           in
+           match Local_storage.set_item ~key ~data with
            | Ok () ->
              Event.Many
                [
@@ -86,8 +93,7 @@ let save_component ~update_status_msg ~update_visibility
                ]
            | Error msg ->
              print_endline (sprintf "Error writing to local storage: %s" msg);
-             update_status_msg (Some (Status.Danger "Could not save due to a browser error"))
-         )
+             update_status_msg (Some (Status.Danger "Could not save due to a browser error")))
        in
        let text, cl =
          match overwriting with
@@ -150,7 +156,7 @@ let restore_component ~update_visibility ~update_status_msg updates =
          Option.bind selected ~f:Local_storage.get_item |> function
          | None -> Event.Ignore
          | Some raw -> (
-           match Recipes.Compression.decompress raw with
+           match Result.try_with (fun () -> Sexp.of_string_conv_exn raw [%of_sexp: inventory_load]) with
            | Ok map ->
              Recipes.Glossary.Map.fold2 map updates ~init:[] ~f:(fun ~key:_ ~data acc ->
                  match data with
@@ -161,8 +167,7 @@ let restore_component ~update_visibility ~update_status_msg updates =
              |> List.cons @@ update_selected None
              |> List.cons @@ update_status_msg (Some (Status.Success "Done!"))
              |> Event.Many
-           | Error err -> update_status_msg (Some (Danger (Error.to_string_hum err)))
-         )
+           | Error err -> update_status_msg (Some (Danger (sprintf !"An error occured (%{Exn})" err))))
        in
        let attrs, text =
          match selected with

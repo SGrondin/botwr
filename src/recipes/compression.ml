@@ -79,8 +79,7 @@ let decompress b64 =
           (* 1 byte *)
           let data = min (c &&& 63) 999 in
           let key = Map.nth_exn all id |> fst in
-          loop (pos + 1) (id + 1) (Map.add_exn acc ~key ~data)
-      )
+          loop (pos + 1) (id + 1) (Map.add_exn acc ~key ~data))
     in
     loop 0 0 Map.empty
   in
