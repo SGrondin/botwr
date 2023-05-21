@@ -148,6 +148,7 @@ let diff_time r =
   Int64.((t1 - t0) // 1_000_000_000L)
 
 type folder = {
+  i: int;
   first: int * Recipe.t list;
   second: int * Recipe.t list;
   third: int * Recipe.t list;
@@ -155,8 +156,8 @@ type folder = {
 
 let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
   let cache = Recipe.Table.create () in
-  let f (({ first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc), i)
-     (recipe : Recipe.t) =
+  let f ({ i; first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc) (recipe : Recipe.t)
+      =
     let score =
       Recipe.Table.find_or_add cache recipe ~default:(fun () ->
           match cook recipe with
@@ -168,24 +169,21 @@ let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
            |Failed _ ->
             -1_000_000)
     in
-    let updated =
-      if score < score3
-      then acc
-      else if score = score3
-      then { acc with third = score, recipe :: ll3 }
-      else if score < score2
-      then { acc with third = score, [ recipe ] }
-      else if score = score2
-      then { acc with second = score, recipe :: ll2 }
-      else if score < score1
-      then { acc with second = score, [ recipe ]; third = acc.second }
-      else if score = score1
-      then { acc with first = score, recipe :: ll1 }
-      else { first = score, [ recipe ]; second = acc.first; third = acc.second }
-    in
-    updated, i + 1
+    if score < score3
+    then { acc with i = i + 1 }
+    else if score = score3
+    then { acc with third = score, recipe :: ll3; i = i + 1 }
+    else if score < score2
+    then { acc with third = score, [ recipe ]; i = i + 1 }
+    else if score = score2
+    then { acc with second = score, recipe :: ll2; i = i + 1 }
+    else if score < score1
+    then { acc with second = score, [ recipe ]; third = acc.second; i = i + 1 }
+    else if score = score1
+    then { acc with first = score, recipe :: ll1; i = i + 1 }
+    else { first = score, [ recipe ]; second = acc.first; third = acc.second; i = i + 1 }
   in
-  generate_all ~init:({ first = 0, []; second = 0, []; third = 0, [] }, 0) ~f 5 list
+  generate_all ~init:{ i = 0; first = 0, []; second = 0, []; third = 0, [] } ~f 5 list
 
 let rarity_score grouped recipe =
   Glossary.Map.fold recipe ~init:0.0 ~f:(fun ~key ~data acc ->
@@ -274,7 +272,7 @@ let run { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; us
   in
   let r = time () in
   let grouped = group items in
-  let { first; second; third }, count =
+  let { i = count; first; second; third } =
     filter ~game ~kind ~category ~use_special grouped
     |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo
   in
