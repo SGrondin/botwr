@@ -58,6 +58,7 @@ module Self = struct
   type t =
     | Skyshroom
     | Dazzlefruit
+    | Korok_frond
     | Apple
     | Wildberry
     | Hylian_shroom
@@ -79,6 +80,7 @@ module Self = struct
     | Rock_salt
     | Hylian_rice
     | Tabantha_wheat
+    | Oil_jar
     | Cane_sugar
     | Goat_butter
     | Fresh_milk
@@ -96,6 +98,7 @@ module Self = struct
     | Hearty_lizard
     | Big_hearty_radish
     (* Sunny *)
+    | Sun_pumpkin
     | Sundelion
     (* Energizing *)
     | Stamella_shroom

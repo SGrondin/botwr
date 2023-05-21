@@ -35,13 +35,21 @@ module Hearts = struct
   | Unglooms (unglooms_theoretical_gain, Quarters quarters_theoretical_gain) ->
     let unglooms_actual_gain = min unglooms_theoretical_gain gloomy_hearts in
     let unglooms_wasted = unglooms_theoretical_gain - unglooms_actual_gain in
-    let real_max_hearts = max_hearts - (unglooms_actual_gain - gloomy_hearts) in
+    let real_max_hearts = max_hearts - (gloomy_hearts - unglooms_actual_gain) in
     let quarters_actual_gain = min quarters_theoretical_gain (real_max_hearts << 2) in
     let quarters_wasted = quarters_theoretical_gain - quarters_actual_gain in
+    (* print_endline "------";
+       print_endline (sprintf !"unglooms_theoretical_gain: %{sexp#hum: int}" unglooms_theoretical_gain);
+       print_endline (sprintf !"quarters_theoretical_gain: %{sexp#hum: int}" quarters_theoretical_gain);
+       print_endline (sprintf !"unglooms_actual_gain: %{sexp#hum: int}" unglooms_actual_gain);
+       print_endline (sprintf !"unglooms_wasted: %{sexp#hum: int}" unglooms_wasted);
+       print_endline (sprintf !"real_max_hearts: %{sexp#hum: int}" real_max_hearts);
+       print_endline (sprintf !"quarters_actual_gain: %{sexp#hum: int}" quarters_actual_gain);
+       print_endline (sprintf !"quarters_wasted: %{sexp#hum: int}" quarters_wasted); *)
     100
     + (unglooms_actual_gain << 4)
     + (quarters_actual_gain << 1)
-    - ((unglooms_wasted << 3) + quarters_wasted)
+    - ((unglooms_wasted << 3) + (quarters_wasted * 3))
 end
 
 module Stamina = struct

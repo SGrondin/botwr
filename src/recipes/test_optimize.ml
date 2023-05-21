@@ -67,8 +67,8 @@ let%expect_test "Filter" =
   [%expect
     {|
     (Hearty_lizard Hearty_lizard Hearty_lizard Hearty_lizard
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)) |}];
   test Hearty Any data1;
   [%expect
     {|
@@ -78,8 +78,8 @@ let%expect_test "Filter" =
      Hearty_salmon Hearty_salmon Hearty_salmon Hearty_salmon Hearty_lizard
      Hearty_lizard Hearty_lizard Hearty_lizard Big_hearty_radish
      Big_hearty_radish Big_hearty_radish Big_hearty_radish Big_hearty_radish
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)) |}];
   test Enduring Meals data1;
   [%expect
     {|
@@ -90,8 +90,8 @@ let%expect_test "Filter" =
   [%expect
     {|
     (Tireless_frog Tireless_frog Tireless_frog Tireless_frog
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)) |}];
+     (Monster_horn Lizalfos_horn) (Monster_horn Keese_wing)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)) |}];
   test Enduring Any data1;
   [%expect
     {|
@@ -99,7 +99,7 @@ let%expect_test "Filter" =
      Endura_shroom Endura_shroom Endura_shroom Tireless_frog Tireless_frog
      Tireless_frog Tireless_frog Endura_carrot Endura_carrot Endura_carrot
      Endura_carrot Endura_carrot (Monster_horn Lizalfos_horn)
-     (Monster_horn Lizalfos_horn) (Monster_horn Lizalfos_horn)
+     (Monster_horn Keese_wing) (Monster_horn Keese_wing)
      (Monster_horn Keese_wing)) |}];
   test Enduring Any
     (Items.Table.of_alist_exn [ Endura_carrot, 1; Dragon_horns Farosh, 0; Endura_shroom, 0 ]);
@@ -991,13 +991,33 @@ let%expect_test "Cooking by category, basic" =
 
   test ~kind:Sunny ~game:TOTK ~max_hearts:20 ~max_stamina:10 ~gloomy_hearts:2 ~category:Any ~algo:Balanced
     [ Sundelion, 1 ];
-  [%expect {|
+  [%expect
+    {|
     (0s)
     123 pts (1, -1.000000)
     Sundelion
     (Food
      ((hearts (Unglooms 3 (Quarters 0))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 1) (num_effect_ingredients 1) (random_effects ()))) |}]
+      (num_ingredients 1) (num_effect_ingredients 1) (random_effects ()))) |}];
+  test ~kind:Sunny ~game:TOTK ~max_hearts:7 ~max_stamina:10 ~gloomy_hearts:5 ~category:Any ~algo:Balanced
+    [ Sundelion, 1; Sun_pumpkin, 2; Fairy, 1; Monster_horn Moblin_horn, 1 ];
+  [%expect {|
+    (0s)
+    193 pts (31, -2.000000)
+    Sun_pumpkin x2, Sundelion
+    (Food
+     ((hearts (Unglooms 5 (Quarters 8))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
+    172 pts (31, -3.000000)
+    Fairy, Sun_pumpkin x2, Sundelion
+    (Food
+     ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
+    171 pts (31, -4.000000)
+    Fairy, Monster_horn, Sun_pumpkin x2, Sundelion
+    (Tonic
+     ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =
   let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) x =
@@ -1020,7 +1040,7 @@ let%expect_test "Scoring" =
   test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20));
   [%expect {|
     (Unglooms 3 (Quarters 20))
-    176 |}];
+    168 |}];
   test_hearts (Full_plus_bonus 3);
   [%expect {|
     (Full_plus_bonus 3)

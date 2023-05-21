@@ -236,17 +236,17 @@ let%expect_test "List of ingredients" =
 let%expect_test "Hashing" =
   let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in
   test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1; Apple, 1 ]);
-  [%expect {| 166544441 |}];
+  [%expect {| 504146637 |}];
   test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 2 ]);
-  [%expect {| 166544441 |}];
+  [%expect {| 504146637 |}];
   test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1 ]);
-  [%expect {| 555929315 |}];
+  [%expect {| 947549479 |}];
   test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1; Palm_fruit, 1 ]);
-  [%expect {| 49139043 |}];
+  [%expect {| 166698229 |}];
   test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Palm_fruit, 1; Apple, 1 ]);
-  [%expect {| 49139043 |}];
+  [%expect {| 166698229 |}];
   test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Palm_fruit, 1 ]);
-  [%expect {| 280872358 |}]
+  [%expect {| 262376861 |}]
 
 let%expect_test "Combinations" =
   let test r ll =

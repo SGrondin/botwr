@@ -11,6 +11,7 @@ let make_food quarters sec =
       critical = false;
     }
 
+(* The first one adds a different duration from 2+ *)
 let make_ingredient quarters first next =
   Ingredient.
     {
@@ -138,6 +139,7 @@ let to_ingredient =
   let do_to_ingredient = function
     | Skyshroom -> make_food 2 30
     | Dazzlefruit -> make_food 2 30 (* TODO *)
+    | Korok_frond -> make_food 2 30
     | Apple -> make_food 4 30
     | Wildberry -> make_food 4 30
     | Hylian_shroom -> make_food 4 30
@@ -160,6 +162,7 @@ let to_ingredient =
     | Chickaloo_tree_nut -> make_ingredient 4 40 30
     | Hylian_rice -> make_spice 8 60 30
     | Tabantha_wheat -> make_spice 8 60 30
+    | Oil_jar -> make_spice 0 80 30
     | Cane_sugar -> make_spice 0 80 30
     | Goat_butter -> make_spice 0 80 30
     | Hateno_cheese -> make_spice 8 80 30
@@ -178,6 +181,7 @@ let to_ingredient =
         { hearts = Always (Quarters 32); effect = Hearty 4; category = Critter; critical = false }
     | Big_hearty_radish -> make_hearty 32 5
     (* Sunny *)
+    | Sun_pumpkin -> make_sunny 4 1
     | Sundelion -> make_sunny 0 3
     (* Energizing *)
     | Stamella_shroom -> make_energizing 4 7
@@ -401,10 +405,13 @@ let availability : t -> Game.availability = function
   BOTW
 | Skyshroom
  |Dazzlefruit
+ |Korok_frond
  |Ancient_arowana
  |Hylian_tomato
  |Golden_apple
  |Hateno_cheese
+ |Oil_jar
+ |Sun_pumpkin
  |Sundelion
  |Stambulb
  |Splash_fruit
@@ -557,10 +564,13 @@ let to_string = function
 | Dragon_horns Farosh -> "Shard of Farosh's Horn"
 | Skyshroom -> "Skyshroom"
 | Dazzlefruit -> "Dazzlefruit"
+| Korok_frond -> "Korok Frond"
 | Ancient_arowana -> "Ancient Arowana"
 | Hylian_tomato -> "Hylian Tomato"
 | Golden_apple -> "Golden Apple"
 | Hateno_cheese -> "Hateno Cheese"
+| Oil_jar -> "Oil Jar"
+| Sun_pumpkin -> "Sun Pumpkin"
 | Sundelion -> "Sundelion"
 | Stambulb -> "Stambulb"
 | Splash_fruit -> "Splash Fruit"
@@ -750,9 +760,10 @@ let ordered_totk =
        Razorshroom;
        Hyrule_herb;
        Silent_princess;
+       Sun_pumpkin;
        Swift_carrot;
        Stambulb;
-       (* Korok_frond *)
+       Korok_frond;
        Hearty_radish;
        Endura_carrot;
        Fortified_pumpkin;
@@ -781,6 +792,8 @@ let ordered_totk =
        Cane_sugar;
        Goat_butter;
        Goron_spice;
+       Oil_jar;
+       (* Dark_clump *)
        Rock_salt;
        Star_fragment;
        Dragon_scales Dinraal;
