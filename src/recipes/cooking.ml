@@ -109,9 +109,7 @@ module Effect = struct
   | Fireproof { potency; _ } -> potency = 2
   | Hasty { potency; _ } -> potency = 3
   | Rapid { potency; _ } -> potency = 1
-  | Sticky { potency; _ } ->
-    (* TODO *)
-    potency = 3
+  | Sticky { potency; _ } -> potency = 3
   | Sneaky { potency; _ } -> potency = 3
   | Mighty { potency; _ } -> potency = 3
   | Tough { potency; _ } -> potency = 3
@@ -279,9 +277,7 @@ let cook map =
       | Fireproof x -> convert 7 99 Effect.fireproof x
       | Hasty x -> convert 5 7 Effect.hasty x
       | Rapid x -> convert 99 99 Effect.rapid x
-      | Sticky x ->
-        (* TODO: levels? *)
-        convert 5 9 Effect.sticky x
+      | Sticky x -> convert 5 7 Effect.sticky x
       | Sneaky x -> convert 6 9 Effect.sneaky x
       | Mighty x -> convert 5 7 Effect.mighty x
       | Tough x -> convert 5 9 Effect.tough x

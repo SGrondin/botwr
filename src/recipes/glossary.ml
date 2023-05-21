@@ -230,9 +230,7 @@ let to_ingredient =
     | Splash_fruit -> make_rapid 2 1
     (* Sticky *)
     | Sticky_lizard -> effect_critter (2, 0) Ingredient.Effect.sticky 1
-    | Sticky_frog ->
-      (* TODO *)
-      effect_critter (2, 0) Ingredient.Effect.sticky 3
+    | Sticky_frog -> effect_critter (2, 0) Ingredient.Effect.sticky 2
     (* Sneaky *)
     | Blue_nightshade -> make_sneaky 0 1
     | Sneaky_river_snail -> make_sneaky 8 1
