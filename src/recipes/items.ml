@@ -82,6 +82,7 @@ module Self = struct
     | Cane_sugar
     | Goat_butter
     | Fresh_milk
+    | Hateno_cheese
     | Goron_spice
     | Bird_egg
     (* Hearty *)

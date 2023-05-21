@@ -45,7 +45,7 @@ let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) opt
     List.init max_hearts ~f:(const (make_icon Heart)) @ List.init actual ~f:(const (make_icon Hearty))
     |> wrap_icon_list
   in
-  Some (sprintf "Hearts (%d + %d)" max_hearts actual, node)
+  Some (sprintf "Hearts (%d+%d)" max_hearts actual, node)
 | Unglooms (x, (Quarters _ as q)) ->
   let unglooms = List.init x ~f:(const (make_icon Sunny)) in
   let hearts, _hearts_label = get_heart_nodes q in

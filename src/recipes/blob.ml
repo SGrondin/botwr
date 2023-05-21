@@ -159,6 +159,7 @@ let blobs =
         | Ancient_arowana -> [%blob "images/ancient-arowana.png"]
         | Hylian_tomato -> [%blob "images/hylian-tomato.png"]
         | Golden_apple -> [%blob "images/golden-apple.png"]
+        | Hateno_cheese -> [%blob "images/hateno-cheese.png"]
         | Sundelion -> [%blob "images/sundelion.png"]
         | Stambulb -> [%blob "images/stambulb.png"]
         | Splash_fruit -> [%blob "images/splash-fruit.png"]

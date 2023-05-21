@@ -20,6 +20,7 @@ let make_ingredient quarters first next =
       critical = false;
     }
 
+(* A "spice" needs at least one other non-spice or it's Dubious *)
 let make_spice quarters first next =
   Ingredient.
     {
@@ -161,6 +162,7 @@ let to_ingredient =
     | Tabantha_wheat -> make_spice 8 60 30
     | Cane_sugar -> make_spice 0 80 30
     | Goat_butter -> make_spice 0 80 30
+    | Hateno_cheese -> make_spice 8 80 30
     | Goron_spice -> make_spice 0 90 30
     | Rock_salt -> make_spice 0 60 30
     (* Hearty *)
@@ -402,6 +404,7 @@ let availability : t -> Game.availability = function
  |Ancient_arowana
  |Hylian_tomato
  |Golden_apple
+ |Hateno_cheese
  |Sundelion
  |Stambulb
  |Splash_fruit
@@ -557,6 +560,7 @@ let to_string = function
 | Ancient_arowana -> "Ancient Arowana"
 | Hylian_tomato -> "Hylian Tomato"
 | Golden_apple -> "Golden Apple"
+| Hateno_cheese -> "Hateno Cheese"
 | Sundelion -> "Sundelion"
 | Stambulb -> "Stambulb"
 | Splash_fruit -> "Splash Fruit"
@@ -772,6 +776,7 @@ let ordered_totk =
        Chickaloo_tree_nut;
        Bird_egg;
        Tabantha_wheat;
+       Hateno_cheese;
        Fresh_milk;
        Cane_sugar;
        Goat_butter;

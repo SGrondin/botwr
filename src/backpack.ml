@@ -116,6 +116,26 @@ module Group = struct
   | Monster_parts -> "Monster Parts"
   | Special -> "Special"
 
+  let to_description = function
+  | Nothing -> None
+  | Chilly -> Some "Heat Resistance"
+  | Electro -> Some "Shock Resistance"
+  | Enduring -> Some "Bonus Stamina"
+  | Energizing -> Some "Restore Stamina"
+  | Hearty -> Some "Bonus Health"
+  | Sunny -> Some "Repairs Hearts"
+  | Fireproof -> Some "Fire Resistance"
+  | Hasty -> Some "Movement Speed"
+  | Rapid -> Some "Swimming Speed"
+  | Sticky -> Some "Slip Resistance"
+  | Mighty -> Some "Attack Power"
+  | Sneaky -> Some "Stealth"
+  | Spicy -> Some "Cold Resistance"
+  | Tough -> Some "Armor"
+  | Bright -> Some "Illuminate the Depths"
+  | Monster_parts -> None
+  | Special -> Some "Make weird foods..."
+
   let to_img_node ?width:(w = 2.0) ?height:(h = 2.0) group =
     let kind : (Recipes.Ingredient.Effect.Kind.t, string) Either.t =
       match group with
@@ -180,10 +200,17 @@ let group ~inventory ~selected ~update_selected ~show_all ~game items =
 
 let render_group group nodes =
   let title_ = Group.to_string group in
+  let description =
+    Option.map (Group.to_description group) ~f:(fun s ->
+        Node.h5 Attr.[ classes [ "ms-2"; "d-inline-block" ] ] [ Node.text s ])
+  in
   Node.div
     Attr.[ class_ "mb-4" ]
     [
-      Node.h4 Attr.[ class_ "ms-3"; id title_ ] [ Node.text title_; Group.to_img_node group ];
+      Node.h4
+        Attr.[ classes [ "ms-3"; "d-inline-block" ]; id title_ ]
+        [ Node.text title_; Group.to_img_node group ];
+      Basic.or_none description;
       Node.div Attr.[ classes [ "row"; "row-cols-auto" ] ] nodes;
       Node.a
         Attr.[ href "#top"; no_decoration ]
@@ -335,7 +362,7 @@ let component ~game ~inventory () =
          [
            Node.button
              Attr.[ type_ "button"; classes [ "btn"; "btn-outline-danger"; "btn-sm" ]; on_click handler ]
-             [ Node.text "Clear all " ];
+             [ Node.text "Reset inventory " ];
          ]
      in
      let state =
