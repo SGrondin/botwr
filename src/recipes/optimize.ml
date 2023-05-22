@@ -155,19 +155,17 @@ type folder = {
 }
 
 let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
-  let cache = Recipe.Table.create () in
   let f ({ i; first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc) (recipe : Recipe.t)
       =
     let score =
-      Recipe.Table.find_or_add cache recipe ~default:(fun () ->
-          match cook recipe with
-          | Food meal
-           |Elixir meal
-           |Tonic meal ->
-            Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal
-          | Dubious
-           |Failed _ ->
-            -1_000_000)
+      match cook recipe with
+      | Food meal
+       |Elixir meal
+       |Tonic meal ->
+        Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal
+      | Dubious
+       |Failed _ ->
+        -1_000_000
     in
     if score < score3
     then { acc with i = i + 1 }

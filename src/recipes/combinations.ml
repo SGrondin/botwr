@@ -12,7 +12,6 @@ module Recipe = struct
     let hash map = Hash.of_fold hash_fold_t map
   end
 
-  module Table = Hashtbl.Make (Self)
   module Set = Set.Make (Self)
   include Self
 

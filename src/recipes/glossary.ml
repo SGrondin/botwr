@@ -843,8 +843,8 @@ let ordered_totk =
        Hot_footed_frog;
        Tireless_frog;
        Sticky_frog;
-       Hightail_lizard;
        Hearty_lizard;
+       Hightail_lizard;
        Fireproof_lizard;
        Sticky_lizard;
        Monster_horn Bokoblin_horn;
