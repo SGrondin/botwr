@@ -9,23 +9,19 @@ type data =
 let all =
   lazy (List.foldi Glossary.all ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
 
-let increase = function
-| None -> Some 1
-| Some x -> Some (x + 1)
-
 let ( << ), ( >> ), ( ||| ), ( &&& ) = ( lsl ), ( lsr ), ( lor ), ( land )
 
 let merge (list : (Glossary.t * int) list) =
   let all = force all in
   let ingredients = List.fold list ~init:Map.empty ~f:(fun acc (key, data) -> Map.set acc ~key ~data) in
-  Map.fold2 ingredients all ~init:([], None) ~f:(fun ~key:_ ~data ((acc_list, skip) as acc) ->
+  Map.fold2 ingredients all ~init:([], 0) ~f:(fun ~key:_ ~data ((acc_list, skip) as acc) ->
       match data with
       | `Left _ -> acc
       | `Both (0, _)
        |`Right _ ->
-        acc_list, increase skip
-      | `Both (qty, _) ->
-        Item qty :: Option.value_map skip ~default:acc_list ~f:(fun x -> Skip x :: acc_list), None)
+        acc_list, skip + 1
+      | `Both (qty, _) when skip = 0 -> Item qty :: acc_list, 0
+      | `Both (qty, _) -> Item qty :: Skip skip :: acc_list, 0)
   |> fst
   |> List.rev
 
@@ -35,7 +31,7 @@ let compress (list : (Glossary.t * int) list) =
   (*
     Unicode-inspired binary encoding
     0....... :: skip
-    .******* :: 0-128 how many to skip
+    .******* :: 0-127 how many to skip
 
     1....... :: item
     .0...... :: one byte
@@ -45,16 +41,21 @@ let compress (list : (Glossary.t * int) list) =
   let buf = Buffer.create 128 in
   List.iter merged ~f:(function
     | Skip x ->
-      let n = Int.(x /% 127) in
-      Fn.apply_n_times ~n (fun () -> Buffer.add_char buf (Char.of_int_exn 127)) ();
-      Buffer.add_char buf (x &&& 127 |> Char.of_int_exn)
+      let rec drain = function
+        | x when x < 127 -> Buffer.add_char buf (Char.of_int_exn x)
+        | x ->
+          Buffer.add_char buf (Char.of_int_exn 127);
+          drain (x - 127)
+      in
+      drain x
     | Item qty when qty <= 63 -> Buffer.add_char buf (qty ||| 128 |> Char.of_int_exn)
     | Item qty ->
       Buffer.add_char buf (qty >> 8 ||| 192 |> Char.of_int_exn);
       Buffer.add_char buf (qty &&& 255 |> Char.of_int_exn));
   (* let debug =
        Buffer.contents buf |> String.concat_map ~sep:"," ~f:(fun c -> Char.to_int c |> Int.to_string)
-     in *)
+     in
+     print_endline debug; *)
   Buffer.contents buf |> Base64.encode_string ~pad:false
 
 let decompress b64 =
