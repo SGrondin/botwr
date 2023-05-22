@@ -138,7 +138,7 @@ include Items
 let to_ingredient =
   let do_to_ingredient = function
     | Skyshroom -> make_food 2 30
-    | Dazzlefruit -> make_food 2 30 (* TODO *)
+    | Dazzlefruit -> make_food 2 30
     | Korok_frond -> make_food 2 30
     | Apple -> make_food 4 30
     | Wildberry -> make_food 4 30

@@ -24,9 +24,11 @@ module Hearts = struct
   [@@deriving sexp, compare, equal]
 
   let score ~max_hearts ~gloomy_hearts = function
-  | Nothing
-   |Restores _ ->
-    0
+  | Nothing -> 0
+  | Restores (Quarters theoretical_gain) ->
+    let actual_gain = min theoretical_gain (max_hearts << 2) in
+    let wasted = theoretical_gain - actual_gain in
+    0 - wasted
   | Full_plus_bonus x ->
     let theoretical_gain = max_hearts + x in
     let actual_gain = min theoretical_gain 30 in
