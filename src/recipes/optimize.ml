@@ -157,29 +157,27 @@ type folder = {
 let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
   let f ({ i; first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc) (recipe : Recipe.t)
       =
-    let score =
-      match cook recipe with
-      | Food meal
-       |Elixir meal
-       |Tonic meal ->
-        Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal
-      | Dubious
-       |Failed _ ->
-        -1_000_000
-    in
-    if score < score3
-    then { acc with i = i + 1 }
-    else if score = score3
-    then { acc with third = score, recipe :: ll3; i = i + 1 }
-    else if score < score2
-    then { acc with third = score, [ recipe ]; i = i + 1 }
-    else if score = score2
-    then { acc with second = score, recipe :: ll2; i = i + 1 }
-    else if score < score1
-    then { acc with second = score, [ recipe ]; third = acc.second; i = i + 1 }
-    else if score = score1
-    then { acc with first = score, recipe :: ll1; i = i + 1 }
-    else { first = score, [ recipe ]; second = acc.first; third = acc.second; i = i + 1 }
+    match cook recipe with
+    | Dubious
+     |Failed _ ->
+      { acc with i = i + 1 }
+    | Food meal
+     |Elixir meal
+     |Tonic meal ->
+      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal in
+      if score < score3
+      then { acc with i = i + 1 }
+      else if score = score3
+      then { acc with third = score, recipe :: ll3; i = i + 1 }
+      else if score < score2
+      then { acc with third = score, [ recipe ]; i = i + 1 }
+      else if score = score2
+      then { acc with second = score, recipe :: ll2; i = i + 1 }
+      else if score < score1
+      then { acc with second = score, [ recipe ]; third = acc.second; i = i + 1 }
+      else if score = score1
+      then { acc with first = score, recipe :: ll1; i = i + 1 }
+      else { first = score, [ recipe ]; second = acc.first; third = acc.second; i = i + 1 }
   in
   generate_all ~init:{ i = 0; first = 0, []; second = 0, []; third = 0, [] } ~f 5 list
 
