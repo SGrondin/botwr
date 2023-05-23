@@ -48,9 +48,14 @@ let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) opt
   Some (sprintf "Hearts (%d+%d)" max_hearts actual, node)
 | Unglooms (x, (Quarters _ as q)) ->
   let unglooms = List.init x ~f:(const (make_icon Sunny)) in
-  let hearts, _hearts_label = get_heart_nodes q in
+  let hearts, hearts_label = get_heart_nodes q in
   let node = unglooms @ hearts |> wrap_icon_list in
-  let label = if x = 1 then "Repairs 1 Heart" else sprintf "Repairs %d Hearts" x in
+  let label =
+    match x, hearts_label with
+    | _, Some s -> sprintf "Repairs %d+%s Hearts" x s
+    | 1, None -> "Repairs 1 Heart"
+    | _, None -> sprintf "Repairs %d Hearts" x
+  in
 
   Some (label, node)
 
@@ -356,6 +361,17 @@ let render_buttons ~game ~update selected_kind =
          in
          node :: acc))
 
+module SunnyAlgo = struct
+  type t =
+    | Full
+    | Gloomy
+  [@@deriving sexp, equal, enumerate]
+
+  let to_string = function
+  | Full -> "Heal to full"
+  | Gloomy -> "Heal gloomy hearts only"
+end
+
 type state = {
   data: Model.t;
   update_data: Model.t -> Ui_event.t;
@@ -405,7 +421,7 @@ let component ~game ~updates ?kind () =
   in
   let%sub sunny_algo =
     Choices.component "sunny-algo" [%here]
-      (module Recipes.Cooking.SunnyAlgo)
+      (module SunnyAlgo)
       Full ~aria:"Radio button to select gloomy healing optimization algorithm"
   in
   let%sub kind = Bonsai.state_opt [%here] (module Recipes.Ingredient.Effect.Kind) ?default_model:kind in
@@ -517,10 +533,16 @@ let component ~game ~updates ?kind () =
        in
        Node.div [] nodes
      in
-     let calculate kind ingredients =
+     let calculate (kind : Recipes.Ingredient.Effect.Kind.t) ingredients =
+       let algo : Recipes.Cooking.Algo.t =
+         match kind, sunny_algo with
+         | Sunny, Gloomy -> Balanced
+         | Sunny, Full -> Maximize
+         | _ -> algo
+       in
        let settings =
          Recipes.Optimize.
-           { game; max_hearts; max_stamina; gloomy_hearts; algo; sunny_algo; kind; category; use_special }
+           { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special }
        in
        Recipes.Optimize.run settings ingredients
      in

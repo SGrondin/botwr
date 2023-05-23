@@ -32,6 +32,11 @@ module Hearts = struct
       }
   [@@deriving sexp, compare, equal, hash]
 
+  let base_quarters = function
+  | Always (Quarters q)
+   |Diminishing { first = Quarters q; _ } ->
+    q
+
   let merge ~count = function
   | Always (Quarters x) -> Always (Quarters (x * count))
   | Diminishing { first = Quarters first; next = Quarters next } ->

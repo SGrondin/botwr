@@ -15,17 +15,6 @@ module Algo = struct
   | Maximize -> "Max power + Max duration"
 end
 
-module SunnyAlgo = struct
-  type t =
-    | Full
-    | Gloomy
-  [@@deriving sexp, equal, enumerate]
-
-  let to_string = function
-  | Full -> "Heal to full"
-  | Gloomy -> "Heal gloomy hearts only"
-end
-
 module Hearts = struct
   type t =
     | Nothing
@@ -34,7 +23,7 @@ module Hearts = struct
     | Unglooms        of int * Ingredient.Hearts.quarters
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts ~gloomy_hearts ~(sunny_algo : SunnyAlgo.t) = function
+  let score ~max_hearts ~gloomy_hearts ~(algo : Algo.t) = function
   | Nothing -> 0
   | Restores (Quarters theoretical_gain) ->
     let actual_gain = min theoretical_gain (max_hearts << 2) in
@@ -49,15 +38,15 @@ module Hearts = struct
     let unglooms_actual_gain = min unglooms_theoretical_gain gloomy_hearts in
     let unglooms_wasted = unglooms_theoretical_gain - unglooms_actual_gain in
     let real_max_hearts =
-      match sunny_algo with
-      | Gloomy -> unglooms_actual_gain
-      | Full -> max_hearts - (gloomy_hearts - unglooms_actual_gain)
+      match algo with
+      | Balanced -> unglooms_actual_gain
+      | Maximize -> max_hearts - (gloomy_hearts - unglooms_actual_gain)
     in
     let quarters_actual_gain = min quarters_theoretical_gain (real_max_hearts << 2) in
     let quarters_wasted =
-      match sunny_algo with
-      | Gloomy -> quarters_theoretical_gain - quarters_actual_gain
-      | Full -> (quarters_theoretical_gain - quarters_actual_gain) * 3
+      match algo with
+      | Balanced -> quarters_theoretical_gain - quarters_actual_gain
+      | Maximize -> (quarters_theoretical_gain - quarters_actual_gain) * 3
     in
 
     (* print_endline "------";
@@ -197,14 +186,14 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~sunny_algo = function
+  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo = function
   | { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } ->
     let random_bonus =
       match random_effects with
       | _ :: _ -> true
       | _ -> false
     in
-    Hearts.score ~max_hearts ~gloomy_hearts ~sunny_algo hearts
+    Hearts.score ~max_hearts ~gloomy_hearts ~algo hearts
     + Stamina.score ~max_stamina ~num_effect_ingredients ~random_bonus stamina
     + Effect.score ~num_effect_ingredients ~random_bonus ~algo effect
     - num_ingredients
