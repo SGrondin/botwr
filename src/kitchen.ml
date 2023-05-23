@@ -403,6 +403,11 @@ let component ~game ~updates ?kind () =
       (module Recipes.Cooking.Algo)
       Balanced ~aria:"Radio button to select optimization algorithm"
   in
+  let%sub sunny_algo =
+    Choices.component "sunny-algo" [%here]
+      (module Recipes.Cooking.SunnyAlgo)
+      Full ~aria:"Radio button to select gloomy healing optimization algorithm"
+  in
   let%sub kind = Bonsai.state_opt [%here] (module Recipes.Ingredient.Effect.Kind) ?default_model:kind in
   return
   @@ let%map data, update_data = component
@@ -415,6 +420,7 @@ let component ~game ~updates ?kind () =
      and elixirs, render_elixirs, update_elixirs = elixirs
      and use_special, render_use_special, update_use_special = use_special
      and algo, algo_node = algo
+     and sunny_algo, sunny_algo_node = sunny_algo
      and kind, update_kind = kind in
      let category : Recipes.Glossary.Category.t =
        match meals, elixirs with
@@ -506,7 +512,7 @@ let component ~game ~updates ?kind () =
          []
          |> add_opt kind_with_duration ~f:(const algo_node)
          |> add_opt kind_with_gloomy_hearts ~f:(fun _ ->
-                Node.div [] [ Node.text "Gloomy hearts"; gloomy_hearts_node ])
+                Node.div [] [ Node.text "Gloomy hearts"; gloomy_hearts_node; sunny_algo_node ])
          |> List.cons @@ render_buttons ~game ~update kind
        in
        Node.div [] nodes
@@ -514,7 +520,7 @@ let component ~game ~updates ?kind () =
      let calculate kind ingredients =
        let settings =
          Recipes.Optimize.
-           { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special }
+           { game; max_hearts; max_stamina; gloomy_hearts; algo; sunny_algo; kind; category; use_special }
        in
        Recipes.Optimize.run settings ingredients
      in

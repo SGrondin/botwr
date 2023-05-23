@@ -15,6 +15,17 @@ module Algo = struct
   | Maximize -> "Max power + Max duration"
 end
 
+module SunnyAlgo = struct
+  type t =
+    | Full
+    | Gloomy
+  [@@deriving sexp, equal, enumerate]
+
+  let to_string = function
+  | Full -> "Heal to full"
+  | Gloomy -> "Heal gloomy hearts only"
+end
+
 module Hearts = struct
   type t =
     | Nothing
@@ -23,7 +34,7 @@ module Hearts = struct
     | Unglooms        of int * Ingredient.Hearts.quarters
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts ~gloomy_hearts = function
+  let score ~max_hearts ~gloomy_hearts ~(sunny_algo : SunnyAlgo.t) = function
   | Nothing -> 0
   | Restores (Quarters theoretical_gain) ->
     let actual_gain = min theoretical_gain (max_hearts << 2) in
@@ -37,9 +48,18 @@ module Hearts = struct
   | Unglooms (unglooms_theoretical_gain, Quarters quarters_theoretical_gain) ->
     let unglooms_actual_gain = min unglooms_theoretical_gain gloomy_hearts in
     let unglooms_wasted = unglooms_theoretical_gain - unglooms_actual_gain in
-    let real_max_hearts = max_hearts - (gloomy_hearts - unglooms_actual_gain) in
+    let real_max_hearts =
+      match sunny_algo with
+      | Gloomy -> unglooms_actual_gain
+      | Full -> max_hearts - (gloomy_hearts - unglooms_actual_gain)
+    in
     let quarters_actual_gain = min quarters_theoretical_gain (real_max_hearts << 2) in
-    let quarters_wasted = quarters_theoretical_gain - quarters_actual_gain in
+    let quarters_wasted =
+      match sunny_algo with
+      | Gloomy -> quarters_theoretical_gain - quarters_actual_gain
+      | Full -> (quarters_theoretical_gain - quarters_actual_gain) * 3
+    in
+
     (* print_endline "------";
        print_endline (sprintf !"unglooms_theoretical_gain: %{sexp#hum: int}" unglooms_theoretical_gain);
        print_endline (sprintf !"quarters_theoretical_gain: %{sexp#hum: int}" quarters_theoretical_gain);
@@ -51,7 +71,7 @@ module Hearts = struct
     100
     + (unglooms_actual_gain << 4)
     + (quarters_actual_gain << 1)
-    - ((unglooms_wasted << 3) + (quarters_wasted * 3))
+    - ((unglooms_wasted << 3) + quarters_wasted)
 end
 
 module Stamina = struct
@@ -132,7 +152,7 @@ module Effect = struct
    |Bright { duration; _ } ->
     duration
 
-  let score ~num_effect_ingredients ~random_bonus ~algo = function
+  let score ~num_effect_ingredients ~random_bonus ~(algo : Algo.t) = function
   | Nothing -> 0
   | Spicy { potency; wasted; duration }
    |Chilly { potency; wasted; duration }
@@ -149,8 +169,8 @@ module Effect = struct
     let wasted_duration = duration - actual_duration in
     let penalty =
       match algo with
-      | Algo.Balanced -> (num_effect_ingredients << 4) + wasted + (wasted_duration << 1)
-      | Algo.Maximize -> 0
+      | Balanced -> (num_effect_ingredients << 4) + wasted + (wasted_duration << 1)
+      | Maximize -> 0
     in
     100 + (potency << 6) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
 end
@@ -177,14 +197,14 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo = function
+  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~sunny_algo = function
   | { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } ->
     let random_bonus =
       match random_effects with
       | _ :: _ -> true
       | _ -> false
     in
-    Hearts.score ~max_hearts ~gloomy_hearts hearts
+    Hearts.score ~max_hearts ~gloomy_hearts ~sunny_algo hearts
     + Stamina.score ~max_stamina ~num_effect_ingredients ~random_bonus stamina
     + Effect.score ~num_effect_ingredients ~random_bonus ~algo effect
     - num_ingredients

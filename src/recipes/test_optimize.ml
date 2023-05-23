@@ -108,10 +108,11 @@ let%expect_test "Filter" =
   [%expect {| (Endura_carrot) |}]
 
 let%expect_test "Cooking by category, basic" =
-  let test ?(game = (BOTW : Game.t)) ~kind ~category ~algo ?(max_hearts = 20) ?(max_stamina = 15)
-     ?(gloomy_hearts = 0) ?(use_special = true) ll =
+  let test ?(game = (BOTW : Game.t)) ~kind ~category ~algo ?(sunny_algo = Cooking.SunnyAlgo.Full)
+     ?(max_hearts = 20) ?(max_stamina = 15) ?(gloomy_hearts = 0) ?(use_special = true) ll =
     let settings =
-      Optimize.{ game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special }
+      Optimize.
+        { game; max_hearts; max_stamina; gloomy_hearts; algo; sunny_algo; kind; category; use_special }
     in
     Optimize.run settings ll |> Optimize.to_string |> print_endline
   in
@@ -796,8 +797,7 @@ let%expect_test "Cooking by category, basic" =
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
 
-  let data9 = Glossary.[ Apple, 3; Endura_carrot, 1 ] in
-  test ~kind:Enduring ~category:Any ~algo:Balanced data9;
+  test ~kind:Enduring ~category:Any ~algo:Balanced Glossary.[ Apple, 3; Endura_carrot, 1 ];
   [%expect
     {|
     (0s)
@@ -818,26 +818,6 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Restores (Quarters 24)))
       (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}];
-  test ~kind:Sunny ~game:TOTK ~max_hearts:5 ~max_stamina:5 ~gloomy_hearts:3 ~category:Any ~algo:Balanced
-    [ Apple, 1; Hylian_shroom, 1; Hyrule_herb, 1; Sundelion, 2 ];
-  [%expect
-    {|
-    (0s)
-    176 pts (31, -3.500000)
-    Apple, Hylian_shroom, Hyrule_herb, Sundelion
-    (Food
-     ((hearts (Unglooms 3 (Quarters 16))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
-    169 pts (31, -2.500000)
-    Hylian_shroom, Hyrule_herb, Sundelion
-    (Food
-     ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
-    169 pts (31, -2.500000)
-    Apple, Hyrule_herb, Sundelion
-    (Food
-     ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}];
 
   test ~kind:Bright ~game:TOTK ~max_hearts:8 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any ~algo:Balanced
@@ -999,9 +979,68 @@ let%expect_test "Cooking by category, basic" =
     (Food
      ((hearts (Unglooms 3 (Quarters 0))) (stamina Nothing) (effect Nothing)
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ()))) |}];
+
+  test ~kind:Sunny ~game:TOTK ~max_hearts:5 ~max_stamina:5 ~gloomy_hearts:3 ~category:Any ~algo:Balanced
+    [ Apple, 1; Hylian_shroom, 1; Hyrule_herb, 1; Sundelion, 2 ];
+  test ~kind:Sunny ~game:TOTK ~max_hearts:5 ~max_stamina:5 ~gloomy_hearts:3 ~category:Any ~algo:Maximize
+    [ Apple, 1; Hylian_shroom, 1; Hyrule_herb, 1; Sundelion, 2 ];
+  [%expect
+    {|
+      (0s)
+      169 pts (31, -2.500000)
+      Hylian_shroom, Hyrule_herb, Sundelion
+      (Food
+       ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
+        (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
+      169 pts (31, -2.500000)
+      Apple, Hyrule_herb, Sundelion
+      (Food
+       ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
+        (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
+      164 pts (31, -3.500000)
+      Apple, Hylian_shroom, Hyrule_herb, Sundelion
+      (Food
+       ((hearts (Unglooms 3 (Quarters 16))) (stamina Nothing) (effect Nothing)
+        (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
+      (0s)
+      176 pts (31, -3.500000)
+      Apple, Hylian_shroom, Hyrule_herb, Sundelion
+      (Food
+       ((hearts (Unglooms 3 (Quarters 16))) (stamina Nothing) (effect Nothing)
+        (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
+      169 pts (31, -2.500000)
+      Hylian_shroom, Hyrule_herb, Sundelion
+      (Food
+       ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
+        (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
+      169 pts (31, -2.500000)
+      Apple, Hyrule_herb, Sundelion
+      (Food
+       ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
+        (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}];
+
   test ~kind:Sunny ~game:TOTK ~max_hearts:7 ~max_stamina:10 ~gloomy_hearts:5 ~category:Any ~algo:Balanced
     [ Sundelion, 1; Sun_pumpkin, 2; Fairy, 1; Monster_horn Moblin_horn, 1 ];
-  [%expect {|
+  test ~kind:Sunny ~game:TOTK ~max_hearts:7 ~max_stamina:10 ~gloomy_hearts:5 ~category:Any ~algo:Maximize
+    [ Sundelion, 1; Sun_pumpkin, 2; Fairy, 1; Monster_horn Moblin_horn, 1 ];
+  [%expect
+    {|
+    (0s)
+    193 pts (31, -2.000000)
+    Sun_pumpkin x2, Sundelion
+    (Food
+     ((hearts (Unglooms 5 (Quarters 8))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
+    188 pts (31, -3.000000)
+    Fairy, Sun_pumpkin x2, Sundelion
+    (Food
+     ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
+    187 pts (31, -4.000000)
+    Fairy, Monster_horn, Sun_pumpkin x2, Sundelion
+    (Tonic
+     ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     (0s)
     193 pts (31, -2.000000)
     Sun_pumpkin x2, Sundelion
@@ -1017,32 +1056,101 @@ let%expect_test "Cooking by category, basic" =
     Fairy, Monster_horn, Sun_pumpkin x2, Sundelion
     (Tonic
      ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}]
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
+  (* test ~kind:Sunny ~game:TOTK ~max_hearts:7 ~max_stamina:10 ~gloomy_hearts:5 ~category:Any ~algo:Balanced
+       [ Sundelion, 2; Sun_pumpkin, 2; Fairy, 1; Skyshroom, 4; Raw_prime_meat, 1; Goat_butter, 1 ];
+     [%expect {||}] *)
+  let data10 =
+    Glossary.
+      [
+        Sundelion, 3;
+        Sun_pumpkin, 3;
+        Palm_fruit, 5;
+        Apple, 5;
+        Golden_apple, 5;
+        Rock_salt, 5;
+        Hylian_tomato, 5;
+        Raw_meat, 5;
+      ]
+  in
+  test ~kind:Sunny ~game:TOTK ~max_hearts:5 ~max_stamina:10 ~gloomy_hearts:4 ~category:Any ~algo:Balanced
+    data10;
+  test ~kind:Sunny ~game:TOTK ~max_hearts:5 ~max_stamina:10 ~gloomy_hearts:4 ~category:Any ~algo:Maximize
+    data10;
+  [%expect
+    {|
+    (0s)
+    193 pts (12615, -0.866667)
+    Golden_apple, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 2) (random_effects ())))
+    192 pts (12615, -1.066667)
+    Apple, Palm_fruit, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
+    191 pts (12615, -1.266667)
+    Apple x3, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
+    (0s)
+    200 pts (12615, -1.066667)
+    Palm_fruit x2, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
+    200 pts (12615, -1.066667)
+    Apple, Golden_apple, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
+    199 pts (12615, -1.266667)
+    Apple x2, Palm_fruit, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =
-  let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) x =
+  let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) ~sunny_algo x =
     print_endline (sprintf !"%{sexp: Cooking.Hearts.t}" x);
-    Cooking.Hearts.score ~max_hearts ~gloomy_hearts x |> Int.to_string |> print_endline
+    Cooking.Hearts.score ~max_hearts ~gloomy_hearts ~sunny_algo x |> Int.to_string |> print_endline
   in
   Cooking.debug := true;
-  test_hearts (Unglooms (3, Quarters 4));
+  test_hearts (Unglooms (3, Quarters 4)) ~sunny_algo:Gloomy;
+  test_hearts (Unglooms (3, Quarters 4)) ~sunny_algo:Full;
   [%expect {|
     (Unglooms 3 (Quarters 4))
+    156
+    (Unglooms 3 (Quarters 4))
     156 |}];
-  test_hearts (Unglooms (3, Quarters 8));
+  test_hearts (Unglooms (3, Quarters 8)) ~sunny_algo:Gloomy;
+  test_hearts (Unglooms (3, Quarters 8)) ~sunny_algo:Full;
   [%expect {|
     (Unglooms 3 (Quarters 8))
+    164
+    (Unglooms 3 (Quarters 8))
     164 |}];
-  test_hearts (Unglooms (4, Quarters 4));
+  test_hearts (Unglooms (4, Quarters 4)) ~sunny_algo:Gloomy;
+  test_hearts (Unglooms (4, Quarters 4)) ~sunny_algo:Full;
   [%expect {|
     (Unglooms 4 (Quarters 4))
+    148
+    (Unglooms 4 (Quarters 4))
     148 |}];
-  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20));
+  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20)) ~sunny_algo:Gloomy;
+  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20)) ~sunny_algo:Full;
   [%expect {|
     (Unglooms 3 (Quarters 20))
+    164
+    (Unglooms 3 (Quarters 20))
     168 |}];
-  test_hearts (Full_plus_bonus 3);
+  test_hearts (Full_plus_bonus 3) ~sunny_algo:Gloomy;
+  test_hearts (Full_plus_bonus 3) ~sunny_algo:Full;
   [%expect {|
+    (Full_plus_bonus 3)
+    146
     (Full_plus_bonus 3)
     146 |}];
 

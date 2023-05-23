@@ -222,31 +222,30 @@ let%expect_test "List of ingredients" =
      ((hearts (Full_plus_bonus 4)) (stamina Nothing) (effect Nothing)
       (num_ingredients 2) (num_effect_ingredients 2) (random_effects ()))) |}];
   test [ Swift_carrot; Star_fragment ];
-  [%expect {|
+  [%expect
+    {|
     (Food
      ((hearts (Restores (Quarters 4))) (stamina Nothing)
       (effect (Hasty ((potency 1) (wasted 0) (duration 90)))) (num_ingredients 2)
       (num_effect_ingredients 2) (random_effects (Potency Duration Red_hearts)))) |}];
   test [ Swift_carrot; Hearty_radish; Star_fragment ];
-  [%expect {|
+  [%expect
+    {|
     (Food
      ((hearts (Restores (Quarters 36))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ()))) |}]
-
-let%expect_test "Hashing" =
-  let test x = x |> Combinations.Recipe.hash |> Int.to_string |> print_endline in
-  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1; Apple, 1 ]);
-  [%expect {| 504146637 |}];
-  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 2 ]);
-  [%expect {| 504146637 |}];
-  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1 ]);
-  [%expect {| 947549479 |}];
-  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Apple, 1; Palm_fruit, 1 ]);
-  [%expect {| 166698229 |}];
-  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Palm_fruit, 1; Apple, 1 ]);
-  [%expect {| 166698229 |}];
-  test (Glossary.Map.of_alist_reduce ~f:( + ) Glossary.[ Palm_fruit, 1 ]);
-  [%expect {| 262376861 |}]
+      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test [ Fairy; Razorclaw_crab; Razorclaw_crab; Razorclaw_crab; Razorshroom ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores (Quarters 68))) (stamina Nothing)
+      (effect (Mighty ((potency 3) (wasted 1) (duration 230))))
+      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}];
+  test [ Fairy; Sticky_frog; Sticky_frog; Sticky_frog; Sticky_lizard ];
+  [%expect {|
+    (Tonic
+     ((hearts (Restores (Quarters 28))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}]
 
 let%expect_test "Combinations" =
   let test r ll =

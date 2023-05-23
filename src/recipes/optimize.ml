@@ -35,6 +35,7 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let open Glossary in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
+  let hearts = Int.Table.create () in
   let monsters = Queue.create () in
   let dragon_scales = Queue.create () in
   let dragon_claws = Queue.create () in
@@ -43,23 +44,31 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let dragons_wasteful = Queue.create () in
   let star_fragments = Queue.create () in
   let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q (Variants.to_rank key, key)) () in
+  let add_to_table ~n table ~bucket key =
+    Fn.apply_n_times ~n
+      (fun () -> Int.Table.add_multi table ~key:bucket ~data:(Variants.to_rank key, key))
+      ()
+  in
   let basics =
     Table.fold grouped ~init:[] ~f:(fun ~key ~data -> function
+      | acc when data = 0 -> acc
       | acc when not (Game.is_in_game (availability key) ~game) -> acc
       | acc -> (
         let ingredient = to_ingredient key in
         match Ingredient.to_kind ingredient, ingredient.category, category with
-        | Nothing, Food, Meals
-         |Nothing, Food, Any
-         |Nothing, Spice, Meals
-         |Nothing, Spice, Any
-         |Neutral, Food, Meals
-         |Neutral, Food, Any
-         |Neutral, Spice, Meals
-         |Neutral, Spice, Any
+        | (Nothing | Neutral), (Food | Spice), (Meals | Any)
+          when [%equal: Ingredient.Effect.Kind.t] kind Sunny ->
+          (match ingredient.hearts with
+          | Always (Quarters q)
+           |Diminishing { first = Quarters q; _ }
+            when q > 0 ->
+            add_to_table ~n:(min data 4) hearts ~bucket:q key
+          | _ -> ());
+          acc
+        | (Nothing | Neutral), (Food | Spice), (Meals | Any)
           when not ([%equal: Ingredient.Effect.Kind.t] kind Hearty) ->
           (match ingredient with
-          | { effect = Neutral (Diminishing _); _ } when data > 0 ->
+          | { effect = Neutral (Diminishing _); _ } ->
             (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
             add_to ~n:1 neutrals key;
             add_to ~n:(min 3 (data - 1)) neutrals_wasteful key;
@@ -69,7 +78,7 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
         | _, Dragon, _ when use_special && [%equal: t] key Star_fragment ->
           add_to ~n:data star_fragments key;
           acc
-        | _, Dragon, _ when use_special && data > 0 ->
+        | _, Dragon, _ when use_special ->
           (match key with
           | Dragon_scales _ -> add_to ~n:1 dragon_scales key
           | Dragon_claws _ -> add_to ~n:1 dragon_claws key
@@ -78,17 +87,12 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
           | k -> failwithf !"Invalid dragon part '%{Glossary}' at %{Source_code_position}" k [%here] ());
           add_to ~n:(data - 1) dragons_wasteful key;
           acc
-        | _, Monster, Elixirs
-         |_, Monster, Any ->
+        | _, Monster, (Elixirs | Any) ->
           add_to ~n:(min data 4) monsters key;
           acc
-        | x, Food, Any
-         |x, Food, Meals
-          when [%equal: Ingredient.Effect.Kind.t] x kind ->
+        | x, Food, (Meals | Any) when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
-        | x, Critter, Any
-         |x, Critter, Elixirs
-          when [%equal: Ingredient.Effect.Kind.t] x kind ->
+        | x, Critter, (Elixirs | Any) when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _, With_fairy _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc))
@@ -97,15 +101,9 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
     match max 0 up_to with
     | up_to when up_to <= 0 -> init
     | up_to ->
+      Option.iter move ~f:(fun dst ->
+          Queue.blit_transfer ~src:queue ~dst ~len:(max 0 (Queue.length queue - up_to)) ());
       let compare = Option.value compare ~default:(get_sort_by_kind kind) in
-      let rec loop ~into = function
-        | 0 -> ()
-        | len when len > up_to ->
-          Queue.dequeue_exn queue |> Queue.enqueue into;
-          loop ~into (len - 1)
-        | _ -> ()
-      in
-      Option.iter move ~f:(fun into -> loop ~into (Queue.length queue));
       Queue.to_array queue |> Array.sorted_copy ~compare |> fun arr ->
       Array.slice arr 0 (min up_to (Array.length arr))
       |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
@@ -135,6 +133,7 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   |> top dragons_wasteful ~compare:worst
        ~up_to:(4 - Queue.(length neutrals + length neutrals_wasteful + num_dragons))
   |> top monsters
+  |> fun init -> Int.Table.fold hearts ~init ~f:(fun ~key:_ ~data acc -> top (Queue.of_list data) acc)
 
 open Combinations
 open Cooking
@@ -154,7 +153,7 @@ type folder = {
   third: int * Recipe.t list;
 }
 
-let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
+let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~sunny_algo list =
   let f ({ i; first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc) (recipe : Recipe.t)
       =
     match cook recipe with
@@ -164,7 +163,7 @@ let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
     | Food meal
      |Elixir meal
      |Tonic meal ->
-      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal in
+      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~sunny_algo meal in
       if score < score3
       then { acc with i = i + 1 }
       else if score = score3
@@ -254,12 +253,14 @@ type settings = {
   max_stamina: int;
   gloomy_hearts: int;
   algo: Algo.t;
+  sunny_algo: SunnyAlgo.t;
   kind: Ingredient.Effect.Kind.t;
   category: Glossary.Category.t;
   use_special: bool;
 }
 
-let run { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special } items =
+let run { game; max_hearts; max_stamina; gloomy_hearts; algo; sunny_algo; kind; category; use_special }
+   items =
   let gloomy_hearts =
     match kind with
     | Sunny when gloomy_hearts >= max_hearts -> max_hearts - 1
@@ -270,7 +271,7 @@ let run { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; us
   let grouped = group items in
   let { i = count; first; second; third } =
     filter ~game ~kind ~category ~use_special grouped
-    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo
+    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~sunny_algo
   in
   let iterations = top_sort grouped [ first; second; third ] in
   let duration = diff_time r in

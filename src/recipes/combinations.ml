@@ -4,12 +4,6 @@ open! Core_kernel
 module Recipe = struct
   module Self = struct
     type t = int Glossary.Map.t [@@deriving sexp, compare, equal]
-
-    let hash_fold_t init map =
-      Glossary.Map.fold map ~init ~f:(fun ~key ~data acc ->
-          [%hash_fold: int] ([%hash_fold: Glossary.t] acc key) data)
-
-    let hash map = Hash.of_fold hash_fold_t map
   end
 
   module Set = Set.Make (Self)
