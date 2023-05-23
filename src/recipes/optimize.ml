@@ -6,11 +6,11 @@ let group items =
       Glossary.Table.update table x ~f:(Option.value_map ~default:n ~f:(( + ) n)));
   table
 
-let best (x, _) (y, _) = [%compare: int] y x
+let best x y = [%compare: int] (Glossary.Variants.to_rank y) (Glossary.Variants.to_rank x)
 
-let worst (x, _) (y, _) = [%compare: int] x y
+let worst x y = [%compare: int] (Glossary.Variants.to_rank x) (Glossary.Variants.to_rank y)
 
-let get_sort_by_kind : Ingredient.Effect.Kind.t -> int * 'a -> int * 'b -> int = function
+let get_sort_by_kind : Ingredient.Effect.Kind.t -> Glossary.t -> Glossary.t -> int = function
 | Nothing
  |Neutral
  |Enduring
@@ -31,7 +31,8 @@ let get_sort_by_kind : Ingredient.Effect.Kind.t -> int * 'a -> int * 'b -> int =
  |Bright ->
   best
 
-let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
+let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Category.t) ~use_special grouped
+    =
   let open Glossary in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
@@ -43,11 +44,9 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
   let dragon_horns = Queue.create () in
   let dragons_wasteful = Queue.create () in
   let star_fragments = Queue.create () in
-  let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q (Variants.to_rank key, key)) () in
+  let add_to ~n q key = Fn.apply_n_times ~n (fun () -> Queue.enqueue q key) () in
   let add_to_table ~n table ~bucket key =
-    Fn.apply_n_times ~n
-      (fun () -> Int.Table.add_multi table ~key:bucket ~data:(Variants.to_rank key, key))
-      ()
+    Fn.apply_n_times ~n (fun () -> Int.Table.add_multi table ~key:bucket ~data:key) ()
   in
   let basics =
     Table.fold grouped ~init:[] ~f:(fun ~key ~data -> function
@@ -55,9 +54,8 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
       | acc when not (Game.is_in_game (availability key) ~game) -> acc
       | acc -> (
         let ingredient = to_ingredient key in
-        match Ingredient.to_kind ingredient, ingredient.category, category with
-        | (Nothing | Neutral), (Food | Spice), (Meals | Any)
-          when [%equal: Ingredient.Effect.Kind.t] kind Sunny ->
+        match Ingredient.to_kind ingredient, ingredient.category, category, kind with
+        | (Nothing | Neutral), (Food | Spice), (Meals | Any), Sunny ->
           (match ingredient.hearts with
           | Always (Quarters q)
            |Diminishing { first = Quarters q; _ }
@@ -65,8 +63,8 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
             add_to_table ~n:(min data 4) hearts ~bucket:q key
           | _ -> ());
           acc
-        | (Nothing | Neutral), (Food | Spice), (Meals | Any)
-          when not ([%equal: Ingredient.Effect.Kind.t] kind Hearty) ->
+        | (Nothing | Neutral), (Food | Spice), (Meals | Any), kind
+          when Ingredient.Effect.Kind.has_duration kind ->
           (match ingredient with
           | { effect = Neutral (Diminishing _); _ } ->
             (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
@@ -75,10 +73,10 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
             ()
           | _ -> add_to ~n:(min data 4) neutrals key);
           acc
-        | _, Dragon, _ when use_special && [%equal: t] key Star_fragment ->
+        | _, Dragon, _, _ when use_special && [%equal: t] key Star_fragment ->
           add_to ~n:data star_fragments key;
           acc
-        | _, Dragon, _ when use_special ->
+        | _, Dragon, _, _ when use_special ->
           (match key with
           | Dragon_scales _ -> add_to ~n:1 dragon_scales key
           | Dragon_claws _ -> add_to ~n:1 dragon_claws key
@@ -87,14 +85,14 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
           | k -> failwithf !"Invalid dragon part '%{Glossary}' at %{Source_code_position}" k [%here] ());
           add_to ~n:(data - 1) dragons_wasteful key;
           acc
-        | _, Monster, (Elixirs | Any) ->
+        | _, Monster, (Elixirs | Any), _ ->
           add_to ~n:(min data 4) monsters key;
           acc
-        | x, Food, (Meals | Any) when [%equal: Ingredient.Effect.Kind.t] x kind ->
+        | x, Food, (Meals | Any), kind when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
-        | x, Critter, (Elixirs | Any) when [%equal: Ingredient.Effect.Kind.t] x kind ->
+        | x, Critter, (Elixirs | Any), kind when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
-        | _, With_fairy _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
+        | _, With_fairy _, _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc))
   in
   let top ?(up_to = 4) ?compare ?move queue init =
@@ -106,7 +104,7 @@ let filter ~game ~kind ~(category : Glossary.Category.t) ~use_special grouped =
       let compare = Option.value compare ~default:(get_sort_by_kind kind) in
       Queue.to_array queue |> Array.sorted_copy ~compare |> fun arr ->
       Array.slice arr 0 (min up_to (Array.length arr))
-      |> Array.fold_right ~init ~f:(fun (_, x) acc -> x :: acc)
+      |> Array.fold_right ~init ~f:(fun x acc -> x :: acc)
   in
   let horns_up_to = 1 in
   let num_horns = min horns_up_to (Queue.length dragon_horns) in

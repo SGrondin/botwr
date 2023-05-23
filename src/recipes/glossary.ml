@@ -151,7 +151,7 @@ let to_ingredient =
     | Sanke_carp -> make_food 8 30
     | Raw_meat -> make_food 8 30
     | Raw_bird_drumstick -> make_food 8 30
-    | Golden_apple -> make_food 12 30 (* TODO *)
+    | Golden_apple -> make_food 12 50 (* TODO *)
     | Raw_bird_thigh -> make_food 12 30
     | Raw_gourmet_meat -> make_food 24 30
     | Raw_whole_bird -> make_food 24 30

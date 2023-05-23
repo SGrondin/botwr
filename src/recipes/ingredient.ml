@@ -186,6 +186,27 @@ module Effect = struct
     module Map = Map.Make (Self)
     include Self
 
+    let has_duration = function
+    | Nothing
+     |Neutral
+     |Hearty
+     |Sunny
+     |Energizing
+     |Enduring ->
+      false
+    | Spicy
+     |Chilly
+     |Electro
+     |Fireproof
+     |Hasty
+     |Rapid
+     |Sticky
+     |Sneaky
+     |Mighty
+     |Tough
+     |Bright ->
+      true
+
     let availability = function
     | Nothing
      |Neutral

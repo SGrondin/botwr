@@ -33,7 +33,7 @@ let application =
   let%sub game =
     Choices.component "game" [%here]
       (module Recipes.Game)
-      BOTW ~aria:"Radio button to select which game you're playing"
+      TOTK ~aria:"Radio button to select which game you're playing"
       ~node_mapper:(fun ~data node ->
         match data with
         | TOTK ->

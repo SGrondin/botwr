@@ -242,10 +242,53 @@ let%expect_test "List of ingredients" =
       (effect (Mighty ((potency 3) (wasted 1) (duration 230))))
       (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}];
   test [ Fairy; Sticky_frog; Sticky_frog; Sticky_frog; Sticky_lizard ];
-  [%expect {|
+  [%expect
+    {|
     (Tonic
      ((hearts (Restores (Quarters 28))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}]
+      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}];
+  test [ Oil_jar; Chillshroom; Chillshroom; Chillshroom ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores (Quarters 12))) (stamina Nothing)
+      (effect (Chilly ((potency 2) (wasted 0) (duration 530))))
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test [ Oil_jar; Oil_jar; Silent_princess; Silent_princess; Silent_princess ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores (Quarters 24))) (stamina Nothing)
+      (effect (Sneaky ((potency 3) (wasted 0) (duration 470))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test [ Korok_frond; Korok_frond; Brightcap; Brightcap; Brightcap ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores (Quarters 16))) (stamina Nothing)
+      (effect (Bright ((potency 1) (wasted 2) (duration 420))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test [ Golden_apple; Chillshroom; Chillshroom; Chillshroom ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores (Quarters 24))) (stamina Nothing)
+      (effect (Chilly ((potency 2) (wasted 0) (duration 500))))
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test [ Chillshroom; Star_fragment ];
+  [%expect {|
+    (Food
+     ((hearts (Restores (Quarters 4))) (stamina Nothing)
+      (effect (Chilly ((potency 1) (wasted 1) (duration 180))))
+      (num_ingredients 2) (num_effect_ingredients 2)
+      (random_effects (Potency Duration Red_hearts)))) |}];
+  test [ Chillshroom; Star_fragment; Star_fragment ];
+  [%expect {|
+    (Food
+     ((hearts (Restores (Quarters 4))) (stamina Nothing)
+      (effect (Chilly ((potency 1) (wasted 1) (duration 210))))
+      (num_ingredients 3) (num_effect_ingredients 3)
+      (random_effects (Potency Duration Red_hearts)))) |}]
 
 let%expect_test "Combinations" =
   let test r ll =

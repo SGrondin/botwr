@@ -56,6 +56,7 @@ module Self = struct
 
   (* IMPORTANT: sorted by strength within their own category *)
   type t =
+    (* Food (Always _) *)
     | Skyshroom
     | Dazzlefruit
     | Korok_frond
@@ -70,11 +71,13 @@ module Self = struct
     | Sanke_carp
     | Raw_meat
     | Raw_bird_drumstick
-    | Golden_apple
     | Raw_bird_thigh
     | Raw_prime_meat
     | Raw_gourmet_meat
     | Raw_whole_bird
+    | Golden_apple
+    (* Ingredient (Diminishing _) *)
+    (* and Spice (Diminishing _) *)
     | Chickaloo_tree_nut
     | Acorn
     | Rock_salt
