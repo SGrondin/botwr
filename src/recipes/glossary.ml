@@ -400,7 +400,7 @@ let availability : t -> Game.availability = function
  |Dragon_claws _
  |Dragon_fangs _
  |Dragon_horns _ ->
-  BOTW
+  Both
 | Skyshroom
  |Dazzlefruit
  |Korok_frond

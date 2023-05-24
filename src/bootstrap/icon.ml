@@ -53,7 +53,7 @@ type t =
 
 let of_kind : Recipes.Ingredient.Effect.Kind.t -> t = function
 | Nothing -> Meal
-| Neutral -> Meal
+| Neutral -> Heart
 | Hearty -> Hearty
 | Sunny -> Sunny
 | Energizing -> Energizing

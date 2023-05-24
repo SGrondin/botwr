@@ -103,7 +103,20 @@ let%expect_test "Filter" =
     (Items.Table.of_alist_exn [ Endura_carrot, 1; Dragon_horns Farosh, 0; Endura_shroom, 0 ]);
   [%expect {| (Endura_carrot) |}];
   test Enduring Any (Items.Table.of_alist_exn [ Endura_carrot, 1; Star_fragment, 0; Endura_shroom, 0 ]);
-  [%expect {| (Endura_carrot) |}]
+  [%expect {| (Endura_carrot) |}];
+
+  test Neutral Any
+    (Items.Table.of_alist_exn
+       [
+         Sundelion, 1;
+         Sun_pumpkin, 3;
+         Raw_bird_drumstick, 1;
+         Bird_egg, 2;
+         Raw_prime_meat, 1;
+         Sanke_carp, 1;
+         Apple, 1;
+       ]);
+  [%expect {| (Apple Sanke_carp Raw_bird_drumstick Raw_prime_meat) |}]
 
 let%expect_test "Cooking by category, basic" =
   let test ?(game = (BOTW : Game.t)) ~kind ~category ~algo ?(max_hearts = 20) ?(max_stamina = 15)
@@ -1132,16 +1145,20 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
 
+  let data11 =
+    Glossary.
+      [
+        Sundelion, 1;
+        Sun_pumpkin, 3;
+        Raw_bird_drumstick, 1;
+        Bird_egg, 2;
+        Raw_prime_meat, 1;
+        Sanke_carp, 1;
+        Apple, 1;
+      ]
+  in
   test ~kind:Sunny ~game:TOTK ~max_hearts:10 ~max_stamina:10 ~gloomy_hearts:4 ~category:Any ~algo:Maximize
-    [
-      Sundelion, 1;
-      Sun_pumpkin, 3;
-      Raw_bird_drumstick, 1;
-      Bird_egg, 2;
-      Raw_prime_meat, 1;
-      Sanke_carp, 1;
-      Apple, 1;
-    ];
+    data11;
   [%expect
     {|
     (0s)
@@ -1159,43 +1176,85 @@ let%expect_test "Cooking by category, basic" =
     Apple, Raw_prime_meat, Sanke_carp, Sun_pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 28))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}]
+      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
+
+  test ~kind:Neutral ~game:TOTK ~max_hearts:10 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+    ~algo:Maximize data11;
+  [%expect
+    {|
+    (0s)
+    28 pts (15, 4.000000)
+    Apple, Raw_bird_drumstick, Raw_prime_meat, Sanke_carp
+    (Food
+     ((hearts (Restores (Quarters 32))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 0) (random_effects ())))
+    25 pts (15, 4.000000)
+    Raw_bird_drumstick, Raw_prime_meat, Sanke_carp
+    (Food
+     ((hearts (Restores (Quarters 28))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 0) (random_effects ())))
+    21 pts (15, 3.000000)
+    Apple, Raw_bird_drumstick, Raw_prime_meat
+    (Food
+     ((hearts (Restores (Quarters 24))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 3) (num_effect_ingredients 0) (random_effects ()))) |}];
+
+  test ~kind:Neutral ~game:TOTK ~max_hearts:30 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+    ~algo:Maximize
+    [ Raw_gourmet_meat, 5; Palm_fruit, 1; Raw_bird_drumstick, 1 ];
+  [%expect {|
+    (0s)
+    115 pts (119, 29.000000)
+    Raw_gourmet_meat x5
+    (Food
+     ((hearts (Restores (Quarters 120))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 0) (random_effects ())))
+    99 pts (119, 24.200000)
+    Raw_bird_drumstick, Raw_gourmet_meat x4
+    (Food
+     ((hearts (Restores (Quarters 104))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 0) (random_effects ())))
+    99 pts (119, 24.200000)
+    Palm_fruit, Raw_gourmet_meat x4
+    (Food
+     ((hearts (Restores (Quarters 104))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 5) (num_effect_ingredients 0) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =
-  let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) ~algo x =
+  let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) ~algo ~kind x =
     print_endline (sprintf !"%{sexp: Cooking.Hearts.t}" x);
-    Cooking.Hearts.score ~max_hearts ~gloomy_hearts ~algo x |> Int.to_string |> print_endline
+    Cooking.Hearts.score ~max_hearts ~gloomy_hearts ~algo ~kind x |> Int.to_string |> print_endline
   in
-  test_hearts (Unglooms (3, Quarters 4)) ~algo:Balanced;
-  test_hearts (Unglooms (3, Quarters 4)) ~algo:Maximize;
+  test_hearts (Unglooms (3, Quarters 4)) ~algo:Balanced ~kind:Sunny;
+  test_hearts (Unglooms (3, Quarters 4)) ~algo:Maximize ~kind:Sunny;
   [%expect {|
     (Unglooms 3 (Quarters 4))
     156
     (Unglooms 3 (Quarters 4))
     156 |}];
-  test_hearts (Unglooms (3, Quarters 8)) ~algo:Balanced;
-  test_hearts (Unglooms (3, Quarters 8)) ~algo:Maximize;
+  test_hearts (Unglooms (3, Quarters 8)) ~algo:Balanced ~kind:Sunny;
+  test_hearts (Unglooms (3, Quarters 8)) ~algo:Maximize ~kind:Sunny;
   [%expect {|
     (Unglooms 3 (Quarters 8))
     164
     (Unglooms 3 (Quarters 8))
     164 |}];
-  test_hearts (Unglooms (4, Quarters 4)) ~algo:Balanced;
-  test_hearts (Unglooms (4, Quarters 4)) ~algo:Maximize;
+  test_hearts (Unglooms (4, Quarters 4)) ~algo:Balanced ~kind:Sunny;
+  test_hearts (Unglooms (4, Quarters 4)) ~algo:Maximize ~kind:Sunny;
   [%expect {|
     (Unglooms 4 (Quarters 4))
     148
     (Unglooms 4 (Quarters 4))
     148 |}];
-  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20)) ~algo:Balanced;
-  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20)) ~algo:Maximize;
+  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20)) ~algo:Balanced ~kind:Sunny;
+  test_hearts ~max_hearts:4 (Unglooms (3, Quarters 20)) ~algo:Maximize ~kind:Sunny;
   [%expect {|
     (Unglooms 3 (Quarters 20))
     164
     (Unglooms 3 (Quarters 20))
     168 |}];
-  test_hearts (Full_plus_bonus 3) ~algo:Balanced;
-  test_hearts (Full_plus_bonus 3) ~algo:Maximize;
+  test_hearts (Full_plus_bonus 3) ~algo:Balanced ~kind:Hearty;
+  test_hearts (Full_plus_bonus 3) ~algo:Maximize ~kind:Hearty;
   [%expect {|
     (Full_plus_bonus 3)
     146

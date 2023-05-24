@@ -23,8 +23,12 @@ module Hearts = struct
     | Unglooms        of int * Ingredient.Hearts.quarters
   [@@deriving sexp, compare, equal]
 
-  let score ~max_hearts ~gloomy_hearts ~(algo : Algo.t) = function
+  let score ~max_hearts ~gloomy_hearts ~(algo : Algo.t) ~(kind : Ingredient.Effect.Kind.t) = function
   | Nothing -> 0
+  | Restores (Quarters theoretical_gain) when [%equal: Ingredient.Effect.Kind.t] kind Neutral ->
+    let actual_gain = min theoretical_gain (max_hearts << 2) in
+    let wasted = theoretical_gain - actual_gain in
+    actual_gain - wasted
   | Restores (Quarters theoretical_gain) ->
     let actual_gain = min theoretical_gain (max_hearts << 2) in
     let wasted = theoretical_gain - actual_gain in
@@ -186,14 +190,14 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo
+  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind
      { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } =
     let random_bonus =
       match random_effects with
       | _ :: _ -> true
       | _ -> false
     in
-    Hearts.score ~max_hearts ~gloomy_hearts ~algo hearts
+    Hearts.score ~max_hearts ~gloomy_hearts ~algo ~kind hearts
     + Stamina.score ~max_stamina ~num_effect_ingredients ~random_bonus stamina
     + Effect.score ~num_effect_ingredients ~random_bonus ~algo effect
     - num_ingredients

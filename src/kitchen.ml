@@ -315,6 +315,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
 let button_choices =
   Recipes.Ingredient.Effect.Kind.
     [|
+      "Hearts", Neutral;
       "Chilly", Chilly;
       "Electro", Electro;
       "Energizing", Energizing;

@@ -34,6 +34,11 @@ let get_sort_by_kind : Ingredient.Effect.Kind.t -> Glossary.t -> Glossary.t -> i
 let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Category.t) ~use_special grouped
     =
   let open Glossary in
+  let limit_neutrals =
+    match kind with
+    | Neutral -> 5
+    | _ -> 4
+  in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
   let hearts = Int.Table.create () in
@@ -56,18 +61,19 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
       | acc -> (
         let ingredient = to_ingredient key in
         match Ingredient.to_kind ingredient, ingredient.category, category, kind with
-        | (Nothing | Neutral), Food, (Meals | Any), Sunny ->
+        | (Nothing | Neutral), Food, (Meals | Any), (Sunny | Neutral) ->
           (match ingredient, Ingredient.Hearts.base_quarters ingredient.hearts with
           | _, 0 -> ()
-          | { effect = Neutral (Always _); _ }, q -> add_to_table ~n:(min data 4) hearts ~bucket:q key
+          | { effect = Neutral (Always _); _ }, q ->
+            add_to_table ~n:(min data limit_neutrals) hearts ~bucket:q key
           | { effect = Neutral (Diminishing _); _ }, q ->
-            add_to_table ~n:(min data 4) hearts_wasteful ~bucket:q key
+            add_to_table ~n:(min data limit_neutrals) hearts_wasteful ~bucket:q key
           | _ -> ());
           acc
-        | (Nothing | Neutral), Spice, (Meals | Any), Sunny ->
+        | (Nothing | Neutral), Spice, (Meals | Any), (Sunny | Neutral) ->
           (match Ingredient.Hearts.base_quarters ingredient.hearts with
           | 0 -> ()
-          | q -> add_to_table ~n:(min data 4) hearts_wasteful ~bucket:q key);
+          | q -> add_to_table ~n:(min data limit_neutrals) hearts_wasteful ~bucket:q key);
           acc
         | (Nothing | Neutral), (Food | Spice), (Meals | Any), kind
           when Ingredient.Effect.Kind.has_duration kind ->
@@ -75,9 +81,9 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
           | { effect = Neutral (Diminishing _); _ } ->
             (* Add up to 1 to neutrals, up to 3 to neutrals_wasteful *)
             add_to ~n:1 neutrals key;
-            add_to ~n:(min 3 (data - 1)) neutrals_wasteful key;
+            add_to ~n:(min (limit_neutrals - 1) (data - 1)) neutrals_wasteful key;
             ()
-          | _ -> add_to ~n:(min data 4) neutrals key);
+          | _ -> add_to ~n:(min data limit_neutrals) neutrals key);
           acc
         | _, Dragon, _, _ when use_special && [%equal: t] key Star_fragment ->
           add_to ~n:data star_fragments key;
@@ -101,7 +107,7 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
         | _, With_fairy _, _, _ when use_special -> Fn.apply_n_times ~n:(min data 4) (List.cons key) acc
         | _ -> acc))
   in
-  let top ?(up_to = 4) ?compare ?move queue init =
+  let top ?(up_to = limit_neutrals) ?compare ?move queue init =
     match max 0 up_to with
     | up_to when up_to <= 0 -> init
     | up_to ->
@@ -174,7 +180,7 @@ type folder = {
   third: int * Recipe.t list;
 }
 
-let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
+let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind list =
   let f ({ i; first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc) (recipe : Recipe.t)
       =
     match cook recipe with
@@ -184,7 +190,7 @@ let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo list =
     | Food meal
      |Elixir meal
      |Tonic meal ->
-      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo meal in
+      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind meal in
       if score < score3
       then { acc with i = i + 1 }
       else if score = score3
@@ -280,17 +286,11 @@ type settings = {
 }
 
 let run { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special } items =
-  let gloomy_hearts =
-    match kind with
-    | Sunny when gloomy_hearts >= max_hearts -> max_hearts - 1
-    | Sunny -> gloomy_hearts
-    | _ -> 0
-  in
   let r = time () in
   let grouped = group items in
   let { i = count; first; second; third } =
     filter ~game ~kind ~category ~use_special grouped
-    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo
+    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind
   in
   let iterations = top_sort grouped [ first; second; third ] in
   let duration = diff_time r in
