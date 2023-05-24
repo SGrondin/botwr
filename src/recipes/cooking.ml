@@ -186,8 +186,8 @@ module Meal = struct
   }
   [@@deriving sexp, compare, equal, fields]
 
-  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo = function
-  | { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } ->
+  let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo
+     { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } =
     let random_bonus =
       match random_effects with
       | _ :: _ -> true

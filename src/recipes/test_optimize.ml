@@ -1166,7 +1166,6 @@ let%expect_test "Scoring" =
     print_endline (sprintf !"%{sexp: Cooking.Hearts.t}" x);
     Cooking.Hearts.score ~max_hearts ~gloomy_hearts ~algo x |> Int.to_string |> print_endline
   in
-  Cooking.debug := true;
   test_hearts (Unglooms (3, Quarters 4)) ~algo:Balanced;
   test_hearts (Unglooms (3, Quarters 4)) ~algo:Maximize;
   [%expect {|
@@ -1201,9 +1200,7 @@ let%expect_test "Scoring" =
     (Full_plus_bonus 3)
     146
     (Full_plus_bonus 3)
-    146 |}];
-
-  Cooking.debug := false
+    146 |}]
 
 let%expect_test "Optimize" =
   let grouped = Items.Table.of_alist_exn [ Stamella_shroom, 4; Armored_carp, 2; Ironshroom, 1 ] in
