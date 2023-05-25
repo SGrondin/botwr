@@ -338,7 +338,7 @@ let render_buttons ~game ~update selected_kind =
     update (Array.find_map button_choices ~f:(fun (k, v) -> Option.some_if String.(k = s) v))
   in
   Node.div
-    Attr.[ class_ "my-2"; on_change handler ]
+    Attr.[ class_ "my-2"; on_change handler; style Css_gen.(max_width (`Em 37)) ]
     (Array.fold_right button_choices ~init:[] ~f:(fun (label, kind) -> function
        | acc when not Recipes.(Game.is_in_game (Ingredient.Effect.Kind.availability kind) ~game) -> acc
        | acc ->

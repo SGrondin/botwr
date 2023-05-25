@@ -6,7 +6,7 @@ open Bootstrap
 open Bootstrap.Basic
 
 let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_buttons ~max_hearts_node
-   ~max_stamina_node ~clear_all_node =
+   ~max_stamina_node ~update_kitchen ~clear_all_events =
   let is_loaded =
     match data with
     | New
@@ -15,6 +15,15 @@ let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_but
     | Ready _
      |Loading ->
       false
+  in
+  let clear_all_node =
+    let handler _evt = Event.Many (update_kitchen Kitchen.Model.New :: clear_all_events) in
+    Node.div []
+      [
+        Node.button
+          Attr.[ type_ "button"; classes [ "btn"; "btn-outline-danger"; "btn-sm" ]; on_click handler ]
+          [ Node.text "Reset inventory " ];
+      ]
   in
   let instructions =
     [
@@ -37,7 +46,7 @@ let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_but
         [ Node.textf "%d. %s" (i + 1) s; svg; node ])
   |> Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ]
 
-let render ~game_node ~clear_all_node ~total ingredients
+let render ~game_node ~clear_all_events ~total ingredients
    Kitchen.
      {
        data;
@@ -100,7 +109,7 @@ let render ~game_node ~clear_all_node ~total ingredients
   in
   let instructions_node =
     render_instructions data kind total ~game_node ~kind_buttons ~max_hearts_node ~max_stamina_node
-      ~clear_all_node
+      ~update_kitchen ~clear_all_events
   in
   Node.div []
     [

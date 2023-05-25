@@ -34,10 +34,10 @@ let get_sort_by_kind : Ingredient.Effect.Kind.t -> Glossary.t -> Glossary.t -> i
 let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Category.t) ~use_special grouped
     =
   let open Glossary in
-  let limit_neutrals =
+  let limit_neutrals, limit_plenty =
     match kind with
-    | Neutral -> 5
-    | _ -> 4
+    | Neutral -> 5, 7
+    | _ -> 4, 4
   in
   let neutrals = Queue.create () in
   let neutrals_wasteful = Queue.create () in
@@ -70,7 +70,9 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
             add_to_table ~n:(min data limit_neutrals) hearts_wasteful ~bucket:q key
           | _ -> ());
           acc
-        | (Nothing | Neutral), Spice, (Meals | Any), (Sunny | Neutral) ->
+        | (Nothing | Neutral), Spice, (Meals | Any), (Sunny | Neutral)
+         |_, (Food | Spice), (Meals | Any), Neutral
+         |_, (Critter | Monster), (Elixirs | Any), Neutral ->
           (match Ingredient.Hearts.base_quarters ingredient.hearts with
           | 0 -> ()
           | q -> add_to_table ~n:(min data limit_neutrals) hearts_wasteful ~bucket:q key);
@@ -140,7 +142,7 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
           | [ _ ] -> acc + 1
           | _ :: _ :: _ -> acc + 2)
     in
-    if plenty >= 4
+    if plenty >= limit_plenty
     then hearts
     else
       Int.Table.merge hearts hearts_wasteful ~f:(fun ~key:_ -> function

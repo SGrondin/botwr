@@ -61,13 +61,13 @@ let application =
              by_effect;
              by_effect_node;
              jump_to_node;
-             clear_all_node;
+             clear_all_events;
              ingredients;
            } =
        backpack
      and kitchen = kitchen
      and share = share in
-     let kitchen_node = Header.render ~game_node ~clear_all_node ~total ingredients kitchen in
+     let kitchen_node = Header.render ~game_node ~clear_all_events ~total ingredients kitchen in
 
      Node.div
        Attr.[ class_ "m-2" ]

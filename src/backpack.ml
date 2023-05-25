@@ -236,7 +236,7 @@ type state = {
   by_effect: bool;
   by_effect_node: Node.t;
   jump_to_node: Node.t;
-  clear_all_node: Node.t;
+  clear_all_events: Ui_event.t list;
   ingredients: (Glossary.t * int) list;
 }
 
@@ -351,19 +351,8 @@ let component ~game ~inventory () =
        let handler _evt = update_by_effect (not by_effect) in
        render_by_effect ~handler
      in
-     let clear_all_node =
-       let handler _evt =
-         let events =
-           Glossary.Map.fold updates ~init:[] ~f:(fun ~key:_ ~data:update acc -> update Remove :: acc)
-         in
-         Event.Many events
-       in
-       Node.div []
-         [
-           Node.button
-             Attr.[ type_ "button"; classes [ "btn"; "btn-outline-danger"; "btn-sm" ]; on_click handler ]
-             [ Node.text "Reset inventory " ];
-         ]
+     let clear_all_events =
+       Glossary.Map.fold updates ~init:[] ~f:(fun ~key:_ ~data:update acc -> update Remove :: acc)
      in
      let state =
        {
@@ -373,7 +362,7 @@ let component ~game ~inventory () =
          by_effect;
          by_effect_node;
          jump_to_node = jump_to_node ~game;
-         clear_all_node;
+         clear_all_events;
          ingredients;
        }
      in
