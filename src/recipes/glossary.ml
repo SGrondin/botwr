@@ -882,4 +882,8 @@ let ordered_totk =
      |]
     |> Array.foldi ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
 
+let game_ordered : Game.t -> int Map.t = function
+| BOTW -> force ordered_botw
+| TOTK -> force ordered_totk
+
 let to_img_src x = Map.find_exn Blob.blobs x

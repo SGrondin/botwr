@@ -4,12 +4,13 @@ open! Bonsai.Let_syntax
 open! Vdom
 open Bootstrap
 open Bootstrap.Basic
+open Recipes
 
 module Model = struct
   type t =
     | New
     | Loading
-    | Ready     of Recipes.Optimize.t
+    | Ready     of Optimize.t
     | Completed
   [@@deriving sexp, equal]
 end
@@ -18,7 +19,7 @@ let make_icon ?fill icon = Icon.svg icon ?fill ~width:1.5 ~height:1.5 ~container
 
 let wrap_icon_list nodes = Node.div Attr.[ style Css_gen.(max_width (`Em 30) @> unselectable) ] nodes
 
-let get_heart_nodes (Recipes.Ingredient.Hearts.Quarters actual) =
+let get_heart_nodes (Ingredient.Hearts.Quarters actual) =
   let full_hearts = Int.( /% ) actual 4 |> List.init ~f:(const (make_icon Heart)) in
   let remainder =
     match Int.( % ) actual 4 with
@@ -34,7 +35,7 @@ let get_heart_nodes (Recipes.Ingredient.Hearts.Quarters actual) =
   in
   full_hearts @ remainder, label
 
-let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) option = function
+let render_hearts max_hearts : Cooking.Hearts.t -> (string * Node.t) option = function
 | Nothing -> None
 | Restores (Quarters _ as x) ->
   let hearts, label = get_heart_nodes x in
@@ -59,7 +60,7 @@ let render_hearts max_hearts : Recipes.Cooking.Hearts.t -> (string * Node.t) opt
 
   Some (label, node)
 
-let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) option = function
+let render_stamina max_stamina : Cooking.Stamina.t -> (string * Node.t) option = function
 | Nothing -> None
 | Restores { potency; wasted = _ } ->
   let actual = min potency max_stamina in
@@ -99,9 +100,9 @@ let render_stamina max_stamina : Recipes.Cooking.Stamina.t -> (string * Node.t) 
   in
   Some ("Stamina", node)
 
-let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optimize.t) =
+let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimize.t) =
   let open Option.Monad_infix in
-  let open Recipes.Optimize in
+  let open Optimize in
   let render_iteration { rarity; score; tiebreaker = _; recipe } =
     let make_duration sec =
       let actual = min sec 1800 in
@@ -113,7 +114,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
       | x, y -> Node.textf "%d minutes and %d seconds" x y
     in
     let icon_text icon text = Node.span [] [ icon >>| make_icon |> or_none; Node.text text ] in
-    let cooked = Recipes.Cooking.cook recipe in
+    let cooked = Cooking.cook recipe in
 
     let rarity_icon, rarity_text =
       let open Float in
@@ -136,12 +137,12 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         sprintf "Error: %s" msg, None, None
     in
 
-    let hearts = meal >>| Recipes.Cooking.Meal.hearts >>= render_hearts max_hearts in
-    let stamina = meal >>| Recipes.Cooking.Meal.stamina >>= render_stamina max_stamina in
+    let hearts = meal >>| Cooking.Meal.hearts >>= render_hearts max_hearts in
+    let stamina = meal >>| Cooking.Meal.stamina >>= render_stamina max_stamina in
 
     let effect, duration =
       let opt =
-        meal >>| Recipes.Cooking.Meal.effect >>= function
+        meal >>| Cooking.Meal.effect >>= function
         | Nothing -> None
         | Spicy x -> Some ("Spicy", Icon.Spicy, x)
         | Chilly x -> Some ("Chilly", Icon.Chilly, x)
@@ -175,11 +176,11 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
             | Green_wheels -> Some (Node.span [] [ Node.text "+"; make_icon Energizing2 ])
             | Yellow_wheels -> Some (Node.span [] [ Node.text "+"; make_icon Enduring2 ])
             | Potency -> (
-              match Recipes.Cooking.Effect.max_potency effect with
+              match Cooking.Effect.max_potency effect with
               | true -> None
               | false -> Some (Node.text "+1 power"))
             | Duration -> (
-              match Recipes.Cooking.Effect.duration effect with
+              match Cooking.Effect.duration effect with
               | x when x >= 1800 -> None
               | _ -> Some (Node.text "+5:00")))
         in
@@ -228,7 +229,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         let evts =
           let _x = window##scrollTo 0 0 in
           update_data Model.Completed
-          :: Recipes.Glossary.Map.fold_right recipe ~init:[] ~f:(fun ~key ~data acc ->
+          :: Glossary.Map.fold_right recipe ~init:[] ~f:(fun ~key ~data acc ->
                  Card.trigger_action updates key (Card.Action.Decrement_by data) :: acc)
         in
         Event.Many evts
@@ -243,27 +244,31 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
     in
 
     let recipe_rows =
-      Recipes.Glossary.Map.fold_right recipe ~init:[ [ cook_button ] ] ~f:(fun ~key ~data acc ->
-          List.init data ~f:(fun _ ->
-              Node.li
-                Attr.
-                  [
-                    classes
-                      [
-                        "list-group-item";
-                        "p-1";
-                        "d-flex";
-                        "align-items-center";
-                        "justify-content-between";
-                      ];
-                  ]
-                [
-                  Node.div [] [ Node.textf !"%{Recipes.Glossary}" key ];
-                  Node.create "img"
-                    Attr.[ style Css_gen.(height (`Em 2)); src (Recipes.Glossary.to_img_src key) ]
-                    [];
-                ])
-          :: acc)
+      let order = Glossary.game_ordered game in
+      Glossary.Map.to_alist recipe
+      |> List.sort ~compare:(fun (x, _) (y, _) ->
+             [%compare: int] (Glossary.Map.find_exn order y) (Glossary.Map.find_exn order x))
+      |> List.fold ~init:[ [ cook_button ] ] ~f:(fun acc (key, data) ->
+             List.init data ~f:(fun _ ->
+                 Node.li
+                   Attr.
+                     [
+                       classes
+                         [
+                           "list-group-item";
+                           "p-1";
+                           "d-flex";
+                           "align-items-center";
+                           "justify-content-between";
+                         ];
+                     ]
+                   [
+                     Node.div [] [ Node.textf !"%{Glossary}" key ];
+                     Node.create "img"
+                       Attr.[ style Css_gen.(height (`Em 2)); src (Glossary.to_img_src key) ]
+                       [];
+                   ])
+             :: acc)
       |> List.concat
     in
 
@@ -297,7 +302,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
         Node.div
           Attr.[ classes [ "d-flex"; "align-items-center" ] ]
           [
-            Node.create "img" Attr.[ src (force Recipes.Blob.dubious) ] [];
+            Node.create "img" Attr.[ src (force Blob.dubious) ] [];
             Node.h6 [] [ Node.text "Nothing with the special effect you seek..." ];
           ];
       ]
@@ -313,7 +318,7 @@ let render ~updates ~update_data ~max_hearts ~max_stamina (basic : Recipes.Optim
     Node.div [] (time_node :: List.map iterations ~f:render_iteration)
 
 let button_choices =
-  Recipes.Ingredient.Effect.Kind.
+  Ingredient.Effect.Kind.
     [|
       "Hearts", Neutral;
       "Chilly", Chilly;
@@ -340,15 +345,13 @@ let render_buttons ~game ~update selected_kind =
   Node.div
     Attr.[ class_ "my-2"; on_change handler; style Css_gen.(max_width (`Em 37)) ]
     (Array.fold_right button_choices ~init:[] ~f:(fun (label, kind) -> function
-       | acc when not Recipes.(Game.is_in_game (Ingredient.Effect.Kind.availability kind) ~game) -> acc
+       | acc when not (Game.is_in_game (Ingredient.Effect.Kind.availability kind) ~game) -> acc
        | acc ->
          let id_ = sprintf "kind-choice-%s" label in
          let attrs =
            Attr.
              [ class_ "form-check-input"; type_ "radio"; name "kind-radio-buttons"; id id_; value label ]
-           |> add_if
-                ([%equal: Recipes.Ingredient.Effect.Kind.t option] selected_kind (Some kind))
-                Attr.checked
+           |> add_if ([%equal: Ingredient.Effect.Kind.t option] selected_kind (Some kind)) Attr.checked
          in
          let node =
            Node.div
@@ -376,9 +379,9 @@ end
 type state = {
   data: Model.t;
   update_data: Model.t -> Ui_event.t;
-  calculate: Recipes.Ingredient.Effect.Kind.t -> (Recipes.Glossary.t * int) list -> Recipes.Optimize.t;
+  calculate: Ingredient.Effect.Kind.t -> (Glossary.t * int) list -> Optimize.t;
   kitchen_node: Node.t;
-  kind: Recipes.Ingredient.Effect.Kind.t option;
+  kind: Ingredient.Effect.Kind.t option;
   kind_buttons: Node.t;
   meals_switch: Node.t;
   elixirs_switch: Node.t;
@@ -406,7 +409,7 @@ let component ~game ~updates ?kind () =
   let%sub max_stamina =
     Stepper.component "max_stamina" 5 ~min_value:5 ~max_value:(Bonsai.Value.return 15) ~update_kitchen New
       ~render:(fun potency ->
-        Recipes.Cooking.Stamina.Restores { potency; wasted = 0 }
+        Cooking.Stamina.Restores { potency; wasted = 0 }
         |> render_stamina 15
         |> Option.value_map ~f:snd ~default:Node.none)
   in
@@ -417,7 +420,7 @@ let component ~game ~updates ?kind () =
   in
   let%sub algo =
     Choices.component "algo" [%here]
-      (module Recipes.Cooking.Algo)
+      (module Cooking.Algo)
       Balanced ~aria:"Radio button to select optimization algorithm"
   in
   let%sub sunny_algo =
@@ -425,7 +428,7 @@ let component ~game ~updates ?kind () =
       (module SunnyAlgo)
       Full ~aria:"Radio button to select gloomy healing optimization algorithm"
   in
-  let%sub kind = Bonsai.state_opt [%here] (module Recipes.Ingredient.Effect.Kind) ?default_model:kind in
+  let%sub kind = Bonsai.state_opt [%here] (module Ingredient.Effect.Kind) ?default_model:kind in
   return
   @@ let%map data, update_data = component
      and game = game
@@ -439,7 +442,7 @@ let component ~game ~updates ?kind () =
      and algo, algo_node = algo
      and sunny_algo, sunny_algo_node = sunny_algo
      and kind, update_kind = kind in
-     let category : Recipes.Glossary.Category.t =
+     let category : Glossary.Category.t =
        match meals, elixirs with
        | true, true
         |false, false ->
@@ -449,7 +452,7 @@ let component ~game ~updates ?kind () =
      in
      let kitchen_node =
        match data with
-       | Ready optimized -> render ~updates ~update_data ~max_hearts ~max_stamina optimized
+       | Ready optimized -> render ~updates ~update_data ~game ~max_hearts ~max_stamina optimized
        | Completed ->
          Node.div []
            [
@@ -534,18 +537,17 @@ let component ~game ~updates ?kind () =
        in
        Node.div [] nodes
      in
-     let calculate (kind : Recipes.Ingredient.Effect.Kind.t) ingredients =
-       let algo : Recipes.Cooking.Algo.t =
+     let calculate (kind : Ingredient.Effect.Kind.t) ingredients =
+       let algo : Cooking.Algo.t =
          match kind, sunny_algo with
          | Sunny, Gloomy -> Balanced
          | Sunny, Full -> Maximize
          | _ -> algo
        in
        let settings =
-         Recipes.Optimize.
-           { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special }
+         Optimize.{ game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; use_special }
        in
-       Recipes.Optimize.run settings ingredients
+       Optimize.run settings ingredients
      in
      {
        data;

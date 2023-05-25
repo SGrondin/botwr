@@ -158,10 +158,14 @@ module Effect = struct
     let wasted_duration = duration - actual_duration in
     let penalty =
       match algo with
-      | Balanced -> (num_effect_ingredients << 4) + wasted + (wasted_duration << 1)
-      | Maximize -> 0
+      | Balanced ->
+        (num_effect_ingredients << 5)
+        + (wasted << 4)
+        + (wasted_duration << 1)
+        + (max 0 (actual_duration - 500) >> 1)
+      | Maximize -> wasted + num_effect_ingredients
     in
-    100 + (potency << 6) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
+    100 + (potency << 7) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
 end
 
 module Special_bonus = struct

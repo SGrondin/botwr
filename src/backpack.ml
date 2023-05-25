@@ -175,11 +175,7 @@ let group ~inventory ~selected ~update_selected ~show_all ~game items =
   @@ let%map mapped = mapped
      and show_all = show_all
      and game = game in
-     let ordered =
-       match (game : Game.t) with
-       | BOTW -> force Glossary.ordered_botw
-       | TOTK -> force Glossary.ordered_totk
-     in
+     let ordered = Glossary.game_ordered game in
      String.Map.fold mapped ~init:{ keyed_nodes = []; total = 0; updates = []; ingredients = [] }
        ~f:(fun
             ~key:_
