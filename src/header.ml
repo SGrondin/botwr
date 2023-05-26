@@ -21,7 +21,7 @@ let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_but
       "Pick a game.", None, game_node;
       "Set your maximum hearts containers.", None, max_hearts_node;
       "Set your maximum stamina containers.", None, max_stamina_node;
-      "Pick a bonus.", Some (Option.is_some kind), kind_buttons;
+      "Pick an effect.", Some (Option.is_some kind), kind_buttons;
       "Add ingredients to your inventory.", Some (total <> 0), set_all_node;
       sprintf "Click %s!" Kitchen.button_label, Some (not is_loaded), Node.none;
     ]
