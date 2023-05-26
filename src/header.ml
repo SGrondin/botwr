@@ -6,7 +6,7 @@ open Bootstrap
 open Bootstrap.Basic
 
 let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_buttons ~max_hearts_node
-   ~max_stamina_node ~update_kitchen ~clear_all_events =
+   ~max_stamina_node ~set_all_node =
   let is_loaded =
     match data with
     | New
@@ -16,22 +16,13 @@ let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_but
      |Loading ->
       false
   in
-  let clear_all_node =
-    let handler _evt = Event.Many (update_kitchen Kitchen.Model.New :: clear_all_events) in
-    Node.div []
-      [
-        Node.button
-          Attr.[ type_ "button"; classes [ "btn"; "btn-outline-danger"; "btn-sm" ]; on_click handler ]
-          [ Node.text "Reset inventory " ];
-      ]
-  in
   let instructions =
     [
       "Pick a game.", None, game_node;
       "Set your maximum hearts containers.", None, max_hearts_node;
       "Set your maximum stamina containers.", None, max_stamina_node;
       "Pick a bonus.", Some (Option.is_some kind), kind_buttons;
-      "Add ingredients to your inventory.", Some (total <> 0), clear_all_node;
+      "Add ingredients to your inventory.", Some (total <> 0), set_all_node;
       sprintf "Click %s!" Kitchen.button_label, Some (not is_loaded), Node.none;
     ]
   in
@@ -46,7 +37,7 @@ let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_but
         [ Node.textf "%d. %s" (i + 1) s; svg; node ])
   |> Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ]
 
-let render ~game_node ~clear_all_events ~total ingredients
+let render ~game_node ~set_all_node ~total ingredients
    Kitchen.
      {
        data;
@@ -111,7 +102,7 @@ let render ~game_node ~clear_all_events ~total ingredients
   in
   let instructions_node =
     render_instructions data kind total ~game_node ~kind_buttons ~max_hearts_node ~max_stamina_node
-      ~update_kitchen ~clear_all_events
+      ~set_all_node
   in
   Node.div []
     [

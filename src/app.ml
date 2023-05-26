@@ -56,27 +56,20 @@ let application =
     Kitchen.component ~game ~init_max_hearts:initial.max_hearts ~init_max_stamina:initial.max_stamina
       ~updates ()
   in
-  let%pattern_bind { max_hearts; max_stamina; _ } = kitchen in
+  let%pattern_bind { max_hearts; max_stamina; update_data = update_kitchen; _ } = kitchen in
+  let%sub set_all = Set_all.component ~updates ~update_kitchen in
   let%sub share =
     Share.component ~updates ~max_hearts ~max_stamina (backpack >>| fun { ingredients; _ } -> ingredients)
   in
   return
   @@ let%map game_node = game_node
      and Backpack.
-           {
-             total;
-             items_node;
-             show_all_node;
-             by_effect;
-             by_effect_node;
-             jump_to_node;
-             clear_all_events;
-             ingredients;
-           } =
+           { total; items_node; show_all_node; by_effect; by_effect_node; jump_to_node; ingredients } =
        backpack
      and kitchen = kitchen
+     and set_all_node = set_all
      and share = share in
-     let kitchen_node = Header.render ~game_node ~clear_all_events ~total ingredients kitchen in
+     let kitchen_node = Header.render ~game_node ~set_all_node ~total ingredients kitchen in
 
      Node.div
        Attr.[ class_ "m-2" ]
