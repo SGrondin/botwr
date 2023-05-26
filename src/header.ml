@@ -58,7 +58,9 @@ let render ~game_node ~clear_all_events ~total ingredients
        meals_switch;
        elixirs_switch;
        use_special_switch;
+       max_hearts = _;
        max_hearts_node;
+       max_stamina = _;
        max_stamina_node;
      } =
   let id_ = "hidden-btn" in

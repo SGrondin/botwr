@@ -5,7 +5,7 @@ open! Vdom
 open Bootstrap
 open Bootstrap.Basic
 
-let inventory =
+let initial =
   let from_uri =
     let open Js_of_ocaml in
     Url.Current.as_string
@@ -23,9 +23,12 @@ let inventory =
   in
   let from_storage =
     Local_storage.parse_item "inventory" [%of_sexp: (Recipes.Glossary.t * int) list]
-    |> Option.bind ~f:(fun ll -> Recipes.Glossary.Map.of_alist_or_error ll |> Or_error.ok)
+    |> Option.bind ~f:(fun ll ->
+           Recipes.Glossary.Map.of_alist_or_error ll
+           |> Or_error.map ~f:(fun items -> Recipes.Compression.{ empty with items })
+           |> Or_error.ok)
   in
-  Option.first_some from_uri from_storage |> Option.value ~default:Recipes.Glossary.Map.empty
+  Option.first_some from_uri from_storage |> Option.value ~default:Recipes.Compression.empty
 
 let application =
   print_endline "Made by SGrondin for his one true love ❤️";
@@ -47,10 +50,16 @@ let application =
         | BOTW -> Node.div [] [ node ])
   in
   let%pattern_bind game, game_node = game in
-  let%sub backpack = Backpack.component ~game ~inventory:(Bonsai.Value.return inventory) () in
+  let%sub backpack = Backpack.component ~game ~inventory:(Bonsai.Value.return initial.items) () in
   let%pattern_bind backpack, updates = backpack in
-  let%sub kitchen = Kitchen.component ~game ~updates () in
-  let%sub share = Share.component ~updates (backpack >>| fun { ingredients; _ } -> ingredients) in
+  let%sub kitchen =
+    Kitchen.component ~game ~init_max_hearts:initial.max_hearts ~init_max_stamina:initial.max_stamina
+      ~updates ()
+  in
+  let%pattern_bind { max_hearts; max_stamina; _ } = kitchen in
+  let%sub share =
+    Share.component ~updates ~max_hearts ~max_stamina (backpack >>| fun { ingredients; _ } -> ingredients)
+  in
   return
   @@ let%map game_node = game_node
      and Backpack.

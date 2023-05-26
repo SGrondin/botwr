@@ -14,7 +14,7 @@ end
 
 let initial name = Local_storage.parse_item name [%of_sexp: int]
 
-let component name default ~render ~min_value ~max_value ~update_kitchen status =
+let component name ?start_value default ~render ~min_value ~max_value ~update_kitchen status =
   let apply_action ~inject:_ ~schedule_event:_ max_value model (action : Action.t) =
     let updated =
       match action with
@@ -24,7 +24,12 @@ let component name default ~render ~min_value ~max_value ~update_kitchen status 
     let _res = Local_storage.set_item ~key:name ~data:(sprintf !"%{sexp: int}" updated) in
     updated
   in
-  let default_model = initial name |> Option.value ~default in
+  let default_model =
+    match start_value, lazy (initial name) with
+    | Some x, _ -> x
+    | None, (lazy (Some x)) -> x
+    | None, (lazy None) -> default
+  in
   let%sub state =
     Bonsai.state_machine1 [%here] (module Int) (module Action) ~default_model ~apply_action max_value
   in

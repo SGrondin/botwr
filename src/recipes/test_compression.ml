@@ -13,15 +13,23 @@ let%expect_test "Merge" =
   [%expect {| ((Skip 4) (Item 1) (Item 1200) (Skip 19) (Item 1001)) |}]
 
 let%expect_test "Compress" =
-  let test x = x |> compress |> print_endline in
+  let test x = x |> compress ~max_hearts:15 ~max_stamina:10 |> print_endline in
   test data1;
-  [%expect {| AYN/GoE |}];
+  [%expect {| AAIPCgGDfxqB |}];
   test data2;
-  [%expect {| BIHEsBPD6Q |}]
+  [%expect {| AAIPCgSBxLATw+k |}]
 
 let%expect_test "Decompress" =
-  let test x = x |> decompress |> sprintf !"%{sexp: int Map.t Or_error.t}" |> print_endline in
-  test "AYN/GoE";
-  [%expect {| (Ok ((Dazzlefruit 3) ((Dragon_horns Farosh) 1))) |}];
-  test "BIHEsBPD6Q";
-  [%expect {| (Ok ((Wildberry 1) (Hylian_shroom 999) (Cane_sugar 999))) |}]
+  let test x = x |> decompress |> sprintf !"%{sexp: t Or_error.t}" |> print_endline in
+  test "AAIPCgGDfxqB";
+  [%expect
+    {|
+    (Ok
+     ((items ((Dazzlefruit 3) ((Dragon_horns Farosh) 1))) (max_hearts (15))
+      (max_stamina (10)))) |}];
+  test "AAIPCgSBxLATw+k";
+  [%expect
+    {|
+    (Ok
+     ((items ((Wildberry 1) (Hylian_shroom 999) (Cane_sugar 999)))
+      (max_hearts (15)) (max_stamina (10)))) |}]

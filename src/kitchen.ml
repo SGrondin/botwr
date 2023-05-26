@@ -386,18 +386,21 @@ type state = {
   meals_switch: Node.t;
   elixirs_switch: Node.t;
   use_special_switch: Node.t;
+  max_hearts: int;
   max_hearts_node: Node.t;
+  max_stamina: int;
   max_stamina_node: Node.t;
 }
 
 let button_label = "Cook"
 
-let component ~game ~updates ?kind () =
+let component ~game ~init_max_hearts ~init_max_stamina ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
-    Stepper.component "max_hearts" 5 ~min_value:3 ~max_value:(Bonsai.Value.return 30) ~update_kitchen New
-      ~render:(fun x -> List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
+    Stepper.component "max_hearts" ?start_value:init_max_hearts 5 ~min_value:3
+      ~max_value:(Bonsai.Value.return 30) ~update_kitchen New ~render:(fun x ->
+        List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
   in
 
   let%sub gloomy_hearts =
@@ -407,8 +410,8 @@ let component ~game ~updates ?kind () =
       ~render:(fun x -> List.init x ~f:(const (make_icon ~fill:Icon.fill_grey Sunny)) |> wrap_icon_list)
   in
   let%sub max_stamina =
-    Stepper.component "max_stamina" 5 ~min_value:5 ~max_value:(Bonsai.Value.return 15) ~update_kitchen New
-      ~render:(fun potency ->
+    Stepper.component "max_stamina" ?start_value:init_max_stamina 5 ~min_value:5
+      ~max_value:(Bonsai.Value.return 15) ~update_kitchen New ~render:(fun potency ->
         Cooking.Stamina.Restores { potency; wasted = 0 }
         |> render_stamina 15
         |> Option.value_map ~f:snd ~default:Node.none)
@@ -559,6 +562,8 @@ let component ~game ~updates ?kind () =
        meals_switch;
        elixirs_switch;
        use_special_switch;
+       max_hearts;
        max_hearts_node;
+       max_stamina;
        max_stamina_node;
      }

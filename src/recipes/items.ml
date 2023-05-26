@@ -75,11 +75,11 @@ module Self = struct
     | Raw_prime_meat
     | Raw_gourmet_meat
     | Raw_whole_bird
-    | Golden_apple
     (* Ingredient (Diminishing _) *)
     (* and Spice (Diminishing _) *)
     | Chickaloo_tree_nut
     | Acorn
+    | Golden_apple
     | Rock_salt
     | Hylian_rice
     | Tabantha_wheat

@@ -11,8 +11,8 @@ type inventory_save = (Recipes.Items.t * int) list [@@deriving sexp_of]
 
 type inventory_load = int Recipes.Glossary.Map.t [@@deriving of_sexp]
 
-let copy_link ingredients =
-  let compressed = Recipes.Compression.compress ingredients in
+let copy_link ~max_hearts ~max_stamina ingredients =
+  let compressed = Recipes.Compression.compress ingredients ~max_hearts ~max_stamina in
   let open Js_of_ocaml in
   let url =
     Url.Current.as_string
@@ -209,11 +209,13 @@ let restore_component ~update_visibility ~update_status_msg updates =
          [ cancel_node ] |> add_if not_empty delete_node |> add_if not_empty restore_node |> Node.div [];
        ]
 
-let links_component ~update_visibility ~update_status_msg ingredients =
+let links_component ~update_visibility ~update_status_msg ~max_hearts ~max_stamina ingredients =
   return
   @@ let%map update_visibility = update_visibility
      and update_status_msg = update_status_msg
-     and ingredients = ingredients in
+     and ingredients = ingredients
+     and max_hearts = max_hearts
+     and max_stamina = max_stamina in
      let save_button =
        let handler _evt = Event.Many [ update_visibility Visibility.Save; update_status_msg None ] in
        Node.span
@@ -228,7 +230,7 @@ let links_component ~update_visibility ~update_status_msg ingredients =
      in
      let export =
        let handler _evt =
-         copy_link ingredients;
+         copy_link ~max_hearts ~max_stamina ingredients;
          Event.Many [ update_status_msg (Some (Status.Success "Link copied!")) ]
        in
        Node.span
@@ -237,12 +239,14 @@ let links_component ~update_visibility ~update_status_msg ingredients =
      in
      Node.div [] [ save_button; restore_button; export ]
 
-let component ~updates ingredients =
+let component ~updates ~max_hearts ~max_stamina ingredients =
   let%sub status_msg = Bonsai.state_opt [%here] (module Status) in
   let%pattern_bind status_msg, update_status_msg = status_msg in
   let%sub visibility = Bonsai.state [%here] (module Visibility) ~default_model:Nothing in
   let%pattern_bind visibility, update_visibility = visibility in
-  let%sub links = links_component ~update_visibility ~update_status_msg ingredients in
+  let%sub links =
+    links_component ~update_visibility ~update_status_msg ~max_hearts ~max_stamina ingredients
+  in
   let%sub contents =
     Bonsai.enum
       (module Visibility)

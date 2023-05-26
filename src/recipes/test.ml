@@ -275,6 +275,13 @@ let%expect_test "List of ingredients" =
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Chilly ((potency 2) (wasted 0) (duration 500))))
       (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
+  test [ Golden_apple; Golden_apple; Chillshroom; Chillshroom; Chillshroom ];
+  [%expect
+    {|
+    (Food
+     ((hearts (Restores (Quarters 36))) (stamina Nothing)
+      (effect (Chilly ((potency 2) (wasted 0) (duration 530))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
   test [ Chillshroom; Star_fragment ];
   [%expect
     {|
@@ -294,7 +301,8 @@ let%expect_test "List of ingredients" =
 
   test [ Raw_gourmet_meat ];
   test [ Raw_gourmet_meat; Star_fragment ];
-  [%expect {|
+  [%expect
+    {|
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing) (effect Nothing)
       (num_ingredients 1) (num_effect_ingredients 0) (random_effects ())))

@@ -1107,37 +1107,37 @@ let%expect_test "Cooking by category, basic" =
   [%expect
     {|
     (0s)
-    193 pts (12615, -0.866667)
-    Golden_apple, Sun_pumpkin, Sundelion
-    (Food
-     ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 3) (num_effect_ingredients 2) (random_effects ())))
-    192 pts (12615, -1.066667)
+    192 pts (3472, -1.066667)
     Apple, Palm_fruit, Sun_pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
-    191 pts (12615, -1.266667)
+    191 pts (3472, -1.266667)
     Apple x3, Sun_pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
-    (0s)
-    200 pts (12615, -1.066667)
+    188 pts (3472, -1.066667)
     Palm_fruit x2, Sun_pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
-    200 pts (12615, -1.066667)
-    Apple, Golden_apple, Sun_pumpkin, Sundelion
+    (0s)
+    200 pts (3472, -1.066667)
+    Palm_fruit x2, Sun_pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
-    199 pts (12615, -1.266667)
+    199 pts (3472, -1.266667)
     Apple x2, Palm_fruit, Sun_pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
-      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
+      (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
+    192 pts (3472, -1.066667)
+    Apple, Palm_fruit, Sun_pumpkin, Sundelion
+    (Food
+     ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
+      (num_ingredients 4) (num_effect_ingredients 2) (random_effects ()))) |}];
 
   let data11 =
     Glossary.

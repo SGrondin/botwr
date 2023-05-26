@@ -151,23 +151,23 @@ let to_ingredient =
     | Sanke_carp -> make_food 8 30
     | Raw_meat -> make_food 8 30
     | Raw_bird_drumstick -> make_food 8 30
-    | Golden_apple -> make_food 12 50 (* TODO *)
     | Raw_bird_thigh -> make_food 12 30
     | Raw_gourmet_meat -> make_food 24 30
     | Raw_whole_bird -> make_food 24 30
     | Raw_prime_meat -> make_food 12 30
-    | Bird_egg -> make_ingredient 8 90 30
-    | Fresh_milk -> make_ingredient 4 80 30
-    | Acorn -> make_ingredient 4 50 30
     | Chickaloo_tree_nut -> make_ingredient 4 40 30
+    | Acorn -> make_ingredient 4 50 30
+    | Golden_apple -> make_ingredient 12 50 30
+    | Rock_salt -> make_spice 0 60 30
     | Hylian_rice -> make_spice 8 60 30
     | Tabantha_wheat -> make_spice 8 60 30
     | Oil_jar -> make_spice 0 80 30
     | Cane_sugar -> make_spice 0 80 30
     | Goat_butter -> make_spice 0 80 30
+    | Fresh_milk -> make_ingredient 4 80 30
     | Hateno_cheese -> make_spice 8 80 30
     | Goron_spice -> make_spice 0 90 30
-    | Rock_salt -> make_spice 0 60 30
+    | Bird_egg -> make_ingredient 8 90 30
     (* Hearty *)
     | Hearty_truffle -> make_hearty 16 1
     | Hearty_bass -> make_hearty 16 2
@@ -752,11 +752,11 @@ let ordered_totk =
        Chillshroom;
        Sunshroom;
        Hylian_shroom;
+       Zapshroom;
        Silent_shroom;
        Razorshroom;
        Ironshroom;
        Skyshroom;
-       Zapshroom;
        Hyrule_herb;
        Silent_princess;
        Sun_pumpkin;
