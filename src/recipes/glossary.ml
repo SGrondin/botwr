@@ -731,8 +731,8 @@ let ordered_totk =
        Hylian_tomato;
        Apple;
        Wildberry;
-       Hydromelon;
        Fleet_lotus_seeds;
+       Hydromelon;
        Mighty_bananas;
        Spicy_pepper;
        (* Fire_fruit *)
@@ -743,34 +743,34 @@ let ordered_totk =
        Voltfruit;
        Big_hearty_truffle;
        Hearty_truffle;
-       Big_hearty_radish;
-       Hearty_radish;
-       Endura_shroom;
        Rushroom;
        Brightcap;
+       Endura_shroom;
        Stamella_shroom;
        Chillshroom;
        Sunshroom;
        Hylian_shroom;
-       Zapshroom;
        Silent_shroom;
+       Zapshroom;
        Razorshroom;
        Ironshroom;
        Skyshroom;
+       Big_hearty_radish;
+       Hearty_radish;
        Hyrule_herb;
        Silent_princess;
+       Fortified_pumpkin;
        Sun_pumpkin;
        Swift_carrot;
        Endura_carrot;
        Stambulb;
        Korok_frond;
-       Fortified_pumpkin;
        Cool_safflina;
        Warm_safflina;
-       Electric_safflina;
-       Mighty_thistle;
        Armoranth;
        Blue_nightshade;
+       Electric_safflina;
+       Mighty_thistle;
        Swift_violet;
        Sundelion;
        Raw_gourmet_meat;
@@ -788,8 +788,8 @@ let ordered_totk =
        Acorn;
        Chickaloo_tree_nut;
        Cane_sugar;
-       Goat_butter;
        Goron_spice;
+       Goat_butter;
        Oil_jar;
        (* Dark_clump *)
        Rock_salt;
@@ -847,38 +847,66 @@ let ordered_totk =
        Hightail_lizard;
        Fireproof_lizard;
        Sticky_lizard;
-       Monster_horn Bokoblin_horn;
-       Monster_fang Bokoblin_fang;
        Monster_guts Bokoblin_guts;
-       Monster_horn Moblin_horn;
-       Monster_fang Moblin_fang;
        Monster_guts Moblin_guts;
+       (* Horriblin_guts *)
+       (* Gibdo_guts *)
+       Monster_guts Hinox_guts;
+       Monster_fang Red_chuchu_jelly;
+       Monster_fang White_chuchu_jelly;
+       Monster_horn Chuchu_jelly;
+       Monster_horn Octo_balloon;
+       Monster_guts Keese_eyeball;
+       (* Fire_keese_eyeball *)
+       (* Ice_keese_eyeball *)
+       (* Electric_keese_eyeball *)
+       Monster_fang Octorok_eyeball;
+       (* Aerocuda_eyeball *)
+       Monster_horn Keese_wing;
+       Monster_fang Ice_keese_wing;
+       Monster_fang Electric_keese_wing;
+       (* Aerocuda_wing *)
+       (* Gibdo_wing *)
+       Monster_horn Bokoblin_horn;
+       (* Blue_bokoblin_horn *)
+       (* Black_bokoblin_horn *)
        Monster_horn Lizalfos_horn;
-       Monster_fang Lizalfos_talon;
+       (* Blue_lizalfos_horn *)
+       (* Black_lizalfos_horn *)
+       (* Ice_breath_lizalfos_horn *)
+       (* Electric_lizalfos_horn *)
+       Monster_horn Hinox_toenail;
+       (* Like_like_stone *)
+       (* Fire_like_stone *)
+       (* Shock_like_stone *)
+       Monster_horn Moblin_horn;
+       (* Blue_moblin_horn *)
+       (* Black_moblin_horn *)
+       (* Horriblin_horn *)
+       (* Blue_horriblin_horn *)
+       (* Black_horriblin_horn *)
+       (* Blue_hinox_horn *)
        Monster_guts Lizalfos_tail;
+       (* Blue_lizalfos_tail *)
+       (* Ice_breath_lizalfos_tail *)
+       (* Gibdo_bone *)
+       Monster_horn Octorok_tentacle;
+       Monster_fang Bokoblin_fang;
+       Monster_fang Moblin_fang;
+       (* Boss_bokoblin_fang *)
+       Monster_fang Hinox_tooth;
+       (* Horriblin_claw *)
+       Monster_fang Lizalfos_talon;
        Monster_guts Icy_lizalfos_tail;
        Monster_guts Red_lizalfos_tail;
        Monster_guts Yellow_lizalfos_tail;
        Monster_horn Lynel_horn;
        Monster_fang Lynel_hoof;
        Monster_guts Lynel_guts;
-       Monster_horn Chuchu_jelly;
-       Monster_fang White_chuchu_jelly;
-       Monster_fang Red_chuchu_jelly;
        Monster_fang Yellow_chuchu_jelly;
-       Monster_horn Keese_wing;
-       Monster_fang Ice_keese_wing;
        Monster_fang Fire_keese_wing;
-       Monster_fang Electric_keese_wing;
-       Monster_guts Keese_eyeball;
-       Monster_horn Octorok_tentacle;
-       Monster_fang Octorok_eyeball;
-       Monster_horn Octo_balloon;
        Monster_fang Molduga_fin;
        Monster_guts Molduga_guts;
-       Monster_horn Hinox_toenail;
-       Monster_fang Hinox_tooth;
-       Monster_guts Hinox_guts;
      |]
     |> Array.foldi ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
 
