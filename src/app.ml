@@ -80,8 +80,9 @@ let application =
        | _ -> ());
        Event.Ignore
      in
-     Node.div
-       Attr.[ class_ "m-2"; on_keydown handler ]
+
+     let cl = Attr.[ class_ "m-2" ] |> add_if Env.is_dev Attr.(on_keydown handler) in
+     Node.div cl
        [
          kitchen_node;
          Node.div []

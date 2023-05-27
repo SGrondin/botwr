@@ -422,7 +422,8 @@ let%expect_test "All basic combinations" =
   let count r ll =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
-    Combinations.generate_all ~init ~f r ll
+    List.sort ll ~compare:Glossary.compare
+    |> Combinations.generate_all ~init ~f r
     |> Combinations.Recipe.Set.length
     |> Int.to_string
     |> print_endline
@@ -473,4 +474,4 @@ let%expect_test "All basic combinations" =
       Goat_butter;
       Palm_fruit;
     ];
-  [%expect {| 50557 |}]
+  [%expect {| 50556 |}]

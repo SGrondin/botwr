@@ -191,12 +191,7 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
         |> Option.some_if (List.is_empty choices |> not)
     in
 
-    let score_node =
-      window##.location##.search |> Js_of_ocaml.Js.to_string |> String.substr_index ~pattern:"score="
-      |> function
-      | None -> Node.none
-      | Some _ -> Node.text (sprintf "Score: %d" score)
-    in
+    let score_node = if Env.is_dev then Node.none else Node.text (sprintf "Score: %d" score) in
 
     let col_width x = Attr.[ style Css_gen.(width (`Em x)) ] in
     let make_row x y = Node.tr [] [ Node.td (col_width 6) [ Node.text x ]; Node.td [] [ y ] ] in

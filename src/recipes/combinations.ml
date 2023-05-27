@@ -24,19 +24,28 @@ module Recipe = struct
     |> String.concat ~sep:"\n"
 end
 
-let rec sideloop dn t ~f acc = function
+let rec sideloop dn t set ~f acc hash = function
 | x :: rest ->
-  downloop dn t ~f (Glossary.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ)) rest;
-  (sideloop [@tailcall]) dn t ~f acc rest
+  downloop dn t set ~f
+    (Glossary.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ))
+    ([%hash_fold: Glossary.t] hash x)
+    rest;
+  (sideloop [@tailcall]) dn t set ~f acc hash rest
 | _ -> ()
 
-and downloop dn t ~f acc = function
-| _ when dn = 0 -> t := f !t acc
-| items -> (sideloop [@tailcall]) (dn - 1) t ~f acc items
+and downloop dn t set ~f acc hash = function
+| _ when dn = 0 ->
+  let k = Hash.get_hash_value hash in
+  if Hash_set.mem set k
+  then ()
+  else (
+    Hash_set.add set k;
+    t := f !t acc)
+| items -> (sideloop [@tailcall]) (dn - 1) t set ~f acc hash items
 
 let generate ~init ~f r items =
   let t = ref init in
-  downloop r t ~f Glossary.Map.empty items;
+  downloop r t (Int.Hash_set.create ()) ~f Glossary.Map.empty (Hash.create ()) items;
   !t
 
 let generate_all ~init ~f r items =

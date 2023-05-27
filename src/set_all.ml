@@ -53,7 +53,7 @@ let component ~updates ~update_kitchen =
              Recipes.Glossary.Map.fold updates ~init:[] ~f:(fun ~key:_ ~data:trigger acc ->
                  trigger (Card.Action.Set qty) :: acc)
            in
-           update_status (Success (sprintf "Done! (All: x%d)" qty))
+           update_status (Success (sprintf "Done! (All: %d)" qty))
            :: update_kitchen Kitchen.Model.New
            :: events
            |> Event.Many
