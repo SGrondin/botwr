@@ -10,7 +10,7 @@ let no_decoration = Attr.style Css_gen.(text_decoration ~line:[ `None ] ())
 type item_folder = {
   keyed_nodes: (int * Node.t) list;
   total: int;
-  updates: (Glossary.t * (Card.Action.t -> Ui_event.t)) list;
+  updates: (Glossary.t * (Card.Action.t -> Event.t)) list;
   ingredients: (Glossary.t * int) list;
 }
 
@@ -239,7 +239,7 @@ type group_folder = {
   nodes: Node.t list;
   keyed_nodes: (int * Node.t) list;
   total: int;
-  updates: (Card.Action.t -> Ui_event.t) Glossary.Map.t;
+  updates: (Card.Action.t -> Event.t) Glossary.Map.t;
   ingredients: (Glossary.t * int) list;
 }
 

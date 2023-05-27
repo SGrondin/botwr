@@ -378,7 +378,7 @@ end
 
 type state = {
   data: Model.t;
-  update_data: Model.t -> Ui_event.t;
+  update_data: Model.t -> Event.t;
   calculate: Ingredient.Effect.Kind.t -> (Glossary.t * int) list -> Optimize.t;
   kitchen_node: Node.t;
   kind: Ingredient.Effect.Kind.t option;

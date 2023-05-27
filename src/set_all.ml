@@ -56,7 +56,7 @@ let component ~updates ~update_kitchen =
            update_status (Success (sprintf "Done! (All: x%d)" qty))
            :: update_kitchen Kitchen.Model.New
            :: events
-           |> Ui_event.Many
+           |> Event.Many
        in
        Node.button
          Attr.

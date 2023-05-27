@@ -71,8 +71,17 @@ let application =
      and share = share in
      let kitchen_node = Header.render ~game_node ~set_all_node ~total ingredients kitchen in
 
+     let handler ev =
+       let open Js_of_ocaml in
+       (match Js.Optdef.case ev##.key (fun () -> None) (fun jss -> Some (Js.to_string jss)) with
+       | Some "c" ->
+         Js_of_ocaml.Dom_html.getElementById_opt Header.cook_button_id
+         |> Option.iter ~f:(fun el -> el##click)
+       | _ -> ());
+       Event.Ignore
+     in
      Node.div
-       Attr.[ class_ "m-2" ]
+       Attr.[ class_ "m-2"; on_keydown handler ]
        [
          kitchen_node;
          Node.div []

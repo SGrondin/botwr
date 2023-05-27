@@ -1364,7 +1364,37 @@ let%expect_test "Cooking by category, basic" =
      ((hearts (Restores (Quarters 42))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 870))))
       (num_ingredients 5) (num_effect_ingredients 4)
-      (random_effects (Potency Duration Red_hearts)))) |}]
+      (random_effects (Potency Duration Red_hearts)))) |}];
+
+  test ~kind:Chilly ~game:TOTK ~max_hearts:10 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+    ~algo:Balanced
+    [
+      Chillshroom, 3;
+      Cold_darner, 3;
+      Monster_fang Moblin_fang, 3;
+      Monster_horn Moblin_horn, 3;
+      Monster_guts Moblin_guts, 3;
+    ];
+  [%expect {|
+    (0s)
+    313 pts (637, 2.000000)
+    Chillshroom x3
+    (Food
+     ((hearts (Restores (Quarters 12))) (stamina Nothing)
+      (effect (Chilly ((potency 2) (wasted 0) (duration 450))))
+      (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
+    296 pts (637, -1.333333)
+    Cold_darner x3, Monster_fang
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Chilly ((potency 2) (wasted 0) (duration 560))))
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
+    266 pts (637, -1.333333)
+    Cold_darner x3, Monster_guts
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Chilly ((potency 2) (wasted 0) (duration 640))))
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =
   let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) ~algo x =

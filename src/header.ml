@@ -37,6 +37,8 @@ let render_instructions (data : Kitchen.Model.t) kind total ~game_node ~kind_but
         [ Node.textf "%d. %s" (i + 1) s; svg; node ])
   |> Node.ul Attr.[ classes [ "list-group"; "list-group-flush" ] ]
 
+let cook_button_id = "cook-button"
+
 let render ~game_node ~set_all_node ~total ingredients
    Kitchen.
      {
@@ -75,28 +77,24 @@ let render ~game_node ~set_all_node ~total ingredients
     let cl =
       [ "btn"; "btn-primary"; "m-2" ] |> add_if ([%equal: Kitchen.Model.t] data Loading) "d-none"
     in
+    let handler _evt =
+      match data with
+      | Ready _
+       |Completed
+       |New
+        when Option.is_some kind ->
+        Js_of_ocaml_lwt.Lwt_js_events.async (fun () ->
+            let%lwt () = Js_of_ocaml_lwt.Lwt_js.sleep 0.1 in
+            Js_of_ocaml.Dom_html.getElementById_opt id_ |> Option.iter ~f:(fun el -> el##click);
+            Lwt.return_unit);
+        update_kitchen Loading
+      | _ -> Event.Ignore
+    in
     Node.div []
       [
         hidden;
         Node.button
-          Attr.
-            [
-              type_ "button";
-              classes cl;
-              on_click (fun _evt ->
-                  match data with
-                  | Ready _
-                   |Completed
-                   |New
-                    when Option.is_some kind ->
-                    Js_of_ocaml_lwt.Lwt_js_events.async (fun () ->
-                        let%lwt () = Js_of_ocaml_lwt.Lwt_js.sleep 0.1 in
-                        Js_of_ocaml.Dom_html.getElementById_opt id_
-                        |> Option.iter ~f:(fun el -> el##click);
-                        Lwt.return_unit);
-                    update_kitchen Loading
-                  | _ -> Event.Ignore);
-            ]
+          Attr.[ type_ "button"; id cook_button_id; classes cl; on_click handler ]
           [ Node.text Kitchen.button_label ];
       ]
   in
