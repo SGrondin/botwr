@@ -13,6 +13,10 @@ module Self = struct
     | Octo_balloon
     | Ancient_screw
     | Ancient_spring
+    | Gibdo_bone
+    | Gibdo_wing
+    | Horriblin_horn
+    | Aerocuda_wing
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type monster_fang =
@@ -31,6 +35,9 @@ module Self = struct
     | Electric_keese_wing
     | Ancient_gear
     | Ancient_shaft
+    | Gibdo_guts
+    | Horriblin_claw
+    | Aerocuda_eyeball
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type monster_guts =
@@ -46,6 +53,7 @@ module Self = struct
     | Yellow_lizalfos_tail
     | Ancient_core
     | Giant_ancient_core
+    | Horriblin_guts
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type dragon =

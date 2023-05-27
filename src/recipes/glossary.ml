@@ -390,12 +390,27 @@ let availability : t -> Game.availability = function
  |Fairy
  |Star_fragment ->
   Both
+| Monster_horn
+    ( Bokoblin_horn | Moblin_horn | Lizalfos_horn | Lynel_horn | Hinox_toenail | Keese_wing | Chuchu_jelly
+    | Octorok_tentacle | Octo_balloon ) ->
+  Both
 | Monster_horn (Ancient_screw | Ancient_spring) -> BOTW
-| Monster_horn _ -> Both
+| Monster_horn (Gibdo_bone | Gibdo_wing | Horriblin_horn | Aerocuda_wing) -> TOTK
+| Monster_fang
+    ( Bokoblin_fang | Moblin_fang | Lizalfos_talon | Lynel_hoof | Hinox_tooth | Molduga_fin
+    | White_chuchu_jelly | Red_chuchu_jelly | Yellow_chuchu_jelly | Octorok_eyeball | Ice_keese_wing
+    | Fire_keese_wing | Electric_keese_wing ) ->
+  Both
 | Monster_fang (Ancient_gear | Ancient_shaft) -> BOTW
-| Monster_fang _ -> Both
-| Monster_guts (Ancient_core | Giant_ancient_core) -> BOTW
-| Monster_guts _ -> Both
+| Monster_fang (Gibdo_guts | Horriblin_claw | Aerocuda_eyeball) -> TOTK
+| Monster_guts
+    (Bokoblin_guts | Moblin_guts | Lizalfos_tail | Lynel_guts | Hinox_guts | Molduga_guts | Keese_eyeball)
+  ->
+  Both
+| Monster_guts
+    (Icy_lizalfos_tail | Red_lizalfos_tail | Yellow_lizalfos_tail | Ancient_core | Giant_ancient_core) ->
+  BOTW
+| Monster_guts Horriblin_guts -> TOTK
 | Dragon_scales _
  |Dragon_claws _
  |Dragon_fangs _
@@ -521,6 +536,10 @@ let to_string = function
 | Monster_horn Octo_balloon -> "Octo Balloon"
 | Monster_horn Ancient_screw -> "Ancient Screw"
 | Monster_horn Ancient_spring -> "Ancient Spring"
+| Monster_horn Gibdo_bone -> "Gibdo Bone"
+| Monster_horn Gibdo_wing -> "Gibdo Wing"
+| Monster_horn Horriblin_horn -> "Horriblin Horn"
+| Monster_horn Aerocuda_wing -> "Aerocuda Wing"
 | Monster_fang Bokoblin_fang -> "Bokoblin Fang"
 | Monster_fang Moblin_fang -> "Moblin Fang"
 | Monster_fang Lizalfos_talon -> "Lizalfos Talon"
@@ -536,6 +555,9 @@ let to_string = function
 | Monster_fang Electric_keese_wing -> "Electric Keese Wing"
 | Monster_fang Ancient_gear -> "Ancient Gear"
 | Monster_fang Ancient_shaft -> "Ancient Shaft"
+| Monster_fang Gibdo_guts -> "Gibdo Guts"
+| Monster_fang Horriblin_claw -> "Horriblin Claw"
+| Monster_fang Aerocuda_eyeball -> "Aerocuda Eyeball"
 | Monster_guts Bokoblin_guts -> "Bokoblin Guts"
 | Monster_guts Moblin_guts -> "Moblin Guts"
 | Monster_guts Lizalfos_tail -> "Lizalfos Tail"
@@ -548,6 +570,7 @@ let to_string = function
 | Monster_guts Yellow_lizalfos_tail -> "Yellow Lizalfos Tail"
 | Monster_guts Ancient_core -> "Ancient Core"
 | Monster_guts Giant_ancient_core -> "Giant Ancient Core"
+| Monster_guts Horriblin_guts -> "Horriblin Guts"
 | Dragon_scales Dinraal -> "Dinraal's Scale"
 | Dragon_scales Naydra -> "Naydra's Scale"
 | Dragon_scales Farosh -> "Farosh's Scale"
@@ -731,6 +754,7 @@ let ordered_totk =
        Hylian_tomato;
        Apple;
        Wildberry;
+       Voltfruit;
        Fleet_lotus_seeds;
        Hydromelon;
        Mighty_bananas;
@@ -740,37 +764,36 @@ let ordered_totk =
        (* Shock_fruit *)
        Splash_fruit;
        Dazzlefruit;
-       Voltfruit;
        Big_hearty_truffle;
        Hearty_truffle;
+       Endura_shroom;
        Rushroom;
        Brightcap;
-       Endura_shroom;
        Stamella_shroom;
        Chillshroom;
        Sunshroom;
        Hylian_shroom;
-       Silent_shroom;
        Zapshroom;
+       Silent_shroom;
        Razorshroom;
        Ironshroom;
        Skyshroom;
        Big_hearty_radish;
        Hearty_radish;
+       Endura_carrot;
        Hyrule_herb;
        Silent_princess;
        Fortified_pumpkin;
        Sun_pumpkin;
        Swift_carrot;
-       Endura_carrot;
        Stambulb;
        Korok_frond;
        Cool_safflina;
        Warm_safflina;
+       Mighty_thistle;
        Armoranth;
        Blue_nightshade;
        Electric_safflina;
-       Mighty_thistle;
        Swift_violet;
        Sundelion;
        Raw_gourmet_meat;
@@ -811,16 +834,16 @@ let ordered_totk =
        Hyrule_bass;
        Staminoka_bass;
        Chillfin_trout;
-       Ancient_arowana;
-       Glowing_cave_fish;
        Sizzlefin_trout;
        Voltfin_trout;
        Stealthfin_trout;
        Mighty_carp;
        Armored_carp;
-       Sanke_carp;
+       Ancient_arowana;
+       Glowing_cave_fish;
        Mighty_porgy;
        Armored_porgy;
+       Sanke_carp;
        Sneaky_river_snail;
        Hearty_blueshell_snail;
        Razorclaw_crab;
@@ -849,11 +872,12 @@ let ordered_totk =
        Sticky_lizard;
        Monster_guts Bokoblin_guts;
        Monster_guts Moblin_guts;
-       (* Horriblin_guts *)
-       (* Gibdo_guts *)
+       Monster_guts Horriblin_guts;
+       Monster_fang Gibdo_guts;
        Monster_guts Hinox_guts;
        Monster_fang Red_chuchu_jelly;
        Monster_fang White_chuchu_jelly;
+       Monster_fang Yellow_chuchu_jelly;
        Monster_horn Chuchu_jelly;
        Monster_horn Octo_balloon;
        Monster_guts Keese_eyeball;
@@ -861,50 +885,53 @@ let ordered_totk =
        (* Ice_keese_eyeball *)
        (* Electric_keese_eyeball *)
        Monster_fang Octorok_eyeball;
-       (* Aerocuda_eyeball *)
+       Monster_fang Aerocuda_eyeball;
        Monster_horn Keese_wing;
+       Monster_fang Fire_keese_wing;
        Monster_fang Ice_keese_wing;
        Monster_fang Electric_keese_wing;
-       (* Aerocuda_wing *)
-       (* Gibdo_wing *)
+       Monster_horn Aerocuda_wing;
+       Monster_horn Gibdo_wing;
        Monster_horn Bokoblin_horn;
        (* Blue_bokoblin_horn *)
        (* Black_bokoblin_horn *)
+       (* Boss_bokoblin_horn *)
+       (* Blue_boss_bokoblin_horn *)
        Monster_horn Lizalfos_horn;
        (* Blue_lizalfos_horn *)
        (* Black_lizalfos_horn *)
+       (* Fire_breath_lizalfos_horn *)
        (* Ice_breath_lizalfos_horn *)
        (* Electric_lizalfos_horn *)
        Monster_horn Hinox_toenail;
        (* Like_like_stone *)
        (* Fire_like_stone *)
+       (* Ice_like_stone *)
        (* Shock_like_stone *)
        Monster_horn Moblin_horn;
        (* Blue_moblin_horn *)
        (* Black_moblin_horn *)
-       (* Horriblin_horn *)
+       Monster_horn Horriblin_horn;
        (* Blue_horriblin_horn *)
        (* Black_horriblin_horn *)
+       (* Hinox_horn *)
        (* Blue_hinox_horn *)
+       (* Black_hinox_horn *)
        Monster_guts Lizalfos_tail;
        (* Blue_lizalfos_tail *)
+       (* Black_lizalfos_tail *)
        (* Ice_breath_lizalfos_tail *)
-       (* Gibdo_bone *)
+       Monster_horn Gibdo_bone;
        Monster_horn Octorok_tentacle;
        Monster_fang Bokoblin_fang;
        Monster_fang Moblin_fang;
        (* Boss_bokoblin_fang *)
        Monster_fang Hinox_tooth;
-       (* Horriblin_claw *)
+       Monster_fang Horriblin_claw;
        Monster_fang Lizalfos_talon;
-       Monster_guts Icy_lizalfos_tail;
-       Monster_guts Red_lizalfos_tail;
-       Monster_guts Yellow_lizalfos_tail;
        Monster_horn Lynel_horn;
        Monster_fang Lynel_hoof;
        Monster_guts Lynel_guts;
-       Monster_fang Yellow_chuchu_jelly;
-       Monster_fang Fire_keese_wing;
        Monster_fang Molduga_fin;
        Monster_guts Molduga_guts;
      |]
