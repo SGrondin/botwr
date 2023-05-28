@@ -2,58 +2,58 @@ open! Core_kernel
 
 module Self = struct
   type monster_horn =
-    | Bokoblin_horn
-    | Moblin_horn
-    | Lizalfos_horn
-    | Lynel_horn
-    | Hinox_toenail
-    | Keese_wing
-    | Chuchu_jelly
-    | Octorok_tentacle
-    | Octo_balloon
-    | Ancient_screw
-    | Ancient_spring
-    | Gibdo_bone
-    | Gibdo_wing
-    | Horriblin_horn
-    | Aerocuda_wing
+    | Octo_balloon (* Fused: 1 *)
+    | Keese_wing (* Fused: 1 *)
+    | Chuchu_jelly (* Fused: 1 *)
+    | Octorok_tentacle (* Fused: 3 *)
+    | Bokoblin_horn (* Fused: 4 *)
+    | Aerocuda_wing (* Fused: 4 *)
+    | Moblin_horn (* Fused: 6 *)
+    | Hinox_toenail (* Fused: 7 *)
+    | Lizalfos_horn (* Fused: 8 *)
+    | Gibdo_wing (* Fused: 8 *)
+    | Horriblin_horn (* ? *)
+    | Gibdo_bone (* Fused: 40 *)
+    | Lynel_horn (* ? *)
+    | Ancient_screw (* BOTW *)
+    | Ancient_spring (* BOTW *)
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type monster_fang =
-    | Bokoblin_fang
-    | Moblin_fang
-    | Lizalfos_talon
-    | Lynel_hoof
-    | Hinox_tooth
-    | Molduga_fin
-    | White_chuchu_jelly
-    | Red_chuchu_jelly
-    | Yellow_chuchu_jelly
-    | Octorok_eyeball
-    | Ice_keese_wing
-    | Fire_keese_wing
-    | Electric_keese_wing
-    | Ancient_gear
-    | Ancient_shaft
-    | Gibdo_guts
-    | Horriblin_claw
-    | Aerocuda_eyeball
+    | Bokoblin_fang (* Fused: 2 *)
+    | Gibdo_guts (* ? *)
+    | White_chuchu_jelly (* Fused: 1 *)
+    | Red_chuchu_jelly (* Fused: 1 *)
+    | Yellow_chuchu_jelly (* Fused: 1 *)
+    | Octorok_eyeball (* Fused: 3 *)
+    | Moblin_fang (* Fused: 4 *)
+    | Aerocuda_eyeball (* Fused: 4 *)
+    | Lizalfos_talon (* Fused: 5 *)
+    | Lynel_hoof (* ? *)
+    | Hinox_tooth (* ? *)
+    | Molduga_fin (* ? *)
+    | Ice_keese_wing (* ? *)
+    | Fire_keese_wing (* ? *)
+    | Electric_keese_wing (* ? *)
+    | Horriblin_claw (* ? *)
+    | Ancient_gear (* BOTW *)
+    | Ancient_shaft (* BOTW *)
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type monster_guts =
-    | Bokoblin_guts
-    | Moblin_guts
-    | Lizalfos_tail
-    | Lynel_guts
-    | Hinox_guts
-    | Molduga_guts
-    | Keese_eyeball
-    | Icy_lizalfos_tail
-    | Red_lizalfos_tail
-    | Yellow_lizalfos_tail
-    | Ancient_core
-    | Giant_ancient_core
-    | Horriblin_guts
+    | Bokoblin_guts (* Fused: 1 *)
+    | Moblin_guts (* Fused:  *)
+    | Lynel_guts (* Fused:  *)
+    | Hinox_guts (* Fused:  *)
+    | Molduga_guts (* Fused:  *)
+    | Horriblin_guts (* Fused:  *)
+    | Keese_eyeball (* Fused: 1 *)
+    | Lizalfos_tail (* Fused: 6 *)
+    | Icy_lizalfos_tail (* BOTW *)
+    | Red_lizalfos_tail (* BOTW *)
+    | Yellow_lizalfos_tail (* BOTW *)
+    | Ancient_core (* BOTW *)
+    | Giant_ancient_core (* BOTW *)
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type dragon =

@@ -259,9 +259,7 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
                      ]
                    [
                      Node.div [] [ Node.textf !"%{Glossary}" key ];
-                     Node.create "img"
-                       Attr.[ style Css_gen.(height (`Em 2)); src (Glossary.to_img_src key) ]
-                       [];
+                     Node.create "img" Attr.[ style Css_gen.(height (`Em 2)); src (Blob.get key game) ] [];
                    ])
              :: acc)
       |> List.concat

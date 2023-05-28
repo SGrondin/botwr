@@ -136,7 +136,7 @@ module Group = struct
   | Monster_parts -> None
   | Special -> Some "Make weird foods..."
 
-  let to_img_node ?width:(w = 2.0) ?height:(h = 2.0) group =
+  let to_img_node ~game ?width:(w = 2.0) ?height:(h = 2.0) group =
     let kind : (Recipes.Ingredient.Effect.Kind.t, string) Either.t =
       match group with
       | Nothing -> First Nothing
@@ -155,8 +155,8 @@ module Group = struct
       | Spicy -> First Spicy
       | Tough -> First Tough
       | Bright -> First Bright
-      | Monster_parts -> Second Glossary.(to_img_src (Monster_guts Bokoblin_guts))
-      | Special -> Second Glossary.(to_img_src Fairy)
+      | Monster_parts -> Second (Blob.get (Monster_guts Bokoblin_guts) game)
+      | Special -> Second (Blob.get Fairy game)
     in
     Either.value_map kind
       ~first:(fun kind -> Icon.svg (Icon.of_kind kind) ~width:w ~height:h ~container:Span [])
@@ -169,7 +169,7 @@ let group ~inventory ~selected ~update_selected ~show_all ~game items =
     Bonsai.assoc
       (module String)
       items
-      ~f:(fun _name data -> Card.component ~inventory ~selected ~update_selected data)
+      ~f:(fun _name data -> Card.component ~game ~inventory ~selected ~update_selected data)
   in
   return
   @@ let%map mapped = mapped
@@ -194,7 +194,7 @@ let group ~inventory ~selected ~update_selected ~show_all ~game items =
              ingredients = (item, n) :: ingredients;
            })
 
-let render_group group nodes =
+let render_group ~game group nodes =
   let title_ = Group.to_string group in
   let description =
     Option.map (Group.to_description group) ~f:(fun s ->
@@ -205,7 +205,7 @@ let render_group group nodes =
     [
       Node.h4
         Attr.[ classes [ "ms-3"; "d-inline-block" ]; id title_ ]
-        [ Node.text title_; Group.to_img_node group ];
+        [ Node.text title_; Group.to_img_node ~game group ];
       Basic.or_none description;
       Node.div Attr.[ classes [ "row"; "row-cols-auto" ] ] nodes;
       Node.a
@@ -217,7 +217,7 @@ let jump_to_node ~game =
   let links =
     List.filter_map Group.all ~f:(function
       | k when Game.is_in_game ~game (Group.to_game k) ->
-        [ Group.to_img_node k ]
+        [ Group.to_img_node ~game k ]
         |> Node.a Attr.[ href (sprintf "#%s" (Group.to_string k)); no_decoration ]
         |> Option.return
       | _ -> None)
@@ -304,7 +304,7 @@ let component ~game ~inventory () =
              let nodes, keyed_nodes =
                match by_effect with
                | true ->
-                 let node = Int.Map.of_alist_exn keyed_nodes |> Int.Map.data |> render_group key in
+                 let node = Int.Map.of_alist_exn keyed_nodes |> Int.Map.data |> render_group ~game key in
                  node :: acc.nodes, []
                | false -> [], List.fold keyed_nodes ~init:acc.keyed_nodes ~f:(fun acc x -> x :: acc)
              in

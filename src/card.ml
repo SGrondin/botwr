@@ -102,7 +102,7 @@ let svg ?(attrs = []) ~update_state x action =
   let attrs = merge_attrs [ attrs; Attr.[ on_click (fun _ev -> update_state action); style pointer ] ] in
   Icon.svg ~bold:true ~width:1.6 ~height:1.6 x attrs
 
-let component ~inventory ~selected ~update_selected item =
+let component ~game ~inventory ~selected ~update_selected item =
   let is_selected =
     let%map item = item
     and selected = selected in
@@ -113,21 +113,25 @@ let component ~inventory ~selected ~update_selected item =
     and item = item in
     Glossary.Map.find inventory item
   in
+  let icon =
+    let%map game = game
+    and item = item in
+    Blob.get item game
+  in
   let%sub state =
     Bonsai.state_machine1 [%here] (module Model) (module Action) input ~default_model:None ~apply_action
   in
   return
   @@ let%map state, update_state = state
      and item = item
+     and icon = icon
      and update_selected = update_selected
      and is_selected = is_selected
      and input = input in
      let changes_quantity = changes_quantity ~update_selected ~update_state is_selected item in
      let state = current_value ~model:state ~input in
      let node =
-       let first_col =
-         Node.div [] [ Node.create "img" (Attr.src (Glossary.to_img_src item) :: changes_quantity) [] ]
-       in
+       let first_col = Node.div [] [ Node.create "img" (Attr.src icon :: changes_quantity) [] ] in
        let second_col =
          let quantity =
            match is_selected with

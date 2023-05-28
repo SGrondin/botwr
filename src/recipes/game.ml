@@ -3,7 +3,7 @@ open! Core_kernel
 type t =
   | BOTW
   | TOTK
-[@@deriving sexp, equal, enumerate]
+[@@deriving sexp, compare, equal, hash, enumerate]
 
 let to_string = function
 | BOTW -> "Breath of the Wild"

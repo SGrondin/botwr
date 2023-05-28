@@ -391,10 +391,10 @@ let availability : t -> Game.availability = function
  |Star_fragment ->
   Both
 | Monster_horn
-    ( Bokoblin_horn | Moblin_horn | Lizalfos_horn | Lynel_horn | Hinox_toenail | Keese_wing | Chuchu_jelly
+    ( Bokoblin_horn | Moblin_horn | Lizalfos_horn | Hinox_toenail | Keese_wing | Chuchu_jelly
     | Octorok_tentacle | Octo_balloon ) ->
   Both
-| Monster_horn (Ancient_screw | Ancient_spring) -> BOTW
+| Monster_horn (Lynel_horn | Ancient_screw | Ancient_spring) -> BOTW
 | Monster_horn (Gibdo_bone | Gibdo_wing | Horriblin_horn | Aerocuda_wing) -> TOTK
 | Monster_fang
     ( Bokoblin_fang | Moblin_fang | Lizalfos_talon | Lynel_hoof | Hinox_tooth | Molduga_fin
@@ -929,7 +929,6 @@ let ordered_totk =
        Monster_fang Hinox_tooth;
        Monster_fang Horriblin_claw;
        Monster_fang Lizalfos_talon;
-       Monster_horn Lynel_horn;
        Monster_fang Lynel_hoof;
        Monster_guts Lynel_guts;
        Monster_fang Molduga_fin;
@@ -940,5 +939,3 @@ let ordered_totk =
 let game_ordered : Game.t -> int Map.t = function
 | BOTW -> force ordered_botw
 | TOTK -> force ordered_totk
-
-let to_img_src x = Map.find_exn Blob.blobs x
