@@ -132,19 +132,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     334 pts (637, 5.333333)
-    Armored_carp, Ironshell_crab x2, Ironshroom x2
+    Armored Carp, Ironshell Crab x2, Ironshroom x2
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Tough ((potency 3) (wasted 1) (duration 250))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     334 pts (637, 5.000000)
-    Ironshell_crab x2, Ironshroom x3
+    Ironshell Crab x2, Ironshroom x3
     (Food
      ((hearts (Restores (Quarters 28))) (stamina Nothing)
       (effect (Tough ((potency 3) (wasted 1) (duration 250))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     334 pts (637, 4.500000)
-    Armored_carp, Ironshell_crab, Ironshroom x3
+    Armored Carp, Ironshell Crab, Ironshroom x3
     (Food
      ((hearts (Restores (Quarters 28))) (stamina Nothing)
       (effect (Tough ((potency 3) (wasted 1) (duration 250))))
@@ -163,19 +163,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     141 pts (31, 4.791667)
-    Stamella_shroom x5
+    Stamella Shroom x5
     (Food
      ((hearts (Restores (Quarters 20)))
       (stamina (Restores ((potency 7) (wasted 0)))) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     125 pts (31, 3.833333)
-    Stamella_shroom x4
+    Stamella Shroom x4
     (Food
      ((hearts (Restores (Quarters 16)))
       (stamina (Restores ((potency 5) (wasted 3)))) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     122 pts (31, 2.875000)
-    Stamella_shroom x3
+    Stamella Shroom x3
     (Food
      ((hearts (Restores (Quarters 12)))
       (stamina (Restores ((potency 4) (wasted 1)))) (effect Nothing)
@@ -194,19 +194,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     403 pts (174436, 5.666667)
-    Mighty_porgy, Razorclaw_crab x2
+    Mighty Porgy, Razorclaw Crab x2
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 150))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     403 pts (174436, 5.666667)
-    Mighty_carp x2, Mighty_porgy
+    Mighty Carp x2, Mighty Porgy
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 150))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     403 pts (174436, 5.666667)
-    Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Mighty Carp, Mighty Porgy, Razorclaw Crab
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 150))))
@@ -225,19 +225,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     505 pts (174436, 3.444444)
-    Mighty_thistle x3, Razorclaw_crab x2
+    Mighty Thistle x3, Razorclaw Crab x2
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 250))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     505 pts (174436, 3.444444)
-    Mighty_carp x2, Mighty_thistle x3
+    Mighty Carp x2, Mighty Thistle x3
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 250))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     505 pts (174436, 3.444444)
-    Mighty_carp, Mighty_thistle x3, Razorclaw_crab
+    Mighty Carp, Mighty Thistle x3, Razorclaw Crab
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 250))))
@@ -258,19 +258,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     477 pts (2379, 8.100000)
-    Fresh_milk, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+    Fresh Milk, Goron Spice, Raw Whole Bird, Voltfin Trout x2
     (Food
      ((hearts (Restores (Quarters 44))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 0) (duration 500))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     477 pts (2379, 7.600000)
-    Goat_butter, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+    Goat Butter, Goron Spice, Raw Whole Bird, Voltfin Trout x2
     (Food
      ((hearts (Restores (Quarters 40))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 0) (duration 500))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     476 pts (2379, 8.600000)
-    Fresh_milk, Goat_butter, Raw_whole_bird, Voltfin_trout x2
+    Fresh Milk, Goat Butter, Raw Whole Bird, Voltfin Trout x2
     (Food
      ((hearts (Restores (Quarters 44))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 0) (duration 490))))
@@ -291,19 +291,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     565 pts (2379, 0.800000)
-    Electric_safflina x2, Voltfin_trout, Voltfruit, Zapshroom
+    Electric Safflina x2, Voltfin Trout, Voltfruit, Zapshroom
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 2) (duration 750))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     564 pts (2379, 2.600000)
-    Electric_safflina x2, Voltfin_trout x2, Voltfruit
+    Electric Safflina x2, Voltfin Trout x2, Voltfruit
     (Food
      ((hearts (Restores (Quarters 20))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 3) (duration 750))))
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     563 pts (2379, 3.100000)
-    Electric_safflina, Voltfin_trout x2, Voltfruit, Zapshroom
+    Electric Safflina, Voltfin Trout x2, Voltfruit, Zapshroom
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 4) (duration 750))))
@@ -324,19 +324,19 @@ let%expect_test "Cooking by category, basic" =
     {|
       (0s)
       477 pts (2379, 8.957143)
-      Fresh_milk, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+      Fresh Milk, Goron Spice, Raw Whole Bird, Voltfin Trout x2
       (Food
        ((hearts (Restores (Quarters 44))) (stamina Nothing)
         (effect (Electro ((potency 3) (wasted 0) (duration 500))))
         (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
       477 pts (2379, 7.600000)
-      Goat_butter, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+      Goat Butter, Goron Spice, Raw Whole Bird, Voltfin Trout x2
       (Food
        ((hearts (Restores (Quarters 40))) (stamina Nothing)
         (effect (Electro ((potency 3) (wasted 0) (duration 500))))
         (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
       476 pts (2379, 9.457143)
-      Fresh_milk, Goat_butter, Raw_whole_bird, Voltfin_trout x2
+      Fresh Milk, Goat Butter, Raw Whole Bird, Voltfin Trout x2
       (Food
        ((hearts (Restores (Quarters 44))) (stamina Nothing)
         (effect (Electro ((potency 3) (wasted 0) (duration 490))))
@@ -356,19 +356,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     477 pts (2379, 8.957143)
-    Fresh_milk, Goron_spice, Raw_whole_bird, Voltfin_trout x2
+    Fresh Milk, Goron Spice, Raw Whole Bird, Voltfin Trout x2
     (Food
      ((hearts (Restores (Quarters 44))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 0) (duration 500))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     474 pts (2379, 3.457143)
-    Fresh_milk, Goron_spice, Voltfin_trout x2
+    Fresh Milk, Goron Spice, Voltfin Trout x2
     (Food
      ((hearts (Restores (Quarters 20))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 0) (duration 470))))
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
     471 pts (2379, 13.600000)
-    Goron_spice, Raw_whole_bird x2, Voltfin_trout x2
+    Goron Spice, Raw Whole Bird x2, Voltfin Trout x2
     (Food
      ((hearts (Restores (Quarters 64))) (stamina Nothing)
       (effect (Electro ((potency 3) (wasted 0) (duration 450))))
@@ -379,19 +379,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     239 pts (62, 10.857143)
-    Bird_egg, Electric_safflina, Goron_spice, Raw_whole_bird x2
+    Bird Egg, Electric Safflina, Goron Spice, Raw Whole Bird x2
     (Food
      ((hearts (Restores (Quarters 56))) (stamina Nothing)
       (effect (Electro ((potency 1) (wasted 0) (duration 390))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
     237 pts (62, 5.357143)
-    Bird_egg, Electric_safflina, Goron_spice, Raw_whole_bird
+    Bird Egg, Electric Safflina, Goron Spice, Raw Whole Bird
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Electro ((potency 1) (wasted 0) (duration 360))))
       (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
     234 pts (62, -0.142857)
-    Bird_egg, Electric_safflina, Goron_spice
+    Bird Egg, Electric Safflina, Goron Spice
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Electro ((potency 1) (wasted 0) (duration 330))))
@@ -402,13 +402,13 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     222 pts (31, 6.000000)
-    Apple x2, Raw_whole_bird, Voltfruit
+    Apple x2, Raw Whole Bird, Voltfruit
     (Food
      ((hearts (Restores (Quarters 36))) (stamina Nothing)
       (effect (Electro ((potency 1) (wasted 0) (duration 240))))
       (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
     219 pts (31, 5.500000)
-    Apple, Raw_whole_bird, Voltfruit
+    Apple, Raw Whole Bird, Voltfruit
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Electro ((potency 1) (wasted 0) (duration 210))))
@@ -424,17 +424,17 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     155 pts (31, -0.600000)
-    Big_hearty_truffle x3
+    Big Hearty Truffle x3
     (Food
      ((hearts (Full_plus_bonus 12)) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     154 pts (31, -0.400000)
-    Big_hearty_truffle x2
+    Big Hearty Truffle x2
     (Food
      ((hearts (Full_plus_bonus 8)) (stamina Nothing) (effect Nothing)
       (num_ingredients 2) (num_effect_ingredients 2) (random_effects ())))
     150 pts (31, -0.800000)
-    Big_hearty_truffle x4
+    Big Hearty Truffle x4
     (Food
      ((hearts (Full_plus_bonus 16)) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ()))) |}];
@@ -443,19 +443,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     206 pts (637, 5.400000)
-    Staminoka_bass x3
+    Staminoka Bass x3
     (Food
      ((hearts (Restores (Quarters 24)))
       (stamina (Restores ((potency 16) (wasted 4)))) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     204 pts (637, 6.200000)
-    Stamella_shroom, Staminoka_bass x3
+    Stamella Shroom, Staminoka Bass x3
     (Food
      ((hearts (Restores (Quarters 28)))
       (stamina (Restores ((potency 18) (wasted 1)))) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     203 pts (637, 6.000000)
-    Stamella_shroom x3, Staminoka_bass x2
+    Stamella Shroom x3, Staminoka Bass x2
     (Food
      ((hearts (Restores (Quarters 28)))
       (stamina (Restores ((potency 15) (wasted 2)))) (effect Nothing)
@@ -476,19 +476,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     255 pts (2379, -0.733333)
-    Monster_guts x2, Sunset_firefly
+    Hinox Guts x2, Sunset Firefly
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 0) (duration 500))))
       (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
     232 pts (2379, -0.533333)
-    Monster_guts, Sunset_firefly
+    Hinox Guts, Sunset Firefly
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 0) (duration 310))))
       (num_ingredients 2) (num_effect_ingredients 1) (random_effects ())))
     216 pts (2379, 8.000000)
-    Fairy, Goat_butter, Goron_spice, Silent_shroom
+    Fairy, Goat Butter, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 44))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 320))))
@@ -498,19 +498,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     332 pts (2379, -1.133333)
-    Monster_guts x4, Sunset_firefly
+    Hinox Guts x4, Sunset Firefly
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 0) (duration 880))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
     321 pts (2379, -1.266667)
-    Monster_guts x3, Sunset_firefly x2
+    Hinox Guts x3, Sunset Firefly x2
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 810))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     310 pts (2379, -1.400000)
-    Monster_guts x2, Sunset_firefly x3
+    Hinox Guts x2, Sunset Firefly x3
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 2) (duration 740))))
@@ -536,19 +536,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     231 pts (1585, -2.500000)
-    Cane_sugar, Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
+    Cane Sugar, Fresh Milk, Goat Butter, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 450))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
     225 pts (1585, 8.000000)
-    Fairy, Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
+    Fairy, Fresh Milk, Goat Butter, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 48))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 400))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
     225 pts (1585, 8.000000)
-    Cane_sugar, Fairy, Fresh_milk, Goron_spice, Silent_shroom
+    Cane Sugar, Fairy, Fresh Milk, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 48))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 400))))
@@ -558,21 +558,21 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     460 pts (1585, 2.500000)
-    Dragon_horns, Silent_shroom
+    Shard of Dinraal's Horn, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 19))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1920))))
       (num_ingredients 2) (num_effect_ingredients 2)
       (random_effects (Potency Duration Red_hearts))))
     459 pts (1585, 12.000000)
-    Dragon_horns, Fairy, Silent_shroom
+    Fairy, Shard of Dinraal's Horn, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 59))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 1950))))
       (num_ingredients 3) (num_effect_ingredients 2)
       (random_effects (Potency Duration Red_hearts))))
     459 pts (1585, 2.500000)
-    Dragon_horns, Fresh_milk, Silent_shroom
+    Fresh Milk, Shard of Dinraal's Horn, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 23))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 2000))))
@@ -583,19 +583,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     231 pts (62, -2.500000)
-    Cane_sugar, Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
+    Cane Sugar, Fresh Milk, Goat Butter, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 450))))
       (num_ingredients 5) (num_effect_ingredients 1) (random_effects ())))
     222 pts (62, -1.500000)
-    Fresh_milk, Goat_butter, Goron_spice, Silent_shroom
+    Fresh Milk, Goat Butter, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 370))))
       (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
     222 pts (62, -1.500000)
-    Cane_sugar, Fresh_milk, Goron_spice, Silent_shroom
+    Cane Sugar, Fresh Milk, Goron Spice, Silent Shroom
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 1) (duration 370))))
@@ -605,19 +605,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     279 pts (62, -1.000000)
-    Fresh_milk, Goat_butter, Goron_spice, Silent_shroom x2
+    Fresh Milk, Goat Butter, Goron Spice, Silent Shroom x2
     (Food
      ((hearts (Restores (Quarters 12))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 3) (duration 490))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     279 pts (62, -1.000000)
-    Cane_sugar, Fresh_milk, Goron_spice, Silent_shroom x2
+    Cane Sugar, Fresh Milk, Goron Spice, Silent Shroom x2
     (Food
      ((hearts (Restores (Quarters 12))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 3) (duration 490))))
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     279 pts (62, -2.000000)
-    Cane_sugar, Goat_butter, Goron_spice, Silent_shroom x2
+    Cane Sugar, Goat Butter, Goron Spice, Silent Shroom x2
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Sneaky ((potency 1) (wasted 3) (duration 490))))
@@ -627,19 +627,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     225 pts (31, 1.800000)
-    Endura_shroom
+    Endura Shroom
     (Food
      ((hearts (Restores (Quarters 8)))
       (stamina (Full_plus_bonus ((potency 1) (wasted 0)))) (effect Nothing)
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
     224 pts (31, 7.200000)
-    Endura_shroom x4
+    Endura Shroom x4
     (Food
      ((hearts (Restores (Quarters 32)))
       (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     222 pts (31, 3.600000)
-    Endura_shroom x2
+    Endura Shroom x2
     (Food
      ((hearts (Restores (Quarters 16)))
       (stamina (Full_plus_bonus ((potency 1) (wasted 0)))) (effect Nothing)
@@ -649,17 +649,17 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     155 pts (31, -1.000000)
-    Hearty_bass x5
+    Hearty Bass x5
     (Food
      ((hearts (Full_plus_bonus 10)) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     152 pts (31, -0.800000)
-    Hearty_bass x4
+    Hearty Bass x4
     (Food
      ((hearts (Full_plus_bonus 8)) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     149 pts (31, -0.600000)
-    Hearty_bass x3
+    Hearty Bass x3
     (Food
      ((hearts (Full_plus_bonus 6)) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ()))) |}];
@@ -668,19 +668,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     261 pts (218, 14.600000)
-    Endura_carrot x3, Endura_shroom x2
+    Endura Carrot x3, Endura Shroom x2
     (Food
      ((hearts (Restores (Quarters 64)))
       (stamina (Full_plus_bonus ((potency 7) (wasted 0)))) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 5) (random_effects ())))
     259 pts (218, 11.000000)
-    Endura_carrot x3
+    Endura Carrot x3
     (Food
      ((hearts (Restores (Quarters 48)))
       (stamina (Full_plus_bonus ((potency 6) (wasted 0)))) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     254 pts (218, 12.800000)
-    Endura_carrot x3, Endura_shroom
+    Endura Carrot x3, Endura Shroom
     (Food
      ((hearts (Restores (Quarters 56)))
       (stamina (Full_plus_bonus ((potency 6) (wasted 2)))) (effect Nothing)
@@ -702,19 +702,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     424 pts (1023, 5.000000)
-    Bird_egg, Goron_spice, Mighty_porgy, Razorclaw_crab x2
+    Bird Egg, Goron Spice, Mighty Porgy, Razorclaw Crab x2
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (1023, 5.000000)
-    Bird_egg, Goron_spice, Mighty_carp x2, Mighty_porgy
+    Bird Egg, Goron Spice, Mighty Carp x2, Mighty Porgy
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (1023, 5.000000)
-    Bird_egg, Goron_spice, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Bird Egg, Goron Spice, Mighty Carp, Mighty Porgy, Razorclaw Crab
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
@@ -724,19 +724,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     424 pts (2379, 5.000000)
-    Bird_egg, Goron_spice, Mighty_porgy, Razorclaw_crab x2
+    Bird Egg, Goron Spice, Mighty Porgy, Razorclaw Crab x2
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (2379, 5.000000)
-    Bird_egg, Goron_spice, Mighty_carp x2, Mighty_porgy
+    Bird Egg, Goron Spice, Mighty Carp x2, Mighty Porgy
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (2379, 5.000000)
-    Bird_egg, Goron_spice, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Bird Egg, Goron Spice, Mighty Carp, Mighty Porgy, Razorclaw Crab
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
@@ -746,21 +746,21 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     713 pts (2379, 7.000000)
-    Dragon_horns, Mighty_porgy, Razorclaw_crab x2
+    Mighty Porgy, Razorclaw Crab x2, Shard of Naydra's Horn
     (Food
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
       (num_ingredients 4) (num_effect_ingredients 4)
       (random_effects (Potency Duration Red_hearts))))
     713 pts (2379, 7.000000)
-    Dragon_horns, Mighty_carp x2, Mighty_porgy
+    Mighty Carp x2, Mighty Porgy, Shard of Naydra's Horn
     (Food
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
       (num_ingredients 4) (num_effect_ingredients 4)
       (random_effects (Potency Duration Red_hearts))))
     713 pts (2379, 7.000000)
-    Dragon_horns, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Mighty Carp, Mighty Porgy, Razorclaw Crab, Shard of Naydra's Horn
     (Food
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
@@ -783,19 +783,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     424 pts (1585, 5.000000)
-    Bird_egg, Goron_spice, Mighty_porgy, Razorclaw_crab x2
+    Bird Egg, Goron Spice, Mighty Porgy, Razorclaw Crab x2
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (1585, 5.000000)
-    Bird_egg, Goron_spice, Mighty_carp x2, Mighty_porgy
+    Bird Egg, Goron Spice, Mighty Carp x2, Mighty Porgy
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (1585, 5.000000)
-    Bird_egg, Goron_spice, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Bird Egg, Goron Spice, Mighty Carp, Mighty Porgy, Razorclaw Crab
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
@@ -806,7 +806,7 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     233 pts (1, 3.000000)
-    Endura_carrot
+    Endura Carrot
     (Food
      ((hearts (Restores (Quarters 16)))
       (stamina (Full_plus_bonus ((potency 2) (wasted 0)))) (effect Nothing)
@@ -818,19 +818,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     412 pts (62, 5.750000)
-    Brightcap, Glowing_cave_fish x3
+    Brightcap, Glowing Cave Fish x3
     (Food
      ((hearts (Restores (Quarters 28))) (stamina Nothing)
       (effect (Bright ((potency 3) (wasted 0) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     396 pts (62, 7.000000)
-    Glowing_cave_fish x4
+    Glowing Cave Fish x4
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Bright ((potency 3) (wasted 1) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     328 pts (62, 6.250000)
-    Brightcap x2, Glowing_cave_fish x3
+    Brightcap x2, Glowing Cave Fish x3
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Bright ((potency 3) (wasted 1) (duration 600))))
@@ -843,13 +843,13 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     302 pts (15, 3.500000)
-    Brightcap, Glowing_cave_fish x2
+    Brightcap, Glowing Cave Fish x2
     (Food
      ((hearts (Restores (Quarters 20))) (stamina Nothing)
       (effect (Bright ((potency 2) (wasted 0) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     268 pts (15, 4.000000)
-    Brightcap x2, Glowing_cave_fish x2
+    Brightcap x2, Glowing Cave Fish x2
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Bright ((potency 2) (wasted 1) (duration 480))))
@@ -868,19 +868,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     286 pts (7, 5.000000)
-    Glowing_cave_fish x3
+    Glowing Cave Fish x3
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Bright ((potency 2) (wasted 1) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     194 pts (7, 1.666667)
-    Glowing_cave_fish
+    Glowing Cave Fish
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Bright ((potency 1) (wasted 1) (duration 120))))
       (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
     144 pts (7, 3.333333)
-    Glowing_cave_fish x2
+    Glowing Cave Fish x2
     (Food
      ((hearts (Restores (Quarters 16))) (stamina Nothing)
       (effect (Bright ((potency 1) (wasted 3) (duration 240))))
@@ -893,19 +893,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     396 pts (15, 7.000000)
-    Glowing_cave_fish x4
+    Glowing Cave Fish x4
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Bright ((potency 3) (wasted 1) (duration 480))))
       (num_ingredients 4) (num_effect_ingredients 4) (random_effects ())))
     286 pts (15, 5.250000)
-    Glowing_cave_fish x3
+    Glowing Cave Fish x3
     (Food
      ((hearts (Restores (Quarters 24))) (stamina Nothing)
       (effect (Bright ((potency 2) (wasted 1) (duration 360))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     194 pts (15, 1.750000)
-    Glowing_cave_fish
+    Glowing Cave Fish
     (Food
      ((hearts (Restores (Quarters 8))) (stamina Nothing)
       (effect (Bright ((potency 1) (wasted 1) (duration 120))))
@@ -980,33 +980,33 @@ let%expect_test "Cooking by category, basic" =
     {|
       (0s)
       169 pts (31, -2.500000)
-      Hylian_shroom, Hyrule_herb, Sundelion
+      Hylian Shroom, Hyrule Herb, Sundelion
       (Food
        ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
         (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
       169 pts (31, -2.500000)
-      Apple, Hyrule_herb, Sundelion
+      Apple, Hyrule Herb, Sundelion
       (Food
        ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
         (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
       164 pts (31, -3.500000)
-      Apple, Hylian_shroom, Hyrule_herb, Sundelion
+      Apple, Hylian Shroom, Hyrule Herb, Sundelion
       (Food
        ((hearts (Unglooms 3 (Quarters 16))) (stamina Nothing) (effect Nothing)
         (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
       (0s)
       176 pts (31, -3.500000)
-      Apple, Hylian_shroom, Hyrule_herb, Sundelion
+      Apple, Hylian Shroom, Hyrule Herb, Sundelion
       (Food
        ((hearts (Unglooms 3 (Quarters 16))) (stamina Nothing) (effect Nothing)
         (num_ingredients 4) (num_effect_ingredients 1) (random_effects ())))
       169 pts (31, -2.500000)
-      Hylian_shroom, Hyrule_herb, Sundelion
+      Hylian Shroom, Hyrule Herb, Sundelion
       (Food
        ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
         (num_ingredients 3) (num_effect_ingredients 1) (random_effects ())))
       169 pts (31, -2.500000)
-      Apple, Hyrule_herb, Sundelion
+      Apple, Hyrule Herb, Sundelion
       (Food
        ((hearts (Unglooms 3 (Quarters 12))) (stamina Nothing) (effect Nothing)
         (num_ingredients 3) (num_effect_ingredients 1) (random_effects ()))) |}];
@@ -1019,33 +1019,33 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     193 pts (31, -2.000000)
-    Sun_pumpkin x2, Sundelion
+    Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 8))) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     188 pts (31, -3.000000)
-    Fairy, Sun_pumpkin x2, Sundelion
+    Fairy, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
     187 pts (31, -4.000000)
-    Fairy, Monster_horn, Sun_pumpkin x2, Sundelion
+    Fairy, Moblin Horn, Sun Pumpkin x2, Sundelion
     (Tonic
      ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     (0s)
     193 pts (31, -2.000000)
-    Sun_pumpkin x2, Sundelion
+    Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 8))) (stamina Nothing) (effect Nothing)
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     172 pts (31, -3.000000)
-    Fairy, Sun_pumpkin x2, Sundelion
+    Fairy, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
     171 pts (31, -4.000000)
-    Fairy, Monster_horn, Sun_pumpkin x2, Sundelion
+    Fairy, Moblin Horn, Sun Pumpkin x2, Sundelion
     (Tonic
      ((hearts (Unglooms 5 (Quarters 48))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
@@ -1057,33 +1057,33 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     216 pts (637, -2.500000)
-    Raw_prime_meat, Sun_pumpkin x2, Sundelion
+    Raw Prime Meat, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
     213 pts (637, -2.750000)
-    Raw_prime_meat, Skyshroom, Sun_pumpkin x2, Sundelion
+    Raw Prime Meat, Skyshroom, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 22))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     199 pts (637, -2.000000)
-    Skyshroom x2, Sun_pumpkin x2, Sundelion
+    Skyshroom x2, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 12))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     (0s)
     219 pts (637, -2.750000)
-    Raw_prime_meat, Skyshroom, Sun_pumpkin x2, Sundelion
+    Raw Prime Meat, Skyshroom, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 22))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     216 pts (637, -2.500000)
-    Raw_prime_meat, Sun_pumpkin x2, Sundelion
+    Raw Prime Meat, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
     199 pts (637, -2.000000)
-    Skyshroom x2, Sun_pumpkin x2, Sundelion
+    Skyshroom x2, Sun Pumpkin x2, Sundelion
     (Food
      ((hearts (Unglooms 5 (Quarters 12))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}];
@@ -1108,33 +1108,33 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     192 pts (3472, -1.066667)
-    Apple, Palm_fruit, Sun_pumpkin, Sundelion
+    Apple, Palm Fruit, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
     191 pts (3472, -1.266667)
-    Apple x3, Sun_pumpkin, Sundelion
+    Apple x3, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     188 pts (3472, -1.066667)
-    Palm_fruit x2, Sun_pumpkin, Sundelion
+    Palm Fruit x2, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
     (0s)
     200 pts (3472, -1.066667)
-    Palm_fruit x2, Sun_pumpkin, Sundelion
+    Palm Fruit x2, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ())))
     199 pts (3472, -1.266667)
-    Apple x2, Palm_fruit, Sun_pumpkin, Sundelion
+    Apple x2, Palm Fruit, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 20))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     192 pts (3472, -1.066667)
-    Apple, Palm_fruit, Sun_pumpkin, Sundelion
+    Apple, Palm Fruit, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 16))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 2) (random_effects ()))) |}];
@@ -1157,17 +1157,17 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     223 pts (218, -4.333333)
-    Raw_bird_drumstick, Raw_prime_meat, Sanke_carp, Sun_pumpkin, Sundelion
+    Raw Bird Drumstick, Raw Prime Meat, Sanke Carp, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 32))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     215 pts (218, -4.333333)
-    Apple, Raw_bird_drumstick, Raw_prime_meat, Sun_pumpkin, Sundelion
+    Apple, Raw Bird Drumstick, Raw Prime Meat, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 28))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     215 pts (218, -4.333333)
-    Apple, Raw_prime_meat, Sanke_carp, Sun_pumpkin, Sundelion
+    Apple, Raw Prime Meat, Sanke Carp, Sun Pumpkin, Sundelion
     (Food
      ((hearts (Unglooms 4 (Quarters 28))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
@@ -1178,17 +1178,17 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     40 pts (381, 6.000000)
-    Apple, Bird_egg x2, Raw_bird_drumstick, Raw_prime_meat
+    Apple, Bird Egg x2, Raw Bird Drumstick, Raw Prime Meat
     (Food
      ((hearts (Restores (Quarters 40))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 0) (random_effects ())))
     40 pts (381, 6.000000)
-    Apple, Bird_egg x2, Raw_prime_meat, Sanke_carp
+    Apple, Bird Egg x2, Raw Prime Meat, Sanke Carp
     (Food
      ((hearts (Restores (Quarters 40))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 0) (random_effects ())))
     40 pts (381, 5.500000)
-    Apple, Bird_egg, Raw_bird_drumstick, Raw_prime_meat, Sanke_carp
+    Apple, Bird Egg, Raw Bird Drumstick, Raw Prime Meat, Sanke Carp
     (Food
      ((hearts (Restores (Quarters 40))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 0) (random_effects ()))) |}];
@@ -1200,17 +1200,17 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     120 pts (119, 29.000000)
-    Raw_gourmet_meat x5
+    Raw Gourmet Meat x5
     (Food
      ((hearts (Restores (Quarters 120))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 0) (random_effects ())))
     104 pts (119, 24.200000)
-    Raw_bird_drumstick, Raw_gourmet_meat x4
+    Raw Bird Drumstick, Raw Gourmet Meat x4
     (Food
      ((hearts (Restores (Quarters 104))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 0) (random_effects ())))
     104 pts (119, 24.200000)
-    Palm_fruit, Raw_gourmet_meat x4
+    Palm Fruit, Raw Gourmet Meat x4
     (Food
      ((hearts (Restores (Quarters 104))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 0) (random_effects ()))) |}];
@@ -1222,17 +1222,17 @@ let%expect_test "Cooking by category, basic" =
     {|
       (0s)
       29 pts (62, 4.500000)
-      Apple, Chillfin_trout x2, Raw_bird_drumstick, Zapshroom
+      Apple, Chillfin Trout x2, Raw Bird Drumstick, Zapshroom
       (Food
        ((hearts (Restores (Quarters 32))) (stamina Nothing) (effect Nothing)
         (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
       26 pts (62, 3.500000)
-      Apple x2, Chillfin_trout, Raw_bird_drumstick, Zapshroom
+      Apple x2, Chillfin Trout, Raw Bird Drumstick, Zapshroom
       (Food
        ((hearts (Restores (Quarters 28))) (stamina Nothing) (effect Nothing)
         (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
       25 pts (62, 4.000000)
-      Chillfin_trout x2, Raw_bird_drumstick, Zapshroom
+      Chillfin Trout x2, Raw Bird Drumstick, Zapshroom
       (Food
        ((hearts (Restores (Quarters 28))) (stamina Nothing) (effect Nothing)
         (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
@@ -1244,17 +1244,17 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     32 pts (119, 6.000000)
-    Hylian_tomato x3, Raw_bird_drumstick
+    Hylian Tomato x3, Raw Bird Drumstick
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing) (effect Nothing)
       (num_ingredients 4) (num_effect_ingredients 0) (random_effects ())))
     30 pts (119, 5.500000)
-    Chillshroom, Hylian_tomato x3, Zapshroom
+    Chillshroom, Hylian Tomato x3, Zapshroom
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ())))
     30 pts (119, 4.833333)
-    Chillshroom, Hylian_tomato x2, Raw_bird_drumstick, Zapshroom
+    Chillshroom, Hylian Tomato x2, Raw Bird Drumstick, Zapshroom
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing) (effect Nothing)
       (num_ingredients 5) (num_effect_ingredients 2) (random_effects ()))) |}];
@@ -1276,21 +1276,21 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     713 pts (83681, 7.900000)
-    Dragon_horns, Mighty_porgy, Razorclaw_crab x2
+    Mighty Porgy, Razorclaw Crab x2, Shard of Farosh's Horn
     (Food
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
       (num_ingredients 4) (num_effect_ingredients 4)
       (random_effects (Potency Duration Red_hearts))))
     713 pts (83681, 7.900000)
-    Dragon_horns, Mighty_carp x2, Mighty_porgy
+    Mighty Carp x2, Mighty Porgy, Shard of Farosh's Horn
     (Food
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
       (num_ingredients 4) (num_effect_ingredients 4)
       (random_effects (Potency Duration Red_hearts))))
     713 pts (83681, 7.900000)
-    Dragon_horns, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Mighty Carp, Mighty Porgy, Razorclaw Crab, Shard of Farosh's Horn
     (Food
      ((hearts (Restores (Quarters 39))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 1950))))
@@ -1312,19 +1312,19 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     424 pts (21699, 6.733333)
-    Bird_egg, Goron_spice, Mighty_porgy, Razorclaw_crab x2
+    Bird Egg, Goron Spice, Mighty Porgy, Razorclaw Crab x2
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (21699, 6.733333)
-    Bird_egg, Goron_spice, Mighty_carp x2, Mighty_porgy
+    Bird Egg, Goron Spice, Mighty Carp x2, Mighty Porgy
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
       (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
     424 pts (21699, 6.733333)
-    Bird_egg, Goron_spice, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Bird Egg, Goron Spice, Mighty Carp, Mighty Porgy, Razorclaw Crab
     (Food
      ((hearts (Restores (Quarters 32))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 330))))
@@ -1345,21 +1345,21 @@ let%expect_test "Cooking by category, basic" =
     {|
     (0s)
     595 pts (21699, 8.066667)
-    Bird_egg, Dragon_fangs, Mighty_porgy, Razorclaw_crab x2
+    Bird Egg, Mighty Porgy, Razorclaw Crab x2, Shard of Farosh's Fang
     (Food
      ((hearts (Restores (Quarters 42))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 870))))
       (num_ingredients 5) (num_effect_ingredients 4)
       (random_effects (Potency Duration Red_hearts))))
     595 pts (21699, 8.066667)
-    Bird_egg, Dragon_fangs, Mighty_carp x2, Mighty_porgy
+    Bird Egg, Mighty Carp x2, Mighty Porgy, Shard of Farosh's Fang
     (Food
      ((hearts (Restores (Quarters 42))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 870))))
       (num_ingredients 5) (num_effect_ingredients 4)
       (random_effects (Potency Duration Red_hearts))))
     595 pts (21699, 8.066667)
-    Bird_egg, Dragon_fangs, Mighty_carp, Mighty_porgy, Razorclaw_crab
+    Bird Egg, Mighty Carp, Mighty Porgy, Razorclaw Crab, Shard of Farosh's Fang
     (Food
      ((hearts (Restores (Quarters 42))) (stamina Nothing)
       (effect (Mighty ((potency 3) (wasted 0) (duration 870))))
@@ -1375,7 +1375,8 @@ let%expect_test "Cooking by category, basic" =
       Monster_horn Moblin_horn, 3;
       Monster_guts Moblin_guts, 3;
     ];
-  [%expect {|
+  [%expect
+    {|
     (0s)
     313 pts (637, 2.000000)
     Chillshroom x3
@@ -1384,17 +1385,47 @@ let%expect_test "Cooking by category, basic" =
       (effect (Chilly ((potency 2) (wasted 0) (duration 450))))
       (num_ingredients 3) (num_effect_ingredients 3) (random_effects ())))
     296 pts (637, -1.333333)
-    Cold_darner x3, Monster_fang
+    Cold Darner x3, Moblin Fang
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Chilly ((potency 2) (wasted 0) (duration 560))))
       (num_ingredients 4) (num_effect_ingredients 3) (random_effects ())))
     266 pts (637, -1.333333)
-    Cold_darner x3, Monster_guts
+    Cold Darner x3, Moblin Guts
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Chilly ((potency 2) (wasted 0) (duration 640))))
-      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}]
+      (num_ingredients 4) (num_effect_ingredients 3) (random_effects ()))) |}];
+
+  test ~kind:Hasty ~game:TOTK ~max_hearts:10 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any ~algo:Maximize
+    [
+      Hot_footed_frog, 2;
+      Hightail_lizard, 2;
+      Monster_fang Like_like_stone, 1;
+      Monster_fang Ice_like_stone, 1;
+      Monster_fang Fire_like_stone, 1;
+    ];
+  [%expect
+    {|
+    (0s)
+    398 pts (119, -3.500000)
+    Fire Like Stone, Hightail Lizard, Hot Footed Frog x2, Ice Like Stone
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Hasty ((potency 2) (wasted 0) (duration 400))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
+    398 pts (119, -3.500000)
+    Fire Like Stone, Hightail Lizard, Hot Footed Frog x2, Like Like Stone
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Hasty ((potency 2) (wasted 0) (duration 400))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ())))
+    398 pts (119, -3.500000)
+    Hightail Lizard, Hot Footed Frog x2, Ice Like Stone, Like Like Stone
+    (Elixir
+     ((hearts Nothing) (stamina Nothing)
+      (effect (Hasty ((potency 2) (wasted 0) (duration 400))))
+      (num_ingredients 5) (num_effect_ingredients 3) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =
   let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) ~algo x =

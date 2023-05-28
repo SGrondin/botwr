@@ -324,89 +324,89 @@ let%expect_test "Combinations" =
   test 1 list1;
   [%expect {|
     0. Apple
-    1. Cane_sugar
-    2. Goat_butter
-    3. Palm_fruit |}];
+    1. Cane Sugar
+    2. Goat Butter
+    3. Palm Fruit |}];
   test 2 list1;
   [%expect
     {|
     0. Apple x2
-    1. Apple, Cane_sugar
-    2. Apple, Goat_butter
-    3. Apple, Palm_fruit
-    4. Cane_sugar, Goat_butter
-    5. Cane_sugar, Palm_fruit
-    6. Goat_butter, Palm_fruit |}];
+    1. Apple, Cane Sugar
+    2. Apple, Goat Butter
+    3. Apple, Palm Fruit
+    4. Cane Sugar, Goat Butter
+    5. Cane Sugar, Palm Fruit
+    6. Goat Butter, Palm Fruit |}];
   test 3 list1;
   [%expect
     {|
-    0. Apple x2, Cane_sugar
-    1. Apple x2, Goat_butter
-    2. Apple x2, Palm_fruit
-    3. Apple, Cane_sugar, Goat_butter
-    4. Apple, Cane_sugar, Palm_fruit
-    5. Apple, Goat_butter, Palm_fruit
-    6. Cane_sugar, Goat_butter, Palm_fruit |}];
+    0. Apple x2, Cane Sugar
+    1. Apple x2, Goat Butter
+    2. Apple x2, Palm Fruit
+    3. Apple, Cane Sugar, Goat Butter
+    4. Apple, Cane Sugar, Palm Fruit
+    5. Apple, Goat Butter, Palm Fruit
+    6. Cane Sugar, Goat Butter, Palm Fruit |}];
   test 4 list1;
   [%expect
     {|
-    0. Apple x2, Cane_sugar, Goat_butter
-    1. Apple x2, Cane_sugar, Palm_fruit
-    2. Apple x2, Goat_butter, Palm_fruit
-    3. Apple, Cane_sugar, Goat_butter, Palm_fruit |}];
+    0. Apple x2, Cane Sugar, Goat Butter
+    1. Apple x2, Cane Sugar, Palm Fruit
+    2. Apple x2, Goat Butter, Palm Fruit
+    3. Apple, Cane Sugar, Goat Butter, Palm Fruit |}];
   test 5 list1;
-  [%expect {| 0. Apple x2, Cane_sugar, Goat_butter, Palm_fruit |}];
+  [%expect {| 0. Apple x2, Cane Sugar, Goat Butter, Palm Fruit |}];
   let list2 = [ Apple; Palm_fruit; Apple; Palm_fruit; Wildberry ] in
   test 1 list2;
   [%expect {|
     0. Apple
-    1. Palm_fruit
+    1. Palm Fruit
     2. Wildberry |}];
   test 2 list2;
   [%expect
     {|
     0. Apple x2
-    1. Apple, Palm_fruit
+    1. Apple, Palm Fruit
     2. Apple, Wildberry
-    3. Palm_fruit x2
-    4. Palm_fruit, Wildberry |}];
+    3. Palm Fruit x2
+    4. Palm Fruit, Wildberry |}];
   test 3 list2;
   [%expect
     {|
-    0. Apple x2, Palm_fruit
+    0. Apple x2, Palm Fruit
     1. Apple x2, Wildberry
-    2. Apple, Palm_fruit x2
-    3. Apple, Palm_fruit, Wildberry
-    4. Palm_fruit x2, Wildberry |}];
+    2. Apple, Palm Fruit x2
+    3. Apple, Palm Fruit, Wildberry
+    4. Palm Fruit x2, Wildberry |}];
   test 4 list2;
   [%expect
     {|
-    0. Apple x2, Palm_fruit x2
-    1. Apple x2, Palm_fruit, Wildberry
-    2. Apple, Palm_fruit x2, Wildberry |}];
+    0. Apple x2, Palm Fruit x2
+    1. Apple x2, Palm Fruit, Wildberry
+    2. Apple, Palm Fruit x2, Wildberry |}];
   test 5 list2;
-  [%expect {| 0. Apple x2, Palm_fruit x2, Wildberry |}];
+  [%expect {| 0. Apple x2, Palm Fruit x2, Wildberry |}];
   let list3 = [ Apple; Palm_fruit; Apple; Palm_fruit; Apple ] in
   test 1 list3;
   [%expect {|
     0. Apple
-    1. Palm_fruit |}];
+    1. Palm Fruit |}];
   test 2 list3;
   [%expect {|
     0. Apple x2
-    1. Apple, Palm_fruit
-    2. Palm_fruit x2 |}];
+    1. Apple, Palm Fruit
+    2. Palm Fruit x2 |}];
   test 3 list3;
   [%expect {|
-    0. Apple x2, Palm_fruit
+    0. Apple x2, Palm Fruit
     1. Apple x3
-    2. Apple, Palm_fruit x2 |}];
+    2. Apple, Palm Fruit x2 |}];
   test 4 list3;
   [%expect {|
-    0. Apple x2, Palm_fruit x2
-    1. Apple x3, Palm_fruit |}];
+    0. Apple x2, Palm Fruit x2
+    1. Apple x3, Palm Fruit |}];
   test 5 list3;
-  [%expect {| 0. Apple x3, Palm_fruit x2 |}];
+  [%expect {| 0. Apple x3, Palm Fruit x2 |}];
   test 6 list3;
   [%expect {||}]
 
@@ -433,14 +433,14 @@ let%expect_test "All basic combinations" =
     {|
     0. Apple
     1. Apple x2
-    2. Apple x2, Goat_butter
-    3. Apple x2, Palm_fruit
-    4. Apple, Goat_butter
-    5. Apple, Goat_butter, Palm_fruit
-    6. Apple, Palm_fruit
-    7. Goat_butter
-    8. Goat_butter, Palm_fruit
-    9. Palm_fruit |}];
+    2. Apple x2, Goat Butter
+    3. Apple x2, Palm Fruit
+    4. Apple, Goat Butter
+    5. Apple, Goat Butter, Palm Fruit
+    6. Apple, Palm Fruit
+    7. Goat Butter
+    8. Goat Butter, Palm Fruit
+    9. Palm Fruit |}];
   count 5
     [
       Apple;

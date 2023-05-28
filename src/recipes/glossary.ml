@@ -395,14 +395,20 @@ let availability : t -> Game.availability = function
     | Octorok_tentacle | Octo_balloon ) ->
   Both
 | Monster_horn (Lynel_horn | Ancient_screw | Ancient_spring) -> BOTW
-| Monster_horn (Gibdo_bone | Gibdo_wing | Horriblin_horn | Aerocuda_wing) -> TOTK
+| Monster_horn
+    (Gibdo_bone | Gibdo_wing | Horriblin_horn | Aerocuda_wing | Blue_bokoblin_horn | Black_bokoblin_horn)
+  ->
+  TOTK
 | Monster_fang
     ( Bokoblin_fang | Moblin_fang | Lizalfos_talon | Lynel_hoof | Hinox_tooth | Molduga_fin
     | White_chuchu_jelly | Red_chuchu_jelly | Yellow_chuchu_jelly | Octorok_eyeball | Ice_keese_wing
     | Fire_keese_wing | Electric_keese_wing ) ->
   Both
 | Monster_fang (Ancient_gear | Ancient_shaft) -> BOTW
-| Monster_fang (Gibdo_guts | Horriblin_claw | Aerocuda_eyeball) -> TOTK
+| Monster_fang
+    ( Gibdo_guts | Horriblin_claw | Fire_keese_eyeball | Ice_keese_eyeball | Electric_keese_eyeball
+    | Aerocuda_eyeball | Like_like_stone | Shock_like_stone | Ice_like_stone | Fire_like_stone ) ->
+  TOTK
 | Monster_guts
     (Bokoblin_guts | Moblin_guts | Lizalfos_tail | Lynel_guts | Hinox_guts | Molduga_guts | Keese_eyeball)
   ->
@@ -540,6 +546,8 @@ let to_string = function
 | Monster_horn Gibdo_wing -> "Gibdo Wing"
 | Monster_horn Horriblin_horn -> "Horriblin Horn"
 | Monster_horn Aerocuda_wing -> "Aerocuda Wing"
+| Monster_horn Blue_bokoblin_horn -> "Blue Bokoblin Horn"
+| Monster_horn Black_bokoblin_horn -> "Black Bokoblin Horn"
 | Monster_fang Bokoblin_fang -> "Bokoblin Fang"
 | Monster_fang Moblin_fang -> "Moblin Fang"
 | Monster_fang Lizalfos_talon -> "Lizalfos Talon"
@@ -558,6 +566,13 @@ let to_string = function
 | Monster_fang Gibdo_guts -> "Gibdo Guts"
 | Monster_fang Horriblin_claw -> "Horriblin Claw"
 | Monster_fang Aerocuda_eyeball -> "Aerocuda Eyeball"
+| Monster_fang Fire_keese_eyeball -> "Fire Keese Eyeball"
+| Monster_fang Ice_keese_eyeball -> "Ice Keese Eyeball"
+| Monster_fang Electric_keese_eyeball -> "Electric Keese Eyeball"
+| Monster_fang Like_like_stone -> "Like Like Stone"
+| Monster_fang Fire_like_stone -> "Fire Like Stone"
+| Monster_fang Ice_like_stone -> "Ice Like Stone"
+| Monster_fang Shock_like_stone -> "Shock Like Stone"
 | Monster_guts Bokoblin_guts -> "Bokoblin Guts"
 | Monster_guts Moblin_guts -> "Moblin Guts"
 | Monster_guts Lizalfos_tail -> "Lizalfos Tail"
@@ -881,9 +896,9 @@ let ordered_totk =
        Monster_horn Chuchu_jelly;
        Monster_horn Octo_balloon;
        Monster_guts Keese_eyeball;
-       (* Fire_keese_eyeball *)
-       (* Ice_keese_eyeball *)
-       (* Electric_keese_eyeball *)
+       Monster_fang Fire_keese_eyeball;
+       Monster_fang Ice_keese_eyeball;
+       Monster_fang Electric_keese_eyeball;
        Monster_fang Octorok_eyeball;
        Monster_fang Aerocuda_eyeball;
        Monster_horn Keese_wing;
@@ -893,8 +908,8 @@ let ordered_totk =
        Monster_horn Aerocuda_wing;
        Monster_horn Gibdo_wing;
        Monster_horn Bokoblin_horn;
-       (* Blue_bokoblin_horn *)
-       (* Black_bokoblin_horn *)
+       Monster_horn Blue_bokoblin_horn;
+       Monster_horn Black_bokoblin_horn;
        (* Boss_bokoblin_horn *)
        (* Blue_boss_bokoblin_horn *)
        Monster_horn Lizalfos_horn;
@@ -904,10 +919,10 @@ let ordered_totk =
        (* Ice_breath_lizalfos_horn *)
        (* Electric_lizalfos_horn *)
        Monster_horn Hinox_toenail;
-       (* Like_like_stone *)
-       (* Fire_like_stone *)
-       (* Ice_like_stone *)
-       (* Shock_like_stone *)
+       Monster_fang Like_like_stone;
+       Monster_fang Fire_like_stone;
+       Monster_fang Ice_like_stone;
+       Monster_fang Shock_like_stone;
        Monster_horn Moblin_horn;
        (* Blue_moblin_horn *)
        (* Black_moblin_horn *)
@@ -921,6 +936,8 @@ let ordered_totk =
        (* Blue_lizalfos_tail *)
        (* Black_lizalfos_tail *)
        (* Ice_breath_lizalfos_tail *)
+       (* Firebreath_breath_lizalfos_tail *)
+       (* Electric lizalfos tail goes here *)
        Monster_horn Gibdo_bone;
        Monster_horn Octorok_tentacle;
        Monster_fang Bokoblin_fang;

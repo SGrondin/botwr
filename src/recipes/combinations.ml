@@ -12,8 +12,8 @@ module Recipe = struct
   let to_string recipe =
     Glossary.Map.to_alist recipe
     |> List.map ~f:(function
-         | k, 1 -> Glossary.Variants.to_name k
-         | k, v -> sprintf !"%{Glossary.Variants.to_name} x%d" k v)
+         | k, 1 -> Glossary.to_string k
+         | k, v -> sprintf !"%{Glossary} x%d" k v)
     |> List.sort ~compare:String.compare
     |> String.concat ~sep:", "
 
