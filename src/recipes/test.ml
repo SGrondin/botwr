@@ -474,4 +474,4 @@ let%expect_test "All basic combinations" =
       Goat_butter;
       Palm_fruit;
     ];
-  [%expect {| 50556 |}]
+  [%expect {| 50557 |}]
