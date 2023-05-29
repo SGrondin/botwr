@@ -285,6 +285,7 @@ type t = {
   effect: Effect.t;
   category: Category.t;
   critical: bool;
+  fused: int;
 }
 [@@deriving sexp, compare, equal, hash]
 
@@ -329,10 +330,17 @@ let has_effect_or_special : t -> bool = function
  |{ effect = Bright _; _ } ->
   true
 
-let merge ({ hearts; effect; category; critical } as ingredient) ~count =
+let merge ({ hearts; effect; category; critical; fused } as ingredient) ~count =
   match count with
   | 1 -> ingredient
-  | _ -> { hearts = Hearts.merge ~count hearts; effect = Effect.merge ~count effect; category; critical }
+  | _ ->
+    {
+      hearts = Hearts.merge ~count hearts;
+      effect = Effect.merge ~count effect;
+      category;
+      critical;
+      fused = fused * count;
+    }
 
 let combine left right =
   {
@@ -340,4 +348,5 @@ let combine left right =
     effect = Effect.combine left.effect right.effect;
     category = Category.combine left.category right.category;
     critical = left.critical || right.critical;
+    fused = left.fused + right.fused;
   }

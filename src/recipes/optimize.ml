@@ -10,6 +10,8 @@ let best x y = [%compare: int] (Glossary.Variants.to_rank y) (Glossary.Variants.
 
 let worst x y = [%compare: int] (Glossary.Variants.to_rank x) (Glossary.Variants.to_rank y)
 
+let lowest_fused x y = [%compare: int] (Glossary.to_ingredient x).fused (Glossary.to_ingredient y).fused
+
 let get_sort_by_kind : Ingredient.Effect.Kind.t -> Glossary.t -> Glossary.t -> int = function
 | Nothing
  |Neutral
@@ -43,7 +45,9 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
   let neutrals_wasteful = Queue.create () in
   let hearts = Int.Table.create () in
   let hearts_wasteful = Int.Table.create () in
-  let monsters = Queue.create () in
+  let monster_horns = Queue.create () in
+  let monster_fangs = Queue.create () in
+  let monster_guts = Queue.create () in
   let dragon_scales = Queue.create () in
   let dragon_claws = Queue.create () in
   let dragon_fangs = Queue.create () in
@@ -100,7 +104,11 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
           add_to ~n:(data - 1) dragons_wasteful key;
           acc
         | _, Monster, (Elixirs | Any), _ ->
-          add_to ~n:(min data 4) monsters key;
+          (match key with
+          | Monster_horn _ -> add_to ~n:(min data 4) monster_horns key
+          | Monster_fang _ -> add_to ~n:(min data 4) monster_fangs key
+          | Monster_guts _ -> add_to ~n:(min data 4) monster_guts key
+          | k -> failwithf !"Invalid monster part '%{Glossary}' at %{Source_code_position}" k [%here] ());
           acc
         | x, Food, (Meals | Any), kind when [%equal: Ingredient.Effect.Kind.t] x kind ->
           Fn.apply_n_times ~n:(min data 5) (List.cons key) acc
@@ -161,7 +169,9 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
   |> top neutrals_wasteful ~up_to:(4 - Queue.length neutrals)
   |> top dragons_wasteful ~compare:worst
        ~up_to:(4 - Queue.(length neutrals + length neutrals_wasteful + num_dragons))
-  |> top monsters
+  |> top monster_horns ~compare:lowest_fused
+  |> top monster_fangs ~compare:lowest_fused
+  |> top monster_guts ~compare:lowest_fused
   |> fun init -> Int.Table.fold hearts ~init ~f:(fun ~key:_ ~data acc -> top (Queue.of_list data) acc)
 
 open Combinations

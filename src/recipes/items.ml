@@ -2,67 +2,67 @@ open! Core_kernel
 
 module Self = struct
   type monster_horn =
-    | Octo_balloon (* Fused: 1 *)
-    | Keese_wing (* Fused: 1 *)
-    | Chuchu_jelly (* Fused: 1 *)
-    | Octorok_tentacle (* Fused: 3 *)
-    | Bokoblin_horn (* Fused: 4 *)
-    | Aerocuda_wing (* Fused: 4 *)
-    | Horriblin_horn (* Fused: 5 *)
-    | Moblin_horn (* Fused: 6 *)
-    | Hinox_toenail (* Fused: 7 *)
-    | Blue_bokoblin_horn (* Fused: 7 *)
-    | Lizalfos_horn (* Fused: 8 *)
-    | Gibdo_wing (* Fused: 8 *)
-    | Black_bokoblin_horn (* Fused: 17 *)
-    | Gibdo_bone (* Fused: 40 *)
-    | Lynel_horn (* ? *)
-    | Ancient_screw (* BOTW *)
-    | Ancient_spring (* BOTW *)
+    | Octo_balloon
+    | Keese_wing
+    | Chuchu_jelly
+    | Octorok_tentacle
+    | Bokoblin_horn
+    | Aerocuda_wing
+    | Horriblin_horn
+    | Moblin_horn
+    | Hinox_toenail
+    | Blue_bokoblin_horn
+    | Lizalfos_horn
+    | Gibdo_wing
+    | Black_bokoblin_horn
+    | Gibdo_bone
+    | Lynel_horn
+    | Ancient_screw
+    | Ancient_spring
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type monster_fang =
-    | Gibdo_guts (* Fused: 1 *)
-    | Bokoblin_fang (* Fused: 2 *)
-    | Electric_keese_wing (* Fused: 2 *)
-    | Fire_keese_wing (* Fused: 2 *)
-    | Ice_keese_wing (* Fused: 2 *)
-    | Octorok_eyeball (* Fused: 3 *)
-    | Like_like_stone (* Fused: 4 *)
-    | Horriblin_claw (* Fused: 4 *)
-    | Moblin_fang (* Fused: 4 *)
-    | Aerocuda_eyeball (* Fused: 4 *)
-    | Ice_keese_eyeball (* Fused: 4 *)
-    | Lizalfos_talon (* Fused: 5 *)
-    | White_chuchu_jelly (* Fused: 1 *)
-    | Red_chuchu_jelly (* Fused: 1 *)
-    | Yellow_chuchu_jelly (* Fused: 1 *)
-    | Electric_keese_eyeball (* Fused: 6 *)
-    | Fire_keese_eyeball (* Fused: 8 *)
-    | Hinox_tooth (* Fused: 8 *)
-    | Lynel_hoof (* ? *)
-    | Molduga_fin (* ? *)
-    | Shock_like_stone (* Fused: 12 *)
-    | Ice_like_stone (* Fused: 12 *)
-    | Fire_like_stone (* Fused: 12 *)
-    | Ancient_gear (* BOTW *)
-    | Ancient_shaft (* BOTW *)
+    | Gibdo_guts
+    | Bokoblin_fang
+    | Electric_keese_wing
+    | Fire_keese_wing
+    | Ice_keese_wing
+    | Octorok_eyeball
+    | Like_like_stone
+    | Horriblin_claw
+    | Moblin_fang
+    | Aerocuda_eyeball
+    | Ice_keese_eyeball
+    | Lizalfos_talon
+    | White_chuchu_jelly
+    | Red_chuchu_jelly
+    | Yellow_chuchu_jelly
+    | Electric_keese_eyeball
+    | Fire_keese_eyeball
+    | Hinox_tooth
+    | Lynel_hoof
+    | Shock_like_stone
+    | Ice_like_stone
+    | Fire_like_stone
+    | Molduga_fin
+    | Ancient_gear
+    | Ancient_shaft
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type monster_guts =
-    | Bokoblin_guts (* Fused: 1 *)
-    | Moblin_guts (* Fused: 1 *)
-    | Hinox_guts (* Fused: 1 *)
-    | Horriblin_guts (* Fused: 1 *)
-    | Lynel_guts (* ? *)
-    | Molduga_guts (* ? *)
-    | Keese_eyeball (* Fused: 1 *)
-    | Lizalfos_tail (* Fused: 6 *)
-    | Icy_lizalfos_tail (* BOTW *)
-    | Red_lizalfos_tail (* BOTW *)
-    | Yellow_lizalfos_tail (* BOTW *)
-    | Ancient_core (* BOTW *)
-    | Giant_ancient_core (* BOTW *)
+    | Bokoblin_guts
+    | Moblin_guts
+    | Hinox_guts
+    | Horriblin_guts
+    | Lynel_guts
+    | Molduga_guts
+    | Keese_eyeball
+    | Lizalfos_tail
+    | Icy_lizalfos_tail
+    | Red_lizalfos_tail
+    | Yellow_lizalfos_tail
+    | Ancient_core
+    | Giant_ancient_core
   [@@deriving sexp, compare, equal, hash, variants, enumerate]
 
   type dragon =

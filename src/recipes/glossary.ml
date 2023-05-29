@@ -9,6 +9,7 @@ let make_food quarters sec =
       effect = Neutral (Always sec);
       category = Food;
       critical = false;
+      fused = 1;
     }
 
 (* The first one adds a different duration from 2+ *)
@@ -19,6 +20,7 @@ let make_ingredient quarters first next =
       effect = Neutral (Diminishing { first; next });
       category = Food;
       critical = false;
+      fused = 1;
     }
 
 (* A "spice" needs at least one other non-spice or it's Dubious *)
@@ -29,15 +31,28 @@ let make_spice quarters first next =
       effect = Neutral (Diminishing { first; next });
       category = Spice;
       critical = false;
+      fused = 1;
     }
 
 let make_hearty quarters bonus =
   Ingredient.
-    { hearts = Always (Quarters quarters); effect = Hearty bonus; category = Food; critical = false }
+    {
+      hearts = Always (Quarters quarters);
+      effect = Hearty bonus;
+      category = Food;
+      critical = false;
+      fused = 1;
+    }
 
 let make_sunny quarters unglooms =
   Ingredient.
-    { hearts = Always (Quarters quarters); effect = Sunny unglooms; category = Food; critical = false }
+    {
+      hearts = Always (Quarters quarters);
+      effect = Sunny unglooms;
+      category = Food;
+      critical = false;
+      fused = 1;
+    }
 
 let make_effect variant dur quarters points =
   Ingredient.
@@ -46,6 +61,7 @@ let make_effect variant dur quarters points =
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Food;
       critical = false;
+      fused = 1;
     }
 
 let make_energizing quarters x =
@@ -55,6 +71,7 @@ let make_energizing quarters x =
       effect = Energizing (Fifths x);
       category = Food;
       critical = false;
+      fused = 1;
     }
 
 let make_enduring quarters x =
@@ -64,6 +81,7 @@ let make_enduring quarters x =
       effect = Enduring (Quarters x);
       category = Food;
       critical = false;
+      fused = 1;
     }
 
 let make_spicy = make_effect Ingredient.Effect.spicy (2, 30)
@@ -86,7 +104,13 @@ let make_bright = make_effect Ingredient.Effect.bright (2, 0)
 
 let energizing_critter x =
   Ingredient.
-    { hearts = Always (Quarters 0); effect = Energizing (Fifths x); category = Critter; critical = false }
+    {
+      hearts = Always (Quarters 0);
+      effect = Energizing (Fifths x);
+      category = Critter;
+      critical = false;
+      fused = 1;
+    }
 
 let enduring_critter ?(quarters = 0) x =
   Ingredient.
@@ -95,6 +119,7 @@ let enduring_critter ?(quarters = 0) x =
       effect = Enduring (Quarters x);
       category = Critter;
       critical = false;
+      fused = 1;
     }
 
 let effect_critter dur variant points =
@@ -104,34 +129,42 @@ let effect_critter dur variant points =
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Critter;
       critical = false;
+      fused = 1;
     }
 
-let make_monster dur =
+let make_monster dur fused =
   Ingredient.
-    { hearts = Always (Quarters 0); effect = Neutral (always dur); category = Monster; critical = false }
+    {
+      hearts = Always (Quarters 0);
+      effect = Neutral (always dur);
+      category = Monster;
+      critical = false;
+      fused;
+    }
 
-let make_dragon hearts first =
+let make_dragon hearts first fused =
   Ingredient.
     {
       hearts = Diminishing { first = hearts; next = Quarters 0 };
       effect = Neutral (Diminishing { first; next = 30 });
       category = Dragon;
       critical = true;
+      fused;
     }
 
-let cached_monster_horn = make_monster (1, 10)
+let make_monster_horn = make_monster (1, 10)
 
-let cached_monster_fang = make_monster (1, 50)
+let make_monster_fang = make_monster (1, 50)
 
-let cached_monster_guts = make_monster (3, 10)
+let make_monster_guts = make_monster (3, 10)
 
-let cached_dragon_scale = make_dragon (Quarters 5) 90
+let cached_dragon_scale = make_dragon (Quarters 5) 90 16
 
-let cached_dragon_claw = make_dragon (Quarters 8) 210
+let cached_dragon_claw = make_dragon (Quarters 8) 210 18
 
-let cached_dragon_fang = make_dragon (Quarters 10) 630
+let cached_dragon_fang = make_dragon (Quarters 10) 630 20
 
-let cached_dragon_horn = make_dragon (Quarters 15) 1800
+let cached_dragon_horn = make_dragon (Quarters 15) 1800 26
 
 include Items
 
@@ -178,7 +211,13 @@ let to_ingredient =
     | Hearty_salmon -> make_hearty 32 4
     | Hearty_lizard ->
       Ingredient.
-        { hearts = Always (Quarters 32); effect = Hearty 4; category = Critter; critical = false }
+        {
+          hearts = Always (Quarters 32);
+          effect = Hearty 4;
+          category = Critter;
+          critical = false;
+          fused = 1;
+        }
     | Big_hearty_radish -> make_hearty 32 5
     (* Sunny *)
     | Sun_pumpkin -> make_sunny 4 1
@@ -266,27 +305,95 @@ let to_ingredient =
         effect = Neutral (Always 30);
         category = With_fairy Spice;
         critical = false;
+        fused = 1;
       }
     | Star_fragment ->
-      { hearts = Always (Quarters 0); effect = Neutral (Always 30); category = Dragon; critical = true }
-    | Monster_horn _ -> cached_monster_horn
-    | Monster_fang _ -> cached_monster_fang
-    | Monster_guts _ -> cached_monster_guts
+      {
+        hearts = Always (Quarters 0);
+        effect = Neutral (Always 30);
+        category = Dragon;
+        critical = true;
+        fused = 1;
+      }
+    | Monster_horn Octo_balloon -> make_monster_horn 1
+    | Monster_horn Keese_wing -> make_monster_horn 1
+    | Monster_horn Chuchu_jelly -> make_monster_horn 1
+    | Monster_horn Octorok_tentacle -> make_monster_horn 3
+    | Monster_horn Bokoblin_horn -> make_monster_horn 4
+    | Monster_horn Aerocuda_wing -> make_monster_horn 4
+    | Monster_horn Horriblin_horn -> make_monster_horn 5
+    | Monster_horn Moblin_horn -> make_monster_horn 6
+    | Monster_horn Hinox_toenail -> make_monster_horn 7
+    | Monster_horn Blue_bokoblin_horn -> make_monster_horn 7
+    | Monster_horn Lizalfos_horn -> make_monster_horn 8
+    | Monster_horn Gibdo_wing -> make_monster_horn 8
+    | Monster_horn Black_bokoblin_horn -> make_monster_horn 17
+    | Monster_horn Gibdo_bone -> make_monster_horn 40
+    | Monster_horn Lynel_horn -> make_monster_horn 1 (* BOTW *)
+    | Monster_horn Ancient_screw -> make_monster_horn 1 (* BOTW *)
+    | Monster_horn Ancient_spring -> make_monster_horn 1 (* BOTW *)
+    | Monster_fang Gibdo_guts -> make_monster_fang 1
+    | Monster_fang Bokoblin_fang -> make_monster_fang 2
+    | Monster_fang Electric_keese_wing -> make_monster_fang 2
+    | Monster_fang Fire_keese_wing -> make_monster_fang 2
+    | Monster_fang Ice_keese_wing -> make_monster_fang 2
+    | Monster_fang Octorok_eyeball -> make_monster_fang 3
+    | Monster_fang Like_like_stone -> make_monster_fang 4
+    | Monster_fang Horriblin_claw -> make_monster_fang 4
+    | Monster_fang Moblin_fang -> make_monster_fang 4
+    | Monster_fang Aerocuda_eyeball -> make_monster_fang 4
+    | Monster_fang Ice_keese_eyeball -> make_monster_fang 4
+    | Monster_fang Lizalfos_talon -> make_monster_fang 5
+    | Monster_fang White_chuchu_jelly -> make_monster_fang 1
+    | Monster_fang Red_chuchu_jelly -> make_monster_fang 1
+    | Monster_fang Yellow_chuchu_jelly -> make_monster_fang 1
+    | Monster_fang Electric_keese_eyeball -> make_monster_fang 6
+    | Monster_fang Fire_keese_eyeball -> make_monster_fang 8
+    | Monster_fang Hinox_tooth -> make_monster_fang 8
+    | Monster_fang Lynel_hoof -> make_monster_fang 10
+    | Monster_fang Shock_like_stone -> make_monster_fang 12
+    | Monster_fang Ice_like_stone -> make_monster_fang 12
+    | Monster_fang Fire_like_stone -> make_monster_fang 12
+    | Monster_fang Molduga_fin -> make_monster_fang 12
+    | Monster_fang Ancient_gear -> make_monster_fang 1 (* BOTW *)
+    | Monster_fang Ancient_shaft -> make_monster_fang 1 (* BOTW *)
+    | Monster_guts Bokoblin_guts -> make_monster_guts 1
+    | Monster_guts Moblin_guts -> make_monster_guts 1
+    | Monster_guts Hinox_guts -> make_monster_guts 1
+    | Monster_guts Horriblin_guts -> make_monster_guts 1
+    | Monster_guts Lynel_guts -> make_monster_guts 1
+    | Monster_guts Molduga_guts -> make_monster_guts 1
+    | Monster_guts Keese_eyeball -> make_monster_guts 1
+    | Monster_guts Lizalfos_tail -> make_monster_guts 6
+    | Monster_guts Icy_lizalfos_tail -> make_monster_guts 1 (* BOTW *)
+    | Monster_guts Red_lizalfos_tail -> make_monster_guts 1 (* BOTW *)
+    | Monster_guts Yellow_lizalfos_tail -> make_monster_guts 1 (* BOTW *)
+    | Monster_guts Ancient_core -> make_monster_guts 1 (* BOTW *)
+    | Monster_guts Giant_ancient_core -> make_monster_guts 1 (* BOTW *)
     | Dragon_scales _ -> cached_dragon_scale
     | Dragon_claws _ -> cached_dragon_claw
     | Dragon_fangs _ -> cached_dragon_fang
     | Dragon_horns _ -> cached_dragon_horn
   in
-  let mapped = Array.of_list_map all ~f:do_to_ingredient in
+  let cached = Array.of_list_map all ~f:do_to_ingredient in
+  let cached_monster_horns =
+    Array.of_list_map all_of_monster_horn ~f:(fun x -> Monster_horn x |> do_to_ingredient)
+  in
+  let cached_monster_fangs =
+    Array.of_list_map all_of_monster_fang ~f:(fun x -> Monster_fang x |> do_to_ingredient)
+  in
+  let cached_monster_guts =
+    Array.of_list_map all_of_monster_guts ~f:(fun x -> Monster_guts x |> do_to_ingredient)
+  in
   function
-  | Monster_horn _ -> cached_monster_horn
-  | Monster_fang _ -> cached_monster_fang
-  | Monster_guts _ -> cached_monster_guts
+  | Monster_horn x -> cached_monster_horns.(Variants_of_monster_horn.to_rank x)
+  | Monster_fang x -> cached_monster_fangs.(Variants_of_monster_fang.to_rank x)
+  | Monster_guts x -> cached_monster_guts.(Variants_of_monster_guts.to_rank x)
   | Dragon_scales _ -> cached_dragon_scale
   | Dragon_claws _ -> cached_dragon_claw
   | Dragon_fangs _ -> cached_dragon_fang
   | Dragon_horns _ -> cached_dragon_horn
-  | x -> mapped.(Variants.to_rank x)
+  | x -> cached.(Variants.to_rank x)
 
 let to_kind = Fn.compose Ingredient.to_kind to_ingredient
 

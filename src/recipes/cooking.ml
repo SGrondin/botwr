@@ -33,7 +33,7 @@ module Hearts = struct
     let theoretical_gain = max_hearts + x in
     let actual_gain = min theoretical_gain 30 in
     let wasted = theoretical_gain - actual_gain in
-    100 + (actual_gain << 1) - wasted
+    100 + (actual_gain << 2) - (wasted << 1)
   | Unglooms (unglooms_theoretical_gain, Quarters quarters_theoretical_gain) ->
     let unglooms_actual_gain = min unglooms_theoretical_gain gloomy_hearts in
     let unglooms_wasted = unglooms_theoretical_gain - unglooms_actual_gain in
@@ -184,6 +184,7 @@ module Meal = struct
     hearts: Hearts.t;
     stamina: Stamina.t;
     effect: Effect.t;
+    fused: int;
     num_ingredients: int;
     num_effect_ingredients: int;
     random_effects: Special_bonus.t list;
@@ -191,7 +192,7 @@ module Meal = struct
   [@@deriving sexp, compare, equal, fields]
 
   let score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~(kind : Ingredient.Effect.Kind.t)
-     { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects } =
+     { hearts; stamina; effect; num_ingredients = _; fused; num_effect_ingredients; random_effects } =
     let random_bonus =
       match random_effects with
       | _ :: _ -> true
@@ -213,7 +214,7 @@ module Meal = struct
       Hearts.score ~max_hearts ~gloomy_hearts ~algo hearts
       + Stamina.score ~max_stamina ~num_effect_ingredients ~random_bonus stamina
       + Effect.score ~num_effect_ingredients ~random_bonus ~algo effect
-      - num_ingredients
+      - fused
 end
 
 type t =
@@ -330,6 +331,7 @@ let cook map =
           num_ingredients;
           num_effect_ingredients;
           random_effects = [];
+          fused = res.fused;
         }
       | [ Red_hearts ], Restores (Quarters x) ->
         {
@@ -339,6 +341,7 @@ let cook map =
           num_ingredients;
           num_effect_ingredients;
           random_effects = [];
+          fused = res.fused;
         }
       | [ Red_hearts ], Nothing ->
         {
@@ -348,8 +351,18 @@ let cook map =
           num_ingredients;
           num_effect_ingredients;
           random_effects = [];
+          fused = res.fused;
         }
-      | _ -> { hearts; stamina; effect; num_ingredients; num_effect_ingredients; random_effects }
+      | _ ->
+        {
+          hearts;
+          stamina;
+          effect;
+          num_ingredients;
+          num_effect_ingredients;
+          random_effects;
+          fused = res.fused;
+        }
     in
     match res.category with
     | Food
