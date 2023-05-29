@@ -227,8 +227,7 @@ type t =
 
 let cook map =
   let ingredients, num_ingredients, num_effect_ingredients =
-    Glossary.Map.fold map ~init:([], 0, 0) ~f:(fun ~key:g ~data:count (acc, num, num_effect) ->
-        let ingredient = Glossary.to_ingredient g in
+    Ingredient.Map.fold map ~init:([], 0, 0) ~f:(fun ~key:ingredient ~data:count (acc, num, num_effect) ->
         let effect_or_special = Ingredient.has_effect_or_special ingredient in
         ( Ingredient.merge ingredient ~count :: acc,
           num + count,

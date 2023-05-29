@@ -224,8 +224,8 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
         let evts =
           let _x = window##scrollTo 0 0 in
           update_data Model.Completed
-          :: Glossary.Map.fold_right recipe ~init:[] ~f:(fun ~key ~data acc ->
-                 Card.trigger_action updates key (Card.Action.Decrement_by data) :: acc)
+          :: Ingredient.Map.fold_right recipe ~init:[] ~f:(fun ~key ~data acc ->
+                 Card.trigger_action updates key.item (Card.Action.Decrement_by data) :: acc)
         in
         Event.Many evts
       in
@@ -240,10 +240,10 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
 
     let recipe_rows =
       let order = Glossary.game_ordered game in
-      Glossary.Map.to_alist recipe
+      Ingredient.Map.to_alist recipe
       |> List.sort ~compare:(fun (x, _) (y, _) ->
-             [%compare: int] (Glossary.Map.find_exn order y) (Glossary.Map.find_exn order x))
-      |> List.fold ~init:[ [ cook_button ] ] ~f:(fun acc (key, data) ->
+             [%compare: int] (Glossary.Map.find_exn order y.item) (Glossary.Map.find_exn order x.item))
+      |> List.fold ~init:[ [ cook_button ] ] ~f:(fun acc ({ item; _ }, data) ->
              List.init data ~f:(fun _ ->
                  Node.li
                    Attr.
@@ -258,8 +258,10 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
                          ];
                      ]
                    [
-                     Node.div [] [ Node.textf !"%{Glossary}" key ];
-                     Node.create "img" Attr.[ style Css_gen.(height (`Em 2)); src (Blob.get key game) ] [];
+                     Node.div [] [ Node.textf !"%{Glossary}" item ];
+                     Node.create "img"
+                       Attr.[ style Css_gen.(height (`Em 2)); src (Blob.get item game) ]
+                       [];
                    ])
              :: acc)
       |> List.concat

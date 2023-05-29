@@ -281,6 +281,7 @@ module Category = struct
 end
 
 type t = {
+  item: Items.t;
   hearts: Hearts.t;
   effect: Effect.t;
   category: Category.t;
@@ -288,6 +289,14 @@ type t = {
   fused: int;
 }
 [@@deriving sexp, compare, equal, hash]
+
+let compare_item x y = [%compare: Items.t] x.item y.item
+
+module Map = Map.Make (struct
+  type nonrec t = t [@@deriving sexp]
+
+  let compare = compare_item
+end)
 
 let to_kind : t -> Effect.Kind.t = function
 | { effect = Nothing; _ } -> Nothing
@@ -330,11 +339,12 @@ let has_effect_or_special : t -> bool = function
  |{ effect = Bright _; _ } ->
   true
 
-let merge ({ hearts; effect; category; critical; fused } as ingredient) ~count =
+let merge ({ item; hearts; effect; category; critical; fused } as ingredient) ~count =
   match count with
   | 1 -> ingredient
   | _ ->
     {
+      item;
       hearts = Hearts.merge ~count hearts;
       effect = Effect.merge ~count effect;
       category;
@@ -344,6 +354,7 @@ let merge ({ hearts; effect; category; critical; fused } as ingredient) ~count =
 
 let combine left right =
   {
+    item = left.item;
     hearts = Hearts.combine left.hearts right.hearts;
     effect = Effect.combine left.effect right.effect;
     category = Category.combine left.category right.category;

@@ -3,17 +3,17 @@ open! Core_kernel
 (* A recipe is a collection of ingredients and how many times to use each *)
 module Recipe = struct
   module Self = struct
-    type t = int Glossary.Map.t [@@deriving sexp, compare, equal]
+    type t = int Ingredient.Map.t [@@deriving sexp, compare, equal]
   end
 
   module Set = Set.Make (Self)
   include Self
 
-  let to_string recipe =
-    Glossary.Map.to_alist recipe
+  let to_string (recipe : t) =
+    Ingredient.Map.to_alist recipe
     |> List.map ~f:(function
-         | k, 1 -> Glossary.to_string k
-         | k, v -> sprintf !"%{Glossary} x%d" k v)
+         | k, 1 -> Glossary.to_string k.item
+         | k, v -> sprintf !"%{Glossary} x%d" k.item v)
     |> List.sort ~compare:String.compare
     |> String.concat ~sep:", "
 
@@ -26,7 +26,7 @@ end
 
 let rec sideloop dn t ~f acc = function
 | x :: rest ->
-  downloop dn t ~f (Glossary.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ)) rest;
+  downloop dn t ~f (Ingredient.Map.update acc x ~f:(Option.value_map ~default:1 ~f:succ)) rest;
   (sideloop [@tailcall]) dn t ~f acc rest
 | _ -> ()
 
@@ -36,7 +36,7 @@ and downloop dn t ~f acc = function
 
 let generate ~init ~f r items =
   let t = ref init in
-  downloop r t ~f Glossary.Map.empty items;
+  downloop r t ~f Ingredient.Map.empty items;
   !t
 
 let generate_all ~init ~f r items =

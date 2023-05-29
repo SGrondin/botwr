@@ -4,8 +4,8 @@ open Cooking
 let%expect_test "List of ingredients" =
   let open Glossary in
   let list_to_map ll =
-    List.fold ll ~init:Glossary.Map.empty
-      ~f:(Glossary.Map.update ~f:(Option.value_map ~default:1 ~f:succ))
+    List.fold ll ~init:Ingredient.Map.empty ~f:(fun acc x ->
+        to_ingredient x |> Ingredient.Map.update acc ~f:(Option.value_map ~default:1 ~f:succ))
   in
   let test ll = ll |> list_to_map |> cook |> sprintf !"%{sexp: Cooking.t}" |> print_endline in
   test [];
@@ -329,7 +329,8 @@ let%expect_test "Combinations" =
   let test r ll =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
-    Combinations.generate ~init ~f r ll
+    List.map ll ~f:Glossary.to_ingredient
+    |> Combinations.generate ~init ~f r
     |> Combinations.Recipe.Set.to_list
     |> Combinations.Recipe.to_string_many
     |> print_endline
@@ -429,7 +430,8 @@ let%expect_test "All basic combinations" =
   let test r ll =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
-    Combinations.generate_all ~init ~f r ll
+    List.map ll ~f:Glossary.to_ingredient
+    |> Combinations.generate_all ~init ~f r
     |> Combinations.Recipe.Set.to_list
     |> Combinations.Recipe.to_string_many
     |> print_endline
@@ -438,6 +440,7 @@ let%expect_test "All basic combinations" =
     let init = Combinations.Recipe.Set.empty in
     let f acc recipe = Combinations.Recipe.Set.add acc recipe in
     List.sort ll ~compare:Glossary.compare
+    |> List.map ~f:Glossary.to_ingredient
     |> Combinations.generate_all ~init ~f r
     |> Combinations.Recipe.Set.length
     |> Int.to_string

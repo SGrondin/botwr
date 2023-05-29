@@ -2,9 +2,10 @@ open! Core_kernel
 
 let always (min, sec) = Ingredient.Duration.Always ((min * 60) + sec)
 
-let make_food quarters sec =
+let make_food item quarters sec =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Neutral (Always sec);
       category = Food;
@@ -13,9 +14,10 @@ let make_food quarters sec =
     }
 
 (* The first one adds a different duration from 2+ *)
-let make_ingredient quarters first next =
+let make_ingredient item quarters first next =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Neutral (Diminishing { first; next });
       category = Food;
@@ -24,9 +26,10 @@ let make_ingredient quarters first next =
     }
 
 (* A "spice" needs at least one other non-spice or it's Dubious *)
-let make_spice quarters first next =
+let make_spice item quarters first next =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Neutral (Diminishing { first; next });
       category = Spice;
@@ -34,9 +37,10 @@ let make_spice quarters first next =
       fused = 1;
     }
 
-let make_hearty quarters bonus =
+let make_hearty item quarters bonus =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Hearty bonus;
       category = Food;
@@ -44,9 +48,10 @@ let make_hearty quarters bonus =
       fused = 1;
     }
 
-let make_sunny quarters unglooms =
+let make_sunny item quarters unglooms =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Sunny unglooms;
       category = Food;
@@ -54,9 +59,10 @@ let make_sunny quarters unglooms =
       fused = 1;
     }
 
-let make_effect variant dur quarters points =
+let make_effect item variant dur quarters points =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Food;
@@ -64,9 +70,10 @@ let make_effect variant dur quarters points =
       fused = 1;
     }
 
-let make_energizing quarters x =
+let make_energizing item quarters x =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Energizing (Fifths x);
       category = Food;
@@ -74,9 +81,10 @@ let make_energizing quarters x =
       fused = 1;
     }
 
-let make_enduring quarters x =
+let make_enduring item quarters x =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Enduring (Quarters x);
       category = Food;
@@ -84,27 +92,28 @@ let make_enduring quarters x =
       fused = 1;
     }
 
-let make_spicy = make_effect Ingredient.Effect.spicy (2, 30)
+let make_spicy item = make_effect item Ingredient.Effect.spicy (2, 30)
 
-let make_chilly = make_effect Ingredient.Effect.chilly (2, 30)
+let make_chilly item = make_effect item Ingredient.Effect.chilly (2, 30)
 
-let make_electro = make_effect Ingredient.Effect.electro (2, 30)
+let make_electro item = make_effect item Ingredient.Effect.electro (2, 30)
 
-let make_hasty = make_effect Ingredient.Effect.hasty (1, 0)
+let make_hasty item = make_effect item Ingredient.Effect.hasty (1, 0)
 
-let make_rapid = make_effect Ingredient.Effect.rapid (2, 0)
+let make_rapid item = make_effect item Ingredient.Effect.rapid (2, 0)
 
-let make_sneaky = make_effect Ingredient.Effect.sneaky (2, 0)
+let make_sneaky item = make_effect item Ingredient.Effect.sneaky (2, 0)
 
-let make_mighty = make_effect Ingredient.Effect.mighty (0, 50)
+let make_mighty item = make_effect item Ingredient.Effect.mighty (0, 50)
 
-let make_tough = make_effect Ingredient.Effect.tough (0, 50)
+let make_tough item = make_effect item Ingredient.Effect.tough (0, 50)
 
-let make_bright = make_effect Ingredient.Effect.bright (2, 0)
+let make_bright item = make_effect item Ingredient.Effect.bright (2, 0)
 
-let energizing_critter x =
+let energizing_critter item x =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters 0);
       effect = Energizing (Fifths x);
       category = Critter;
@@ -112,9 +121,10 @@ let energizing_critter x =
       fused = 1;
     }
 
-let enduring_critter ?(quarters = 0) x =
+let enduring_critter item ?(quarters = 0) x =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters quarters);
       effect = Enduring (Quarters x);
       category = Critter;
@@ -122,9 +132,10 @@ let enduring_critter ?(quarters = 0) x =
       fused = 1;
     }
 
-let effect_critter dur variant points =
+let effect_critter item dur variant points =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters 0);
       effect = variant Effect.Activity.{ duration = always dur; points };
       category = Critter;
@@ -132,9 +143,10 @@ let effect_critter dur variant points =
       fused = 1;
     }
 
-let make_monster dur fused =
+let make_monster item dur fused =
   Ingredient.
     {
+      item;
       hearts = Always (Quarters 0);
       effect = Neutral (always dur);
       category = Monster;
@@ -142,9 +154,10 @@ let make_monster dur fused =
       fused;
     }
 
-let make_dragon hearts first fused =
+let make_dragon item hearts first fused =
   Ingredient.
     {
+      item;
       hearts = Diminishing { first = hearts; next = Quarters 0 };
       effect = Neutral (Diminishing { first; next = 30 });
       category = Dragon;
@@ -152,155 +165,157 @@ let make_dragon hearts first fused =
       fused;
     }
 
-let make_monster_horn = make_monster (1, 10)
+let make_monster_horn item = make_monster item (1, 10)
 
-let make_monster_fang = make_monster (1, 50)
+let make_monster_fang item = make_monster item (1, 50)
 
-let make_monster_guts = make_monster (3, 10)
+let make_monster_guts item = make_monster item (3, 10)
 
-let cached_dragon_scale = make_dragon (Quarters 5) 90 16
+let make_dragon_scale item = make_dragon item (Quarters 5) 90 16
 
-let cached_dragon_claw = make_dragon (Quarters 8) 210 18
+let make_dragon_claw item = make_dragon item (Quarters 8) 210 18
 
-let cached_dragon_fang = make_dragon (Quarters 10) 630 20
+let make_dragon_fang item = make_dragon item (Quarters 10) 630 20
 
-let cached_dragon_horn = make_dragon (Quarters 15) 1800 26
+let make_dragon_horn item = make_dragon item (Quarters 15) 1800 26
 
 include Items
 
 let to_ingredient =
   let do_to_ingredient = function
-    | Skyshroom -> make_food 2 30
-    | Dazzlefruit -> make_food 2 30
-    | Korok_frond -> make_food 2 30
-    | Apple -> make_food 4 30
-    | Wildberry -> make_food 4 30
-    | Hylian_shroom -> make_food 4 30
-    | Palm_fruit -> make_food 8 30
-    | Ancient_arowana -> make_food 8 30
-    | Hylian_tomato -> make_food 8 30
-    | Hyrule_herb -> make_food 8 30
-    | Hyrule_bass -> make_food 8 30
-    | Sanke_carp -> make_food 8 30
-    | Raw_meat -> make_food 8 30
-    | Raw_bird_drumstick -> make_food 8 30
-    | Raw_bird_thigh -> make_food 12 30
-    | Raw_gourmet_meat -> make_food 24 30
-    | Raw_whole_bird -> make_food 24 30
-    | Raw_prime_meat -> make_food 12 30
-    | Chickaloo_tree_nut -> make_ingredient 4 40 30
-    | Acorn -> make_ingredient 4 50 30
-    | Golden_apple -> make_ingredient 12 50 30
-    | Rock_salt -> make_spice 0 60 30
-    | Hylian_rice -> make_spice 8 60 30
-    | Tabantha_wheat -> make_spice 8 60 30
-    | Oil_jar -> make_spice 0 80 30
-    | Cane_sugar -> make_spice 0 80 30
-    | Goat_butter -> make_spice 0 80 30
-    | Fresh_milk -> make_ingredient 4 80 30
-    | Hateno_cheese -> make_spice 8 80 30
-    | Goron_spice -> make_spice 0 90 30
-    | Bird_egg -> make_ingredient 8 90 30
+    | Skyshroom -> make_food Skyshroom 2 30
+    | Dazzlefruit -> make_food Dazzlefruit 2 30
+    | Korok_frond -> make_food Korok_frond 2 30
+    | Apple -> make_food Apple 4 30
+    | Wildberry -> make_food Wildberry 4 30
+    | Hylian_shroom -> make_food Hylian_shroom 4 30
+    | Palm_fruit -> make_food Palm_fruit 8 30
+    | Ancient_arowana -> make_food Ancient_arowana 8 30
+    | Hylian_tomato -> make_food Hylian_tomato 8 30
+    | Hyrule_herb -> make_food Hyrule_herb 8 30
+    | Hyrule_bass -> make_food Hyrule_bass 8 30
+    | Sanke_carp -> make_food Sanke_carp 8 30
+    | Raw_meat -> make_food Raw_meat 8 30
+    | Raw_bird_drumstick -> make_food Raw_bird_drumstick 8 30
+    | Raw_bird_thigh -> make_food Raw_bird_thigh 12 30
+    | Raw_gourmet_meat -> make_food Raw_gourmet_meat 24 30
+    | Raw_whole_bird -> make_food Raw_whole_bird 24 30
+    | Raw_prime_meat -> make_food Raw_prime_meat 12 30
+    | Chickaloo_tree_nut -> make_ingredient Chickaloo_tree_nut 4 40 30
+    | Acorn -> make_ingredient Acorn 4 50 30
+    | Golden_apple -> make_ingredient Golden_apple 12 50 30
+    | Rock_salt -> make_spice Rock_salt 0 60 30
+    | Hylian_rice -> make_spice Hylian_rice 8 60 30
+    | Tabantha_wheat -> make_spice Tabantha_wheat 8 60 30
+    | Oil_jar -> make_spice Oil_jar 0 80 30
+    | Cane_sugar -> make_spice Cane_sugar 0 80 30
+    | Goat_butter -> make_spice Goat_butter 0 80 30
+    | Fresh_milk -> make_ingredient Fresh_milk 4 80 30
+    | Hateno_cheese -> make_spice Hateno_cheese 8 80 30
+    | Goron_spice -> make_spice Goron_spice 0 90 30
+    | Bird_egg -> make_ingredient Bird_egg 8 90 30
     (* Hearty *)
-    | Hearty_truffle -> make_hearty 16 1
-    | Hearty_bass -> make_hearty 16 2
-    | Hearty_radish -> make_hearty 20 3
-    | Hearty_blueshell_snail -> make_hearty 24 3
-    | Hearty_durian -> make_hearty 24 4
-    | Big_hearty_truffle -> make_hearty 24 4
-    | Hearty_salmon -> make_hearty 32 4
+    | Hearty_truffle -> make_hearty Hearty_truffle 16 1
+    | Hearty_bass -> make_hearty Hearty_bass 16 2
+    | Hearty_radish -> make_hearty Hearty_radish 20 3
+    | Hearty_blueshell_snail -> make_hearty Hearty_blueshell_snail 24 3
+    | Hearty_durian -> make_hearty Hearty_durian 24 4
+    | Big_hearty_truffle -> make_hearty Big_hearty_truffle 24 4
+    | Hearty_salmon -> make_hearty Hearty_salmon 32 4
     | Hearty_lizard ->
       Ingredient.
         {
+          item = Hearty_lizard;
           hearts = Always (Quarters 32);
           effect = Hearty 4;
           category = Critter;
           critical = false;
           fused = 1;
         }
-    | Big_hearty_radish -> make_hearty 32 5
+    | Big_hearty_radish -> make_hearty Big_hearty_radish 32 5
     (* Sunny *)
-    | Sun_pumpkin -> make_sunny 4 1
-    | Sundelion -> make_sunny 0 3
+    | Sun_pumpkin -> make_sunny Sun_pumpkin 4 1
+    | Sundelion -> make_sunny Sundelion 0 3
     (* Energizing *)
-    | Stamella_shroom -> make_energizing 4 7
-    | Stambulb -> make_energizing 4 7
-    | Restless_cricket -> energizing_critter 7
-    | Courser_bee_honey -> make_energizing 16 14
-    | Bright_eyed_crab -> make_energizing 8 14
-    | Staminoka_bass -> make_energizing 8 28
-    | Energetic_rhino_beetle -> energizing_critter 42
+    | Stamella_shroom -> make_energizing Stamella_shroom 4 7
+    | Stambulb -> make_energizing Stambulb 4 7
+    | Restless_cricket -> energizing_critter Restless_cricket 7
+    | Courser_bee_honey -> make_energizing Courser_bee_honey 16 14
+    | Bright_eyed_crab -> make_energizing Bright_eyed_crab 8 14
+    | Staminoka_bass -> make_energizing Staminoka_bass 8 28
+    | Energetic_rhino_beetle -> energizing_critter Energetic_rhino_beetle 42
     (* Enduring *)
-    | Endura_shroom -> make_enduring 8 2
-    | Tireless_frog -> enduring_critter ~quarters:16 4
-    | Endura_carrot -> make_enduring 16 8
+    | Endura_shroom -> make_enduring Endura_shroom 8 2
+    | Tireless_frog -> enduring_critter Tireless_frog ~quarters:16 4
+    | Endura_carrot -> make_enduring Endura_carrot 16 8
     (* Spicy *)
-    | Spicy_pepper -> make_spicy 4 1
-    | Warm_safflina -> make_spicy 0 1
-    | Summerwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.spicy 1
-    | Sunshroom -> make_spicy 4 2
-    | Warm_darner -> effect_critter (2, 30) Ingredient.Effect.spicy 2
-    | Sizzlefin_trout -> make_spicy 8 3
+    | Spicy_pepper -> make_spicy Spicy_pepper 4 1
+    | Warm_safflina -> make_spicy Warm_safflina 0 1
+    | Summerwing_butterfly -> effect_critter Summerwing_butterfly (2, 30) Ingredient.Effect.spicy 1
+    | Sunshroom -> make_spicy Sunshroom 4 2
+    | Warm_darner -> effect_critter Warm_darner (2, 30) Ingredient.Effect.spicy 2
+    | Sizzlefin_trout -> make_spicy Sizzlefin_trout 8 3
     (* Chilly *)
-    | Hydromelon -> make_chilly 4 1
-    | Cool_safflina -> make_chilly 0 1
-    | Winterwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.chilly 1
-    | Chillshroom -> make_chilly 4 2
-    | Cold_darner -> effect_critter (2, 30) Ingredient.Effect.chilly 2
-    | Chillfin_trout -> make_chilly 8 3
+    | Hydromelon -> make_chilly Hydromelon 4 1
+    | Cool_safflina -> make_chilly Cool_safflina 0 1
+    | Winterwing_butterfly -> effect_critter Winterwing_butterfly (2, 30) Ingredient.Effect.chilly 1
+    | Chillshroom -> make_chilly Chillshroom 4 2
+    | Cold_darner -> effect_critter Cold_darner (2, 30) Ingredient.Effect.chilly 2
+    | Chillfin_trout -> make_chilly Chillfin_trout 8 3
     (* Electro *)
-    | Voltfruit -> make_electro 4 1
-    | Electric_safflina -> make_electro 0 1
-    | Thunderwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.electro 1
-    | Zapshroom -> make_electro 4 2
-    | Electric_darner -> effect_critter (2, 30) Ingredient.Effect.electro 2
-    | Voltfin_trout -> make_electro 8 3
+    | Voltfruit -> make_electro Voltfruit 4 1
+    | Electric_safflina -> make_electro Electric_safflina 0 1
+    | Thunderwing_butterfly -> effect_critter Thunderwing_butterfly (2, 30) Ingredient.Effect.electro 1
+    | Zapshroom -> make_electro Zapshroom 4 2
+    | Electric_darner -> effect_critter Electric_darner (2, 30) Ingredient.Effect.electro 2
+    | Voltfin_trout -> make_electro Voltfin_trout 8 3
     (* Fireproof *)
-    | Fireproof_lizard -> effect_critter (2, 30) Ingredient.Effect.fireproof 1
-    | Smotherwing_butterfly -> effect_critter (2, 30) Ingredient.Effect.fireproof 2
+    | Fireproof_lizard -> effect_critter Fireproof_lizard (2, 30) Ingredient.Effect.fireproof 1
+    | Smotherwing_butterfly -> effect_critter Smotherwing_butterfly (2, 30) Ingredient.Effect.fireproof 2
     (* Hasty *)
-    | Rushroom -> make_hasty 4 1
-    | Swift_carrot -> make_hasty 4 1
-    | Hightail_lizard -> effect_critter (1, 0) Ingredient.Effect.hasty 1
-    | Fleet_lotus_seeds -> make_hasty 4 2
-    | Swift_violet -> make_hasty 0 2
-    | Hot_footed_frog -> effect_critter (1, 0) Ingredient.Effect.hasty 2
+    | Rushroom -> make_hasty Rushroom 4 1
+    | Swift_carrot -> make_hasty Swift_carrot 4 1
+    | Hightail_lizard -> effect_critter Hightail_lizard (1, 0) Ingredient.Effect.hasty 1
+    | Fleet_lotus_seeds -> make_hasty Fleet_lotus_seeds 4 2
+    | Swift_violet -> make_hasty Swift_violet 0 2
+    | Hot_footed_frog -> effect_critter Hot_footed_frog (1, 0) Ingredient.Effect.hasty 2
     (* Rapid *)
-    | Splash_fruit -> make_rapid 2 1
+    | Splash_fruit -> make_rapid Splash_fruit 2 1
     (* Sticky *)
-    | Sticky_lizard -> effect_critter (2, 0) Ingredient.Effect.sticky 1
-    | Sticky_frog -> effect_critter (2, 0) Ingredient.Effect.sticky 2
+    | Sticky_lizard -> effect_critter Sticky_lizard (2, 0) Ingredient.Effect.sticky 1
+    | Sticky_frog -> effect_critter Sticky_frog (2, 0) Ingredient.Effect.sticky 2
     (* Sneaky *)
-    | Blue_nightshade -> make_sneaky 0 1
-    | Sneaky_river_snail -> make_sneaky 8 1
-    | Sunset_firefly -> effect_critter (2, 0) Ingredient.Effect.sneaky 1
-    | Silent_shroom -> make_sneaky 4 2
-    | Stealthfin_trout -> make_sneaky 8 2
-    | Silent_princess -> make_sneaky 8 3
+    | Blue_nightshade -> make_sneaky Blue_nightshade 0 1
+    | Sneaky_river_snail -> make_sneaky Sneaky_river_snail 8 1
+    | Sunset_firefly -> effect_critter Sunset_firefly (2, 0) Ingredient.Effect.sneaky 1
+    | Silent_shroom -> make_sneaky Silent_shroom 4 2
+    | Stealthfin_trout -> make_sneaky Stealthfin_trout 8 2
+    | Silent_princess -> make_sneaky Silent_princess 8 3
     (* Mighty *)
-    | Mighty_thistle -> make_mighty 0 1
-    | Bladed_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.mighty 1
-    | Mighty_bananas -> make_mighty 4 2
-    | Razorshroom -> make_mighty 4 2
-    | Mighty_carp -> make_mighty 8 2
-    | Razorclaw_crab -> make_mighty 8 2
-    | Mighty_porgy -> make_mighty 8 3
+    | Mighty_thistle -> make_mighty Mighty_thistle 0 1
+    | Bladed_rhino_beetle -> effect_critter Bladed_rhino_beetle (0, 50) Ingredient.Effect.mighty 1
+    | Mighty_bananas -> make_mighty Mighty_bananas 4 2
+    | Razorshroom -> make_mighty Razorshroom 4 2
+    | Mighty_carp -> make_mighty Mighty_carp 8 2
+    | Razorclaw_crab -> make_mighty Razorclaw_crab 8 2
+    | Mighty_porgy -> make_mighty Mighty_porgy 8 3
     (* Tough *)
-    | Armoranth -> make_tough 0 1
-    | Rugged_rhino_beetle -> effect_critter (0, 50) Ingredient.Effect.tough 1
-    | Fortified_pumpkin -> make_tough 4 2
-    | Ironshroom -> make_tough 4 2
-    | Armored_carp -> make_tough 8 2
-    | Ironshell_crab -> make_tough 8 2
-    | Armored_porgy -> make_tough 8 3
+    | Armoranth -> make_tough Armoranth 0 1
+    | Rugged_rhino_beetle -> effect_critter Rugged_rhino_beetle (0, 50) Ingredient.Effect.tough 1
+    | Fortified_pumpkin -> make_tough Fortified_pumpkin 4 2
+    | Ironshroom -> make_tough Ironshroom 4 2
+    | Armored_carp -> make_tough Armored_carp 8 2
+    | Ironshell_crab -> make_tough Ironshell_crab 8 2
+    | Armored_porgy -> make_tough Armored_porgy 8 3
     (* Bright *)
-    | Brightcap -> make_bright 4 1
-    | Deep_firefly -> effect_critter (2, 0) Ingredient.Effect.bright 2
-    | Glowing_cave_fish -> make_bright 8 2
+    | Brightcap -> make_bright Brightcap 4 1
+    | Deep_firefly -> effect_critter Deep_firefly (2, 0) Ingredient.Effect.bright 2
+    | Glowing_cave_fish -> make_bright Glowing_cave_fish 8 2
     (* Other *)
     | Fairy ->
       (* The -3 full hearts is only applied when the final result is a Fairy Tonic *)
       {
+        item = Fairy;
         hearts = Always (Quarters 40);
         effect = Neutral (Always 30);
         category = With_fairy Spice;
@@ -309,71 +324,73 @@ let to_ingredient =
       }
     | Star_fragment ->
       {
+        item = Star_fragment;
         hearts = Always (Quarters 0);
         effect = Neutral (Always 30);
         category = Dragon;
         critical = true;
         fused = 1;
       }
-    | Monster_horn Octo_balloon -> make_monster_horn 1
-    | Monster_horn Keese_wing -> make_monster_horn 1
-    | Monster_horn Chuchu_jelly -> make_monster_horn 1
-    | Monster_horn Octorok_tentacle -> make_monster_horn 3
-    | Monster_horn Bokoblin_horn -> make_monster_horn 4
-    | Monster_horn Aerocuda_wing -> make_monster_horn 4
-    | Monster_horn Horriblin_horn -> make_monster_horn 5
-    | Monster_horn Moblin_horn -> make_monster_horn 6
-    | Monster_horn Hinox_toenail -> make_monster_horn 7
-    | Monster_horn Blue_bokoblin_horn -> make_monster_horn 7
-    | Monster_horn Lizalfos_horn -> make_monster_horn 8
-    | Monster_horn Gibdo_wing -> make_monster_horn 8
-    | Monster_horn Black_bokoblin_horn -> make_monster_horn 17
-    | Monster_horn Gibdo_bone -> make_monster_horn 40
-    | Monster_horn Lynel_horn -> make_monster_horn 1 (* BOTW *)
-    | Monster_horn Ancient_screw -> make_monster_horn 1 (* BOTW *)
-    | Monster_horn Ancient_spring -> make_monster_horn 1 (* BOTW *)
-    | Monster_fang Gibdo_guts -> make_monster_fang 1
-    | Monster_fang Bokoblin_fang -> make_monster_fang 2
-    | Monster_fang Electric_keese_wing -> make_monster_fang 2
-    | Monster_fang Fire_keese_wing -> make_monster_fang 2
-    | Monster_fang Ice_keese_wing -> make_monster_fang 2
-    | Monster_fang Octorok_eyeball -> make_monster_fang 3
-    | Monster_fang Like_like_stone -> make_monster_fang 4
-    | Monster_fang Horriblin_claw -> make_monster_fang 4
-    | Monster_fang Moblin_fang -> make_monster_fang 4
-    | Monster_fang Aerocuda_eyeball -> make_monster_fang 4
-    | Monster_fang Ice_keese_eyeball -> make_monster_fang 4
-    | Monster_fang Lizalfos_talon -> make_monster_fang 5
-    | Monster_fang White_chuchu_jelly -> make_monster_fang 1
-    | Monster_fang Red_chuchu_jelly -> make_monster_fang 1
-    | Monster_fang Yellow_chuchu_jelly -> make_monster_fang 1
-    | Monster_fang Electric_keese_eyeball -> make_monster_fang 6
-    | Monster_fang Fire_keese_eyeball -> make_monster_fang 8
-    | Monster_fang Hinox_tooth -> make_monster_fang 8
-    | Monster_fang Lynel_hoof -> make_monster_fang 10
-    | Monster_fang Shock_like_stone -> make_monster_fang 12
-    | Monster_fang Ice_like_stone -> make_monster_fang 12
-    | Monster_fang Fire_like_stone -> make_monster_fang 12
-    | Monster_fang Molduga_fin -> make_monster_fang 12
-    | Monster_fang Ancient_gear -> make_monster_fang 1 (* BOTW *)
-    | Monster_fang Ancient_shaft -> make_monster_fang 1 (* BOTW *)
-    | Monster_guts Bokoblin_guts -> make_monster_guts 1
-    | Monster_guts Moblin_guts -> make_monster_guts 1
-    | Monster_guts Hinox_guts -> make_monster_guts 1
-    | Monster_guts Horriblin_guts -> make_monster_guts 1
-    | Monster_guts Lynel_guts -> make_monster_guts 1
-    | Monster_guts Molduga_guts -> make_monster_guts 1
-    | Monster_guts Keese_eyeball -> make_monster_guts 1
-    | Monster_guts Lizalfos_tail -> make_monster_guts 6
-    | Monster_guts Icy_lizalfos_tail -> make_monster_guts 1 (* BOTW *)
-    | Monster_guts Red_lizalfos_tail -> make_monster_guts 1 (* BOTW *)
-    | Monster_guts Yellow_lizalfos_tail -> make_monster_guts 1 (* BOTW *)
-    | Monster_guts Ancient_core -> make_monster_guts 1 (* BOTW *)
-    | Monster_guts Giant_ancient_core -> make_monster_guts 1 (* BOTW *)
-    | Dragon_scales _ -> cached_dragon_scale
-    | Dragon_claws _ -> cached_dragon_claw
-    | Dragon_fangs _ -> cached_dragon_fang
-    | Dragon_horns _ -> cached_dragon_horn
+    | Monster_horn Octo_balloon -> make_monster_horn (Monster_horn Octo_balloon) 1
+    | Monster_horn Keese_wing -> make_monster_horn (Monster_horn Keese_wing) 1
+    | Monster_horn Chuchu_jelly -> make_monster_horn (Monster_horn Chuchu_jelly) 1
+    | Monster_horn Octorok_tentacle -> make_monster_horn (Monster_horn Octorok_tentacle) 3
+    | Monster_horn Bokoblin_horn -> make_monster_horn (Monster_horn Bokoblin_horn) 4
+    | Monster_horn Aerocuda_wing -> make_monster_horn (Monster_horn Aerocuda_wing) 4
+    | Monster_horn Horriblin_horn -> make_monster_horn (Monster_horn Horriblin_horn) 5
+    | Monster_horn Moblin_horn -> make_monster_horn (Monster_horn Moblin_horn) 6
+    | Monster_horn Hinox_toenail -> make_monster_horn (Monster_horn Hinox_toenail) 7
+    | Monster_horn Blue_bokoblin_horn -> make_monster_horn (Monster_horn Blue_bokoblin_horn) 7
+    | Monster_horn Lizalfos_horn -> make_monster_horn (Monster_horn Lizalfos_horn) 8
+    | Monster_horn Gibdo_wing -> make_monster_horn (Monster_horn Gibdo_wing) 8
+    | Monster_horn Black_bokoblin_horn -> make_monster_horn (Monster_horn Black_bokoblin_horn) 17
+    | Monster_horn Gibdo_bone -> make_monster_horn (Monster_horn Gibdo_bone) 40
+    | Monster_horn Lynel_horn -> make_monster_horn (Monster_horn Lynel_horn) 1 (* BOTW *)
+    | Monster_horn Ancient_screw -> make_monster_horn (Monster_horn Ancient_screw) 1 (* BOTW *)
+    | Monster_horn Ancient_spring -> make_monster_horn (Monster_horn Ancient_spring) 1 (* BOTW *)
+    | Monster_fang Gibdo_guts -> make_monster_fang (Monster_fang Gibdo_guts) 1
+    | Monster_fang Bokoblin_fang -> make_monster_fang (Monster_fang Bokoblin_fang) 2
+    | Monster_fang Electric_keese_wing -> make_monster_fang (Monster_fang Electric_keese_wing) 2
+    | Monster_fang Fire_keese_wing -> make_monster_fang (Monster_fang Fire_keese_wing) 2
+    | Monster_fang Ice_keese_wing -> make_monster_fang (Monster_fang Ice_keese_wing) 2
+    | Monster_fang Octorok_eyeball -> make_monster_fang (Monster_fang Octorok_eyeball) 3
+    | Monster_fang Like_like_stone -> make_monster_fang (Monster_fang Like_like_stone) 4
+    | Monster_fang Horriblin_claw -> make_monster_fang (Monster_fang Horriblin_claw) 4
+    | Monster_fang Moblin_fang -> make_monster_fang (Monster_fang Moblin_fang) 4
+    | Monster_fang Aerocuda_eyeball -> make_monster_fang (Monster_fang Aerocuda_eyeball) 4
+    | Monster_fang Ice_keese_eyeball -> make_monster_fang (Monster_fang Ice_keese_eyeball) 4
+    | Monster_fang Lizalfos_talon -> make_monster_fang (Monster_fang Lizalfos_talon) 5
+    | Monster_fang White_chuchu_jelly -> make_monster_fang (Monster_fang White_chuchu_jelly) 1
+    | Monster_fang Red_chuchu_jelly -> make_monster_fang (Monster_fang Red_chuchu_jelly) 1
+    | Monster_fang Yellow_chuchu_jelly -> make_monster_fang (Monster_fang Yellow_chuchu_jelly) 1
+    | Monster_fang Electric_keese_eyeball -> make_monster_fang (Monster_fang Electric_keese_eyeball) 6
+    | Monster_fang Fire_keese_eyeball -> make_monster_fang (Monster_fang Fire_keese_eyeball) 8
+    | Monster_fang Hinox_tooth -> make_monster_fang (Monster_fang Hinox_tooth) 8
+    | Monster_fang Lynel_hoof -> make_monster_fang (Monster_fang Lynel_hoof) 10
+    | Monster_fang Shock_like_stone -> make_monster_fang (Monster_fang Shock_like_stone) 12
+    | Monster_fang Ice_like_stone -> make_monster_fang (Monster_fang Ice_like_stone) 12
+    | Monster_fang Fire_like_stone -> make_monster_fang (Monster_fang Fire_like_stone) 12
+    | Monster_fang Molduga_fin -> make_monster_fang (Monster_fang Molduga_fin) 12
+    | Monster_fang Ancient_gear -> make_monster_fang (Monster_fang Ancient_gear) 1 (* BOTW *)
+    | Monster_fang Ancient_shaft -> make_monster_fang (Monster_fang Ancient_shaft) 1 (* BOTW *)
+    | Monster_guts Bokoblin_guts -> make_monster_guts (Monster_guts Bokoblin_guts) 1
+    | Monster_guts Moblin_guts -> make_monster_guts (Monster_guts Moblin_guts) 1
+    | Monster_guts Hinox_guts -> make_monster_guts (Monster_guts Hinox_guts) 1
+    | Monster_guts Horriblin_guts -> make_monster_guts (Monster_guts Horriblin_guts) 1
+    | Monster_guts Lynel_guts -> make_monster_guts (Monster_guts Lynel_guts) 1
+    | Monster_guts Molduga_guts -> make_monster_guts (Monster_guts Molduga_guts) 1
+    | Monster_guts Keese_eyeball -> make_monster_guts (Monster_guts Keese_eyeball) 1
+    | Monster_guts Lizalfos_tail -> make_monster_guts (Monster_guts Lizalfos_tail) 6
+    | Monster_guts Icy_lizalfos_tail -> make_monster_guts (Monster_guts Icy_lizalfos_tail) 1 (* BOTW *)
+    | Monster_guts Red_lizalfos_tail -> make_monster_guts (Monster_guts Red_lizalfos_tail) 1 (* BOTW *)
+    | Monster_guts Yellow_lizalfos_tail ->
+      make_monster_guts (Monster_guts Yellow_lizalfos_tail) 1 (* BOTW *)
+    | Monster_guts Ancient_core -> make_monster_guts (Monster_guts Ancient_core) 1 (* BOTW *)
+    | Monster_guts Giant_ancient_core -> make_monster_guts (Monster_guts Giant_ancient_core) 1 (* BOTW *)
+    | Dragon_scales _ as x -> make_dragon_scale x
+    | Dragon_claws _ as x -> make_dragon_claw x
+    | Dragon_fangs _ as x -> make_dragon_fang x
+    | Dragon_horns _ as x -> make_dragon_horn x
   in
   let cached = Array.of_list_map all ~f:do_to_ingredient in
   let cached_monster_horns =
@@ -385,14 +402,26 @@ let to_ingredient =
   let cached_monster_guts =
     Array.of_list_map all_of_monster_guts ~f:(fun x -> Monster_guts x |> do_to_ingredient)
   in
+  let cached_dragon_scales =
+    Array.of_list_map all_of_dragon ~f:(fun x -> Dragon_scales x |> do_to_ingredient)
+  in
+  let cached_dragon_claws =
+    Array.of_list_map all_of_dragon ~f:(fun x -> Dragon_claws x |> do_to_ingredient)
+  in
+  let cached_dragon_fangs =
+    Array.of_list_map all_of_dragon ~f:(fun x -> Dragon_fangs x |> do_to_ingredient)
+  in
+  let cached_dragon_horns =
+    Array.of_list_map all_of_dragon ~f:(fun x -> Dragon_horns x |> do_to_ingredient)
+  in
   function
   | Monster_horn x -> cached_monster_horns.(Variants_of_monster_horn.to_rank x)
   | Monster_fang x -> cached_monster_fangs.(Variants_of_monster_fang.to_rank x)
   | Monster_guts x -> cached_monster_guts.(Variants_of_monster_guts.to_rank x)
-  | Dragon_scales _ -> cached_dragon_scale
-  | Dragon_claws _ -> cached_dragon_claw
-  | Dragon_fangs _ -> cached_dragon_fang
-  | Dragon_horns _ -> cached_dragon_horn
+  | Dragon_scales x -> cached_dragon_scales.(Variants_of_dragon.to_rank x)
+  | Dragon_claws x -> cached_dragon_claws.(Variants_of_dragon.to_rank x)
+  | Dragon_fangs x -> cached_dragon_fangs.(Variants_of_dragon.to_rank x)
+  | Dragon_horns x -> cached_dragon_horns.(Variants_of_dragon.to_rank x)
   | x -> cached.(Variants.to_rank x)
 
 let to_kind = Fn.compose Ingredient.to_kind to_ingredient
