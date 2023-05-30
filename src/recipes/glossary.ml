@@ -968,18 +968,6 @@ let ordered_totk =
        (* Dark_clump *)
        Rock_salt;
        Star_fragment;
-       Dragon_scales Dinraal;
-       Dragon_scales Naydra;
-       Dragon_scales Farosh;
-       Dragon_claws Dinraal;
-       Dragon_claws Naydra;
-       Dragon_claws Farosh;
-       Dragon_fangs Dinraal;
-       Dragon_fangs Naydra;
-       Dragon_fangs Farosh;
-       Dragon_horns Dinraal;
-       Dragon_horns Naydra;
-       Dragon_horns Farosh;
        Hearty_salmon;
        Hearty_bass;
        Hyrule_bass;
@@ -1086,6 +1074,18 @@ let ordered_totk =
        Monster_guts Lynel_guts;
        Monster_fang Molduga_fin;
        Monster_guts Molduga_guts;
+       Dragon_scales Dinraal;
+       Dragon_scales Naydra;
+       Dragon_scales Farosh;
+       Dragon_claws Dinraal;
+       Dragon_claws Naydra;
+       Dragon_claws Farosh;
+       Dragon_fangs Dinraal;
+       Dragon_fangs Naydra;
+       Dragon_fangs Farosh;
+       Dragon_horns Dinraal;
+       Dragon_horns Naydra;
+       Dragon_horns Farosh;
      |]
     |> Array.foldi ~init:Map.empty ~f:(fun data acc key -> Map.add_exn acc ~key ~data))
 
