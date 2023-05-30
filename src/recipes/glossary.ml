@@ -978,11 +978,11 @@ let ordered_totk =
        Stealthfin_trout;
        Mighty_carp;
        Armored_carp;
+       Sanke_carp;
        Ancient_arowana;
        Glowing_cave_fish;
        Mighty_porgy;
        Armored_porgy;
-       Sanke_carp;
        Sneaky_river_snail;
        Hearty_blueshell_snail;
        Razorclaw_crab;

@@ -165,7 +165,7 @@ module Effect = struct
         + (max 0 (actual_duration - 500) >> 1)
       | Maximize -> wasted + num_effect_ingredients
     in
-    100 + (potency << 7) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
+    100 + (potency << 8) + (actual_duration >> 3) + (if random_bonus then 12 else 0) - penalty
 end
 
 module Special_bonus = struct

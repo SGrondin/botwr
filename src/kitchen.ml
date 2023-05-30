@@ -144,23 +144,27 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
       let opt =
         meal >>| Cooking.Meal.effect >>= function
         | Nothing -> None
-        | Spicy x -> Some ("Spicy", Icon.Spicy, x)
-        | Chilly x -> Some ("Chilly", Icon.Chilly, x)
-        | Electro x -> Some ("Electro", Icon.Electro, x)
-        | Fireproof x -> Some ("Fireproof", Icon.Fireproof, x)
-        | Hasty x -> Some ("Hasty", Icon.Hasty, x)
-        | Rapid x -> Some ("Rapid", Icon.Rapid, x)
-        | Sticky x -> Some ("Sticky", Icon.Sticky, x)
-        | Sneaky x -> Some ("Sneaky", Icon.Sneaky, x)
-        | Mighty x -> Some ("Mighty", Icon.Mighty, x)
-        | Tough x -> Some ("Tough", Icon.Tough, x)
-        | Bright x -> Some ("Bright", Icon.Bright, x)
+        | Spicy bonus as x -> Some ("Spicy", Icon.Spicy, bonus, Cooking.Effect.max_potency x)
+        | Chilly bonus as x -> Some ("Chilly", Icon.Chilly, bonus, Cooking.Effect.max_potency x)
+        | Electro bonus as x -> Some ("Electro", Icon.Electro, bonus, Cooking.Effect.max_potency x)
+        | Fireproof bonus as x -> Some ("Fireproof", Icon.Fireproof, bonus, Cooking.Effect.max_potency x)
+        | Hasty bonus as x -> Some ("Hasty", Icon.Hasty, bonus, Cooking.Effect.max_potency x)
+        | Rapid bonus as x -> Some ("Rapid", Icon.Rapid, bonus, Cooking.Effect.max_potency x)
+        | Sticky bonus as x -> Some ("Sticky", Icon.Sticky, bonus, Cooking.Effect.max_potency x)
+        | Sneaky bonus as x -> Some ("Sneaky", Icon.Sneaky, bonus, Cooking.Effect.max_potency x)
+        | Mighty bonus as x -> Some ("Mighty", Icon.Mighty, bonus, Cooking.Effect.max_potency x)
+        | Tough bonus as x -> Some ("Tough", Icon.Tough, bonus, Cooking.Effect.max_potency x)
+        | Bright bonus as x -> Some ("Bright", Icon.Bright, bonus, Cooking.Effect.max_potency x)
       in
       let effect =
-        opt >>| fun (s, icon, { potency; _ }) ->
-        Node.span [] (Node.textf "%s %d " s potency :: List.init potency ~f:(const (make_icon icon)))
+        opt >>| fun (s, icon, { potency; _ }, is_max) ->
+        Node.span []
+          ([]
+          |> add_if is_max (Node.span Attr.[ classes [ "ms-1"; "text-info" ] ] [ Node.text "(MAX)" ])
+          |> Fn.apply_n_times ~n:potency (fun acc -> make_icon icon :: acc)
+          |> List.cons @@ Node.textf "%s %d " s potency)
       in
-      let duration = opt >>| fun (_, _, { duration; _ }) -> make_duration duration in
+      let duration = opt >>| fun (_, _, { duration; _ }, _) -> make_duration duration in
       effect, duration
     in
 
@@ -527,11 +531,17 @@ let component ~game ~init_max_hearts ~init_max_stamina ~updates ?kind () =
            | _ -> false)
        in
        let nodes =
-         []
-         |> add_opt kind_with_duration ~f:(const algo_node)
-         |> add_opt kind_with_gloomy_hearts ~f:(fun _ ->
-                Node.div [] [ Node.text "Gloomy hearts"; gloomy_hearts_node; sunny_algo_node ])
-         |> List.cons @@ render_buttons ~game ~update kind
+         let visible_when = function
+           | Some _ -> []
+           | None -> Attr.[ class_ "d-none" ]
+         in
+         [
+           render_buttons ~game ~update kind;
+           Node.div (visible_when kind_with_duration) [ algo_node ];
+           Node.div
+             (visible_when kind_with_gloomy_hearts)
+             [ Node.text "Gloomy hearts"; gloomy_hearts_node; sunny_algo_node ];
+         ]
        in
        Node.div [] nodes
      in
