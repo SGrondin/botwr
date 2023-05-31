@@ -276,19 +276,14 @@ let cook map =
       | _ -> Nothing
     in
     let effect : Effect.t =
-      let convert_duration : Ingredient.Duration.t -> int = function
-        | Always x
-         |Diminishing { first = x; _ } ->
-          x
-      in
-      let convert lvl2 lvl3 (constructor : Effect.bonus -> Effect.t) :
-         Ingredient.Effect.Activity.t -> Effect.t = function
+      let convert lvl2 lvl3 (make : Effect.bonus -> Effect.t) : Ingredient.Effect.Activity.t -> Effect.t =
+        function
         | { points; duration; _ } when points < lvl2 ->
-          constructor { potency = 1; wasted = points - 1; duration = convert_duration duration }
+          make { potency = 1; wasted = points - 1; duration = Ingredient.Duration.base duration }
         | { points; duration; _ } when points < lvl3 ->
-          constructor { potency = 2; wasted = points - lvl2; duration = convert_duration duration }
+          make { potency = 2; wasted = points - lvl2; duration = Ingredient.Duration.base duration }
         | { points; duration; _ } ->
-          constructor { potency = 3; wasted = points - lvl3; duration = convert_duration duration }
+          make { potency = 3; wasted = points - lvl3; duration = Ingredient.Duration.base duration }
       in
       match res.effect with
       | _ when is_tonic -> Nothing

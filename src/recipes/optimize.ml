@@ -72,7 +72,7 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
         let ingredient = to_ingredient key in
         match Ingredient.to_kind ingredient, ingredient.category, category, kind with
         | (Nothing | Neutral), Food, (Meals | Any), (Sunny | Neutral) ->
-          (match ingredient, Ingredient.Hearts.base_quarters ingredient.hearts with
+          (match ingredient, Ingredient.Hearts.base ingredient.hearts with
           | _, 0 -> ()
           | { effect = Neutral (Always _); _ }, q ->
             add_to_table ~n:(min data limit_neutrals) hearts ~bucket:q ingredient
@@ -83,7 +83,7 @@ let filter ~game ~(kind : Ingredient.Effect.Kind.t) ~(category : Glossary.Catego
         | (Nothing | Neutral), Spice, (Meals | Any), (Sunny | Neutral)
          |_, (Food | Spice), (Meals | Any), Neutral
          |_, (Critter | Monster), (Elixirs | Any), Neutral ->
-          (match Ingredient.Hearts.base_quarters ingredient.hearts with
+          (match Ingredient.Hearts.base ingredient.hearts with
           | 0 -> ()
           | q -> add_to_table ~n:(min data limit_neutrals) hearts_wasteful ~bucket:q ingredient);
           acc

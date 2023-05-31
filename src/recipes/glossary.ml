@@ -343,7 +343,18 @@ let to_ingredient =
     | Monster_horn Blue_bokoblin_horn -> make_monster_horn (Monster_horn Blue_bokoblin_horn) 7
     | Monster_horn Lizalfos_horn -> make_monster_horn (Monster_horn Lizalfos_horn) 8
     | Monster_horn Gibdo_wing -> make_monster_horn (Monster_horn Gibdo_wing) 8
+    | Monster_horn Blue_horriblin_horn -> make_monster_horn (Monster_horn Blue_horriblin_horn) 11
+    | Monster_horn Blue_moblin_horn -> make_monster_horn (Monster_horn Blue_moblin_horn) 13
+    | Monster_horn Electric_lizalfos_horn -> make_monster_horn (Monster_horn Electric_lizalfos_horn) 15
+    | Monster_horn Fire_breath_lizalfos_horn ->
+      make_monster_horn (Monster_horn Fire_breath_lizalfos_horn) 15
+    | Monster_horn Ice_breath_lizalfos_horn ->
+      make_monster_horn (Monster_horn Ice_breath_lizalfos_horn) 15
+    | Monster_horn Blue_lizalfos_horn -> make_monster_horn (Monster_horn Blue_lizalfos_horn) 16
     | Monster_horn Black_bokoblin_horn -> make_monster_horn (Monster_horn Black_bokoblin_horn) 17
+    | Monster_horn Black_horriblin_horn -> make_monster_horn (Monster_horn Black_horriblin_horn) 22
+    | Monster_horn Black_moblin_horn -> make_monster_horn (Monster_horn Black_moblin_horn) 24
+    | Monster_horn Black_lizalfos_horn -> make_monster_horn (Monster_horn Black_lizalfos_horn) 26
     | Monster_horn Gibdo_bone -> make_monster_horn (Monster_horn Gibdo_bone) 40
     | Monster_horn Lynel_horn -> make_monster_horn (Monster_horn Lynel_horn) 1 (* BOTW *)
     | Monster_horn Ancient_screw -> make_monster_horn (Monster_horn Ancient_screw) 1 (* BOTW *)
@@ -381,6 +392,13 @@ let to_ingredient =
     | Monster_guts Molduga_guts -> make_monster_guts (Monster_guts Molduga_guts) 1
     | Monster_guts Keese_eyeball -> make_monster_guts (Monster_guts Keese_eyeball) 1
     | Monster_guts Lizalfos_tail -> make_monster_guts (Monster_guts Lizalfos_tail) 6
+    | Monster_guts Electric_lizalfos_tail -> make_monster_guts (Monster_guts Electric_lizalfos_tail) 10
+    | Monster_guts Fire_breath_lizalfos_tail ->
+      make_monster_guts (Monster_guts Fire_breath_lizalfos_tail) 10
+    | Monster_guts Ice_breath_lizalfos_tail ->
+      make_monster_guts (Monster_guts Ice_breath_lizalfos_tail) 10
+    | Monster_guts Blue_lizalfos_tail -> make_monster_guts (Monster_guts Blue_lizalfos_tail) 16
+    | Monster_guts Black_lizalfos_tail -> make_monster_guts (Monster_guts Black_lizalfos_tail) 24
     | Monster_guts Icy_lizalfos_tail -> make_monster_guts (Monster_guts Icy_lizalfos_tail) 1 (* BOTW *)
     | Monster_guts Red_lizalfos_tail -> make_monster_guts (Monster_guts Red_lizalfos_tail) 1 (* BOTW *)
     | Monster_guts Yellow_lizalfos_tail ->
@@ -532,8 +550,10 @@ let availability : t -> Game.availability = function
   Both
 | Monster_horn (Lynel_horn | Ancient_screw | Ancient_spring) -> BOTW
 | Monster_horn
-    (Gibdo_bone | Gibdo_wing | Horriblin_horn | Aerocuda_wing | Blue_bokoblin_horn | Black_bokoblin_horn)
-  ->
+    ( Gibdo_bone | Gibdo_wing | Horriblin_horn | Aerocuda_wing | Blue_bokoblin_horn | Black_bokoblin_horn
+    | Blue_horriblin_horn | Black_horriblin_horn | Blue_moblin_horn | Black_moblin_horn
+    | Blue_lizalfos_horn | Black_lizalfos_horn | Electric_lizalfos_horn | Fire_breath_lizalfos_horn
+    | Ice_breath_lizalfos_horn ) ->
   TOTK
 | Monster_fang
     ( Bokoblin_fang | Moblin_fang | Lizalfos_talon | Lynel_hoof | Hinox_tooth | Molduga_fin
@@ -552,7 +572,10 @@ let availability : t -> Game.availability = function
 | Monster_guts
     (Icy_lizalfos_tail | Red_lizalfos_tail | Yellow_lizalfos_tail | Ancient_core | Giant_ancient_core) ->
   BOTW
-| Monster_guts Horriblin_guts -> TOTK
+| Monster_guts
+    ( Horriblin_guts | Blue_lizalfos_tail | Black_lizalfos_tail | Electric_lizalfos_tail
+    | Fire_breath_lizalfos_tail | Ice_breath_lizalfos_tail ) ->
+  TOTK
 | Dragon_scales _
  |Dragon_claws _
  |Dragon_fangs _
@@ -684,6 +707,15 @@ let to_string = function
 | Monster_horn Aerocuda_wing -> "Aerocuda Wing"
 | Monster_horn Blue_bokoblin_horn -> "Blue Bokoblin Horn"
 | Monster_horn Black_bokoblin_horn -> "Black Bokoblin Horn"
+| Monster_horn Blue_horriblin_horn -> "Blue Horriblin Horn"
+| Monster_horn Black_horriblin_horn -> "Black Horriblin Horn"
+| Monster_horn Blue_moblin_horn -> "Blue Moblin Horn"
+| Monster_horn Black_moblin_horn -> "Black Moblin Horn"
+| Monster_horn Electric_lizalfos_horn -> "Electric Lizalfos Horn"
+| Monster_horn Fire_breath_lizalfos_horn -> "Fire-Breath Lizalfos Horn"
+| Monster_horn Ice_breath_lizalfos_horn -> "Ice-Breath Lizalfos Horn"
+| Monster_horn Blue_lizalfos_horn -> "Blue Lizalfos Horn"
+| Monster_horn Black_lizalfos_horn -> "Black Lizalfos Horn"
 | Monster_fang Bokoblin_fang -> "Bokoblin Fang"
 | Monster_fang Moblin_fang -> "Moblin Fang"
 | Monster_fang Lizalfos_talon -> "Lizalfos Talon"
@@ -722,6 +754,11 @@ let to_string = function
 | Monster_guts Ancient_core -> "Ancient Core"
 | Monster_guts Giant_ancient_core -> "Giant Ancient Core"
 | Monster_guts Horriblin_guts -> "Horriblin Guts"
+| Monster_guts Electric_lizalfos_tail -> "Electric Lizalfos Tail"
+| Monster_guts Fire_breath_lizalfos_tail -> "Fire-Breath Lizalfos Tail"
+| Monster_guts Ice_breath_lizalfos_tail -> "Ice-Breath Lizalfos Tail"
+| Monster_guts Blue_lizalfos_tail -> "Blue Lizalfos Tail"
+| Monster_guts Black_lizalfos_tail -> "Black Lizalfos Tail"
 | Dragon_scales Dinraal -> "Dinraal's Scale"
 | Dragon_scales Naydra -> "Naydra's Scale"
 | Dragon_scales Farosh -> "Farosh's Scale"
@@ -1037,31 +1074,31 @@ let ordered_totk =
        (* Boss_bokoblin_horn *)
        (* Blue_boss_bokoblin_horn *)
        Monster_horn Lizalfos_horn;
-       (* Blue_lizalfos_horn *)
-       (* Black_lizalfos_horn *)
-       (* Fire_breath_lizalfos_horn *)
-       (* Ice_breath_lizalfos_horn *)
-       (* Electric_lizalfos_horn *)
+       Monster_horn Blue_lizalfos_horn;
+       Monster_horn Black_lizalfos_horn;
+       Monster_horn Fire_breath_lizalfos_horn;
+       Monster_horn Ice_breath_lizalfos_horn;
+       Monster_horn Electric_lizalfos_horn;
        Monster_horn Hinox_toenail;
        Monster_fang Like_like_stone;
        Monster_fang Fire_like_stone;
        Monster_fang Ice_like_stone;
        Monster_fang Shock_like_stone;
        Monster_horn Moblin_horn;
-       (* Blue_moblin_horn *)
-       (* Black_moblin_horn *)
+       Monster_horn Blue_moblin_horn;
+       Monster_horn Black_moblin_horn;
        Monster_horn Horriblin_horn;
-       (* Blue_horriblin_horn *)
-       (* Black_horriblin_horn *)
+       Monster_horn Blue_horriblin_horn;
+       Monster_horn Black_horriblin_horn;
        (* Hinox_horn *)
        (* Blue_hinox_horn *)
        (* Black_hinox_horn *)
        Monster_guts Lizalfos_tail;
-       (* Blue_lizalfos_tail *)
-       (* Black_lizalfos_tail *)
-       (* Ice_breath_lizalfos_tail *)
-       (* Firebreath_breath_lizalfos_tail *)
-       (* Electric lizalfos tail goes here *)
+       Monster_guts Blue_lizalfos_tail;
+       Monster_guts Black_lizalfos_tail;
+       Monster_guts Ice_breath_lizalfos_tail;
+       Monster_guts Fire_breath_lizalfos_tail;
+       Monster_guts Electric_lizalfos_tail;
        Monster_horn Gibdo_bone;
        Monster_horn Octorok_tentacle;
        Monster_fang Bokoblin_fang;

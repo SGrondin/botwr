@@ -14,7 +14,16 @@ module Self = struct
     | Blue_bokoblin_horn
     | Lizalfos_horn
     | Gibdo_wing
+    | Blue_horriblin_horn
+    | Blue_moblin_horn
+    | Electric_lizalfos_horn
+    | Fire_breath_lizalfos_horn
+    | Ice_breath_lizalfos_horn
+    | Blue_lizalfos_horn
     | Black_bokoblin_horn
+    | Black_horriblin_horn
+    | Black_moblin_horn
+    | Black_lizalfos_horn
     | Gibdo_bone
     | Lynel_horn
     | Ancient_screw
@@ -58,6 +67,11 @@ module Self = struct
     | Molduga_guts
     | Keese_eyeball
     | Lizalfos_tail
+    | Electric_lizalfos_tail
+    | Fire_breath_lizalfos_tail
+    | Ice_breath_lizalfos_tail
+    | Blue_lizalfos_tail
+    | Black_lizalfos_tail
     | Icy_lizalfos_tail
     | Red_lizalfos_tail
     | Yellow_lizalfos_tail

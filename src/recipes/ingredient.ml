@@ -9,16 +9,22 @@ module Duration = struct
       }
   [@@deriving sexp, compare, equal, hash]
 
+  let base = function
+  | Always x
+   |Diminishing { first = x; _ } ->
+    x
+
   let merge ~count = function
   | Always x -> Always (x * count)
   | Diminishing { first; next } -> Always (first + (next * (count - 1)))
 
   let combine left right =
     match left, right with
-    | Always x, Always y -> Always (x + y)
-    | Always x, Diminishing { first; _ } -> Always (x + first)
-    | Diminishing { first; _ }, Always y -> Always (first + y)
-    | Diminishing { first = x; _ }, Diminishing { first = y; _ } -> Always (x + y)
+    | Always x, Always y
+     |Always x, Diminishing { first = y; _ }
+     |Diminishing { first = x; _ }, Always y
+     |Diminishing { first = x; _ }, Diminishing { first = y; _ } ->
+      Always (x + y)
 end
 
 module Hearts = struct
@@ -32,7 +38,7 @@ module Hearts = struct
       }
   [@@deriving sexp, compare, equal, hash]
 
-  let base_quarters = function
+  let base = function
   | Always (Quarters q)
    |Diminishing { first = Quarters q; _ } ->
     q
@@ -44,10 +50,10 @@ module Hearts = struct
 
   let combine left right =
     match left, right with
-    | Always (Quarters x), Always (Quarters y) -> Always (Quarters (x + y))
-    | Always (Quarters x), Diminishing { first = Quarters first; _ } -> Always (Quarters (x + first))
-    | Diminishing { first = Quarters first; _ }, Always (Quarters y) -> Always (Quarters (first + y))
-    | Diminishing { first = Quarters x; _ }, Diminishing { first = Quarters y; _ } ->
+    | Always (Quarters x), Always (Quarters y)
+     |Always (Quarters x), Diminishing { first = Quarters y; _ }
+     |Diminishing { first = Quarters x; _ }, Always (Quarters y)
+     |Diminishing { first = Quarters x; _ }, Diminishing { first = Quarters y; _ } ->
       Always (Quarters (x + y))
 end
 
@@ -212,7 +218,7 @@ module Effect = struct
      |Bright ->
       true
 
-    let availability = function
+    let availability : t -> Game.availability = function
     | Nothing
      |Neutral
      |Chilly
@@ -226,12 +232,12 @@ module Effect = struct
      |Sneaky
      |Spicy
      |Tough ->
-      Game.Both
+      Both
     | Sunny
      |Rapid
      |Sticky
      |Bright ->
-      Game.TOTK
+      TOTK
   end
 end
 

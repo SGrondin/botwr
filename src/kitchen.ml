@@ -406,7 +406,7 @@ let component ~game ~init_max_hearts ~init_max_stamina ~updates ?kind () =
     Stepper.component "gloomy_hearts" 1 ~min_value:1
       ~max_value:(max_hearts >>| fun (hearts, _) -> hearts - 1)
       ~update_kitchen New
-      ~render:(fun x -> List.init x ~f:(const (make_icon ~fill:Icon.fill_grey Sunny)) |> wrap_icon_list)
+      ~render:(fun x -> List.init x ~f:(const (make_icon ~fill:Icon.fill_grey Gloomy)) |> wrap_icon_list)
   in
   let%sub max_stamina =
     Stepper.component "max_stamina" ?start_value:init_max_stamina 5 ~min_value:5
@@ -428,7 +428,7 @@ let component ~game ~init_max_hearts ~init_max_stamina ~updates ?kind () =
   let%sub sunny_algo =
     Choices.component "sunny-algo" [%here]
       (module SunnyAlgo)
-      Full ~aria:"Radio button to select gloomy healing optimization algorithm"
+      Gloomy ~aria:"Radio button to select gloomy healing optimization algorithm"
   in
   let%sub kind = Bonsai.state_opt [%here] (module Ingredient.Effect.Kind) ?default_model:kind in
   return
