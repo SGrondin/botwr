@@ -43,9 +43,8 @@ let application =
           Node.div []
             [
               node;
-              Node.div [] [ Node.text "Work in progress!" ];
-              Node.div []
-                [ Node.text "The game is new, not all new monster parts have been tested and added yet" ];
+              Node.div [] [ Node.text "Some rarer monster parts have been left out" ];
+              Node.div [] [ Node.text "fuse them to weapons instead of cooking with them" ];
             ]
         | BOTW -> Node.div [] [ node ])
   in
