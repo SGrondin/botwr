@@ -393,13 +393,17 @@ type state = {
 
 let button_label = "Cook"
 
-let component ~game ~init_max_hearts ~init_max_stamina ~updates ?kind () =
+let component ~(game : Game.t Bonsai.Value.t) ~init_max_hearts ~init_max_stamina ~updates ?kind () =
   let%sub component = Bonsai.state [%here] (module Model) ~default_model:New in
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
     Stepper.component "max_hearts" ?start_value:init_max_hearts 5 ~min_value:3
-      ~max_value:(Bonsai.Value.return 30) ~update_kitchen New ~render:(fun x ->
-        List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
+      ~max_value:
+        (game >>| function
+         | BOTW -> 30
+         | TOTK -> 40)
+      ~update_kitchen New
+      ~render:(fun x -> List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
   in
 
   let%sub gloomy_hearts =
