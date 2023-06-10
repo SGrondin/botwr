@@ -1072,6 +1072,7 @@ let ordered_totk =
        Monster_fang Electric_keese_wing;
        Monster_horn Aerocuda_wing;
        Monster_horn Gibdo_wing;
+       Monster_fang Molduga_fin;
        Monster_horn Bokoblin_horn;
        Monster_horn Blue_bokoblin_horn;
        Monster_horn Black_bokoblin_horn;
@@ -1112,7 +1113,6 @@ let ordered_totk =
        Monster_fang Hinox_tooth;
        Monster_fang Horriblin_claw;
        Monster_fang Lizalfos_talon;
-       Monster_fang Molduga_fin;
        Dragon_scales Dinraal;
        Dragon_scales Naydra;
        Dragon_scales Farosh;
