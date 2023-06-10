@@ -1050,6 +1050,10 @@ let ordered_totk =
        Monster_guts Moblin_guts;
        Monster_guts Horriblin_guts;
        Monster_fang Gibdo_guts;
+       (* Boss_bokoblin_guts *)
+       (* Frox_guts *)
+       Monster_guts Lynel_guts;
+       Monster_guts Molduga_guts;
        Monster_guts Hinox_guts;
        Monster_fang Red_chuchu_jelly;
        Monster_fang White_chuchu_jelly;
@@ -1090,6 +1094,7 @@ let ordered_totk =
        Monster_horn Horriblin_horn;
        Monster_horn Blue_horriblin_horn;
        Monster_horn Black_horriblin_horn;
+       Monster_fang Lynel_hoof;
        (* Hinox_horn *)
        (* Blue_hinox_horn *)
        (* Black_hinox_horn *)
@@ -1107,10 +1112,7 @@ let ordered_totk =
        Monster_fang Hinox_tooth;
        Monster_fang Horriblin_claw;
        Monster_fang Lizalfos_talon;
-       Monster_fang Lynel_hoof;
-       Monster_guts Lynel_guts;
        Monster_fang Molduga_fin;
-       Monster_guts Molduga_guts;
        Dragon_scales Dinraal;
        Dragon_scales Naydra;
        Dragon_scales Farosh;
