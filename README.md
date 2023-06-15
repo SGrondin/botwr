@@ -1,6 +1,6 @@
 # BOTWR
 
-Everything runs browser-side, there is no backend, just flat files to serve over HTTP.
+Everything runs browser-side, there is no backend, just flat files served over HTTP.
 
 ### Local development
 
