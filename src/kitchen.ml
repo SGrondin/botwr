@@ -35,13 +35,13 @@ let get_heart_nodes (Ingredient.Hearts.Quarters actual) =
   in
   full_hearts @ remainder, label
 
-let render_hearts max_hearts : Cooking.Hearts.t -> (string * Node.t) option = function
+let render_hearts max_hearts ~game : Cooking.Hearts.t -> (string * Node.t) option = function
 | Nothing -> None
 | Restores (Quarters _ as x) ->
   let hearts, label = get_heart_nodes x in
   Some (sprintf "Hearts (%s)" (Option.value label ~default:"0"), wrap_icon_list hearts)
 | Full_plus_bonus x ->
-  let actual = min x (30 - max_hearts) in
+  let actual = min x (Game.max_hearts game - max_hearts) in
   let node =
     List.init max_hearts ~f:(const (make_icon Heart)) @ List.init actual ~f:(const (make_icon Hearty))
     |> wrap_icon_list
@@ -137,7 +137,7 @@ let render ~updates ~update_data ~game ~max_hearts ~max_stamina (basic : Optimiz
         sprintf "Error: %s" msg, None, None
     in
 
-    let hearts = meal >>| Cooking.Meal.hearts >>= render_hearts max_hearts in
+    let hearts = meal >>| Cooking.Meal.hearts >>= render_hearts ~game max_hearts in
     let stamina = meal >>| Cooking.Meal.stamina >>= render_stamina max_stamina in
 
     let effect, duration =
@@ -398,12 +398,8 @@ let component ~(game : Game.t Bonsai.Value.t) ~init_max_hearts ~init_max_stamina
   let%pattern_bind _, update_kitchen = component in
   let%sub max_hearts =
     Stepper.component "max_hearts" ?start_value:init_max_hearts 5 ~min_value:3
-      ~max_value:
-        (game >>| function
-         | BOTW -> 30
-         | TOTK -> 40)
-      ~update_kitchen New
-      ~render:(fun x -> List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
+      ~max_value:(game >>| Game.max_hearts) ~update_kitchen New ~render:(fun x ->
+        List.init x ~f:(const (make_icon Heart)) |> wrap_icon_list)
   in
 
   let%sub gloomy_hearts =

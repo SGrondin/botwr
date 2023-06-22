@@ -9,6 +9,10 @@ let to_string = function
 | BOTW -> "Breath of the Wild"
 | TOTK -> "Tears of the Kingdom"
 
+let max_hearts = function
+| BOTW -> 30
+| TOTK -> 40
+
 type availability =
   | BOTW
   | TOTK

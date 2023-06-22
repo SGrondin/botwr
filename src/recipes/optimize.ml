@@ -208,7 +208,7 @@ type folder = {
   third: int * Recipe.t list;
 }
 
-let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind (list : Ingredient.t list list) =
+let combine ~max_hearts ~max_stamina ~gloomy_hearts ~game ~algo ~kind (list : Ingredient.t list list) =
   let f ({ i; first = score1, ll1; second = score2, ll2; third = score3, ll3 } as acc) (recipe : Recipe.t)
       =
     match cook recipe with
@@ -218,7 +218,7 @@ let combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind (list : Ingredie
     | Food meal
      |Elixir meal
      |Tonic meal ->
-      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind meal in
+      let score = Meal.score ~max_hearts ~max_stamina ~gloomy_hearts ~game ~algo ~kind meal in
       if score < score3
       then { acc with i = i + 1 }
       else if score = score3
@@ -320,7 +320,7 @@ let run { game; max_hearts; max_stamina; gloomy_hearts; algo; kind; category; us
   let grouped = group items in
   let { i = count; first; second; third } =
     filter ~game ~kind ~category ~use_special grouped
-    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~algo ~kind
+    |> combine ~max_hearts ~max_stamina ~gloomy_hearts ~game ~algo ~kind
   in
   let iterations = top_sort grouped [ first; second; third ] in
   let duration = diff_time r in

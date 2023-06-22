@@ -1608,7 +1608,8 @@ let%expect_test "Cooking by category, basic" =
     ~algo:Balanced data14;
   test ~kind:Fireproof ~game:TOTK ~max_hearts:10 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
     ~algo:Maximize data14;
-  [%expect {|
+  [%expect
+    {|
     (0s)
     477 pts (6885, -1.000000)
     Chuchu Jelly, Fireproof Lizard, Smotherwing Butterfly x3
@@ -1646,12 +1647,66 @@ let%expect_test "Cooking by category, basic" =
     (Elixir
      ((hearts Nothing) (stamina Nothing)
       (effect (Fireproof ((potency 2) (wasted 0) (duration 670)))) (fused 5)
-      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}]
+      (num_ingredients 5) (num_effect_ingredients 4) (random_effects ()))) |}];
+
+  let data15 =
+    Glossary.
+      [
+        Hearty_radish, 5;
+        Big_hearty_radish, 5;
+        Hearty_truffle, 5;
+        Big_hearty_truffle, 5;
+        Hearty_salmon, 5;
+        Hearty_bass, 5;
+        Hearty_blueshell_snail, 5;
+      ]
+  in
+  (* For BOTW 34 is not possible in the UI *)
+  test ~kind:Hearty ~game:BOTW ~max_hearts:34 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+    ~algo:Maximize data15;
+  test ~kind:Hearty ~game:TOTK ~max_hearts:34 ~max_stamina:10 ~gloomy_hearts:0 ~category:Any
+    ~algo:Maximize data15;
+  [%expect
+    {|
+    (0s)
+    209 pts (384167, -0.200000)
+    Hearty Truffle
+    (Food
+     ((hearts (Full_plus_bonus 1)) (stamina Nothing) (effect Nothing) (fused 1)
+      (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
+    207 pts (384167, -0.200000)
+    Hearty Bass
+    (Food
+     ((hearts (Full_plus_bonus 2)) (stamina Nothing) (effect Nothing) (fused 1)
+      (num_ingredients 1) (num_effect_ingredients 1) (random_effects ())))
+    206 pts (384167, -0.400000)
+    Hearty Truffle x2
+    (Food
+     ((hearts (Full_plus_bonus 2)) (stamina Nothing) (effect Nothing) (fused 2)
+      (num_ingredients 2) (num_effect_ingredients 2) (random_effects ())))
+    (0s)
+    258 pts (384167, -0.400000)
+    Hearty Blueshell Snail x2
+    (Food
+     ((hearts (Full_plus_bonus 6)) (stamina Nothing) (effect Nothing) (fused 2)
+      (num_ingredients 2) (num_effect_ingredients 2) (random_effects ())))
+    258 pts (384167, -0.400000)
+    Hearty Radish x2
+    (Food
+     ((hearts (Full_plus_bonus 6)) (stamina Nothing) (effect Nothing) (fused 2)
+      (num_ingredients 2) (num_effect_ingredients 2) (random_effects ())))
+    258 pts (384167, -0.400000)
+    Hearty Blueshell Snail, Hearty Radish
+    (Food
+     ((hearts (Full_plus_bonus 6)) (stamina Nothing) (effect Nothing) (fused 2)
+      (num_ingredients 2) (num_effect_ingredients 2) (random_effects ()))) |}]
 
 let%expect_test "Scoring" =
   let test_hearts ?(max_hearts = 20) ?(gloomy_hearts = 3) ~algo x =
     print_endline (sprintf !"%{sexp: Cooking.Hearts.t}" x);
-    Cooking.Hearts.score ~max_hearts ~gloomy_hearts ~algo x |> Int.to_string |> print_endline
+    Cooking.Hearts.score ~max_hearts ~gloomy_hearts ~game:Game.TOTK ~algo x
+    |> Int.to_string
+    |> print_endline
   in
   test_hearts (Unglooms (3, Quarters 4)) ~algo:Balanced;
   test_hearts (Unglooms (3, Quarters 4)) ~algo:Maximize;
